@@ -1,0 +1,10 @@
+# Package for pipeline domain logic
+#
+# This pack encapsulates the core data models and business logic for
+# AI image generation pipelines, including Pipeline, PipelineStep, and ImageCandidate.
+
+enforce_dependencies: true
+dependencies:
+  - "."
+metadata:
+  owner: Platform Team

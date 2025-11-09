@@ -44,4 +44,16 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  # Testing framework
+  gem "rspec-rails", "~> 7.0"
+  gem "factory_bot_rails", "~> 6.4"
+  gem "shoulda-matchers", "~> 6.0"
+  gem "faker", "~> 3.2"
 end
+
+# Packs for modular Rails architecture
+gem "packs-rails"
+
+# State machines for model state management
+gem "state_machines-activerecord", "~> 0.9"

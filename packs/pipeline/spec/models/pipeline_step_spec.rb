@@ -49,4 +49,37 @@ RSpec.describe PipelineStep, type: :model do
       expect(step.errors[:order]).to be_present
     end
   end
+
+  describe "variable requirement flags" do
+    it "defaults all flags to false" do
+      step = FactoryBot.create(:pipeline_step)
+      expect(step.needs_run_prompt).to be false
+      expect(step.needs_parent_image_path).to be false
+      expect(step.needs_run_variables).to be false
+    end
+
+    it "allows setting needs_run_prompt" do
+      step = FactoryBot.create(:pipeline_step, needs_run_prompt: true)
+      expect(step.needs_run_prompt).to be true
+    end
+
+    it "allows setting needs_parent_image_path" do
+      step = FactoryBot.create(:pipeline_step, needs_parent_image_path: true)
+      expect(step.needs_parent_image_path).to be true
+    end
+
+    it "allows setting needs_run_variables" do
+      step = FactoryBot.create(:pipeline_step, needs_run_variables: true)
+      expect(step.needs_run_variables).to be true
+    end
+
+    it "allows setting multiple flags" do
+      step = FactoryBot.create(:pipeline_step,
+        needs_run_prompt: true,
+        needs_parent_image_path: true)
+
+      expect(step.needs_run_prompt).to be true
+      expect(step.needs_parent_image_path).to be true
+    end
+  end
 end

@@ -3,6 +3,7 @@ require "rails_helper"
 RSpec.describe ImageCandidate, type: :model do
   describe "associations" do
     it { should belong_to(:pipeline_step) }
+    it { should belong_to(:pipeline_run).optional }
     it { should belong_to(:parent).class_name("ImageCandidate").optional }
     it { should have_many(:children).class_name("ImageCandidate").with_foreign_key(:parent_id).dependent(:nullify) }
   end
@@ -102,6 +103,32 @@ RSpec.describe ImageCandidate, type: :model do
       candidate = FactoryBot.build(:image_candidate, child_count: -1)
       expect(candidate).not_to be_valid
       expect(candidate.errors[:child_count]).to be_present
+    end
+  end
+
+  describe "pipeline run association" do
+    it "allows candidate to belong to a pipeline run" do
+      run = FactoryBot.create(:pipeline_run)
+      step = FactoryBot.create(:pipeline_step, pipeline: run.pipeline)
+      candidate = FactoryBot.create(:image_candidate, pipeline_step: step, pipeline_run: run)
+
+      expect(candidate.pipeline_run).to eq(run)
+    end
+
+    it "allows backwards compatibility with nil pipeline_run" do
+      candidate = FactoryBot.create(:image_candidate, pipeline_run: nil)
+      expect(candidate.pipeline_run).to be_nil
+      expect(candidate).to be_valid
+    end
+
+    it "allows multiple candidates for same run" do
+      run = FactoryBot.create(:pipeline_run)
+      step = FactoryBot.create(:pipeline_step, pipeline: run.pipeline)
+
+      candidate1 = FactoryBot.create(:image_candidate, pipeline_step: step, pipeline_run: run)
+      candidate2 = FactoryBot.create(:image_candidate, pipeline_step: step, pipeline_run: run)
+
+      expect(run.image_candidates).to contain_exactly(candidate1, candidate2)
     end
   end
 end

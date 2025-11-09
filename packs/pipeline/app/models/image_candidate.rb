@@ -1,5 +1,6 @@
 class ImageCandidate < ApplicationRecord
   belongs_to :pipeline_step
+  belongs_to :pipeline_run, optional: true
   belongs_to :parent, class_name: "ImageCandidate", optional: true, counter_cache: :child_count
   has_many :children, class_name: "ImageCandidate", foreign_key: :parent_id, dependent: :nullify
 

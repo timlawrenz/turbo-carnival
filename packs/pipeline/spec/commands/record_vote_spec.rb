@@ -3,13 +3,33 @@ require "rails_helper"
 RSpec.describe RecordVote do
   describe "#call" do
     it "updates ELO scores for both candidates" do
-      winner = FactoryBot.create(:image_candidate, elo_score: 1000)
-      loser = FactoryBot.create(:image_candidate, elo_score: 1000)
+      winner = FactoryBot.create(:image_candidate, elo_score: 1000, vote_count: 0)
+      loser = FactoryBot.create(:image_candidate, elo_score: 1000, vote_count: 0)
 
       described_class.call!(winner: winner, loser: loser)
 
       expect(winner.reload.elo_score).to eq(1016)
       expect(loser.reload.elo_score).to eq(984)
+    end
+
+    it "increments vote_count for both candidates" do
+      winner = FactoryBot.create(:image_candidate, vote_count: 0)
+      loser = FactoryBot.create(:image_candidate, vote_count: 0)
+
+      described_class.call!(winner: winner, loser: loser)
+
+      expect(winner.reload.vote_count).to eq(1)
+      expect(loser.reload.vote_count).to eq(1)
+    end
+
+    it "increments vote_count from existing values" do
+      winner = FactoryBot.create(:image_candidate, vote_count: 5)
+      loser = FactoryBot.create(:image_candidate, vote_count: 3)
+
+      described_class.call!(winner: winner, loser: loser)
+
+      expect(winner.reload.vote_count).to eq(6)
+      expect(loser.reload.vote_count).to eq(4)
     end
 
     it "gives larger ELO gain to underdog winner" do
@@ -46,6 +66,7 @@ RSpec.describe RecordVote do
 
       # Winner's score should also be rolled back
       expect(winner.reload.elo_score).to eq(1000)
+      expect(winner.reload.vote_count).to eq(0)
     end
   end
 end

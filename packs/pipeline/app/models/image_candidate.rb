@@ -7,6 +7,7 @@ class ImageCandidate < ApplicationRecord
   validates :elo_score, numericality: { only_integer: true }
   validates :status, inclusion: { in: %w[active rejected] }
   validates :child_count, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+  validates :vote_count, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 
   state_machine :status, initial: :active do
     state :active
@@ -35,9 +36,18 @@ class ImageCandidate < ApplicationRecord
 
   def self.unvoted_pairs(pipeline_step)
     candidates = where(pipeline_step: pipeline_step, status: "active")
-                  .order(:id)
+                  .order(:vote_count, :id)
                   .to_a
 
-    candidates.combination(2).to_a
+    return [] if candidates.empty?
+
+    # Generate all possible pairs
+    all_pairs = candidates.combination(2).to_a
+
+    # Sort pairs by the sum of vote counts (prioritize pairs with lower total votes)
+    all_pairs.sort_by! { |a, b| a.vote_count + b.vote_count }
+
+    # Shuffle to add variety while maintaining general prioritization
+    all_pairs.shuffle
   end
 end

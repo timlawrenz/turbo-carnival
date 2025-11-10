@@ -6,5 +6,6 @@ FactoryBot.define do
     elo_score { 1000 }
     status { "active" }
     child_count { 0 }
+    vote_count { 0 }
   end
 end

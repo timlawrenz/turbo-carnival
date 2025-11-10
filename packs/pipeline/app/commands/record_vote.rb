@@ -6,8 +6,14 @@ class RecordVote < GLCommand::Callable
       winner_change = context.winner.calculate_elo_change(context.loser, true)
       loser_change = context.loser.calculate_elo_change(context.winner, false)
 
-      context.winner.update!(elo_score: context.winner.elo_score + winner_change)
-      context.loser.update!(elo_score: context.loser.elo_score + loser_change)
+      context.winner.update!(
+        elo_score: context.winner.elo_score + winner_change,
+        vote_count: context.winner.vote_count + 1
+      )
+      context.loser.update!(
+        elo_score: context.loser.elo_score + loser_change,
+        vote_count: context.loser.vote_count + 1
+      )
     end
   end
 

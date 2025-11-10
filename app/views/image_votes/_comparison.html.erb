@@ -13,7 +13,7 @@
       <%= f.button type: "submit", class: "w-full bg-gray-800 rounded-lg overflow-hidden shadow-xl hover:shadow-2xl transition-all hover:scale-105 cursor-pointer text-left" do %>
         <div class="p-4 bg-gray-800 border-b border-gray-700">
           <div>
-            <p class="text-white font-semibold"><%= candidate_a.pipeline_step.name %></p>
+            <p class="text-white font-semibold"><%= candidate_a.pipeline_step.name %> (Step <%= candidate_a.pipeline_step.order %>)</p>
             <p class="text-gray-400 text-sm">ELO: <%= candidate_a.elo_score %></p>
           </div>
         </div>
@@ -35,7 +35,7 @@
       <%= f.button type: "submit", class: "w-full bg-gray-800 rounded-lg overflow-hidden shadow-xl hover:shadow-2xl transition-all hover:scale-105 cursor-pointer text-left" do %>
         <div class="p-4 bg-gray-800 border-b border-gray-700">
           <div>
-            <p class="text-white font-semibold"><%= candidate_b.pipeline_step.name %></p>
+            <p class="text-white font-semibold"><%= candidate_b.pipeline_step.name %> (Step <%= candidate_b.pipeline_step.order %>)</p>
             <p class="text-gray-400 text-sm">ELO: <%= candidate_b.elo_score %></p>
           </div>
         </div>

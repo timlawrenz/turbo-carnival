@@ -4,6 +4,16 @@ class JobSubmitterWorker
   sidekiq_options queue: :job_submission, retry: 3
 
   def perform
+    # Only submit if no jobs are currently in flight
+    # This ensures we wait for ComfyUI to complete before submitting the next job
+    in_flight_count = ComfyuiJob.in_flight.count
+    
+    if in_flight_count > 0
+      Rails.logger.info("JobSubmitterWorker: #{in_flight_count} jobs in flight, waiting...")
+      schedule_next_run
+      return
+    end
+
     result = SelectNextJob.call
 
     case result.mode

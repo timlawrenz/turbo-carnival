@@ -2,6 +2,7 @@ class ComfyuiJob < ApplicationRecord
   belongs_to :pipeline_run
   belongs_to :pipeline_step
   belongs_to :image_candidate, optional: true
+  belongs_to :parent_candidate, class_name: "ImageCandidate", optional: true
 
   validates :status, presence: true
   validates :job_payload, presence: true

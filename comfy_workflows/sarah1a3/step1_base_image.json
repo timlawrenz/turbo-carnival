@@ -397,7 +397,7 @@
   },
   "122": {
     "inputs": {
-      "filename_prefix": "sarah1a3/{{run_name}}_base_image_",
+      "filename_prefix": "sarah1a3/{{run_name}}/base",
       "images": [
         "77",
         0

@@ -1,0 +1,9 @@
+<div class="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+  <div id="voting-interface" class="w-full max-w-7xl">
+    <% if @pair %>
+      <%= render "comparison", candidate_a: @candidate_a, candidate_b: @candidate_b %>
+    <% else %>
+      <%= render "complete" %>
+    <% end %>
+  </div>
+</div>

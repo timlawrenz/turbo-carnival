@@ -56,6 +56,11 @@ class BuildJobPayload < GLCommand::Callable
     variables["timestamp_ms"] = (Time.now.to_f * 1000).to_i
     variables["random"] = rand(1_000_000_000)
     
+    # Add parent image path if available
+    if context.parent_candidate
+      variables["parent_image_path"] = context.parent_candidate.image_path
+    end
+    
     variables
   end
 

@@ -67,12 +67,20 @@ class SelectNextJob < GLCommand::Callable
       ).count
 
       if active_count < target
-        # Deficit detected - trigger base generation
+        # Check if we already have enough jobs in flight for the first step
         first_step = pipeline.pipeline_steps.first
-        context.parent_candidate = nil
-        context.next_step = first_step
-        context.mode = :base_generation
-        return
+        in_flight_count = ComfyuiJob.where(
+          pipeline_step: first_step,
+          status: %w[pending submitted running]
+        ).count
+        
+        # Only trigger base generation if we don't have enough jobs in flight
+        if in_flight_count < target
+          context.parent_candidate = nil
+          context.next_step = first_step
+          context.mode = :base_generation
+          return
+        end
       end
     end
 

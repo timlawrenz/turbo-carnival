@@ -29,6 +29,11 @@ class JobPollerWorker
   end
 
   def schedule_next_run
+    require 'sidekiq/api'
+    
+    scheduled_jobs = Sidekiq::ScheduledSet.new.select { |job| job.klass == self.class.name }
+    return if scheduled_jobs.any?
+    
     interval = ENV.fetch("COMFYUI_POLL_INTERVAL", 5).to_i
     self.class.perform_in(interval.seconds)
   end

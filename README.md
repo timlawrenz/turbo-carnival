@@ -46,6 +46,21 @@ bin/packwerk validate
 bundle exec rubocop
 ```
 
+### Quick Start: Voting Interface
+
+The voting interface allows you to curate generated images using ELO-based ranking:
+
+```bash
+# Start the Rails server
+bin/rails server
+
+# Visit the voting interface
+open http://localhost:3000/vote
+
+# Vote by clicking on the better image
+# Use "Kill" buttons to reject bad image branches
+```
+
 ### Quick Start: Running Pipelines
 
 ```bash
@@ -825,6 +840,16 @@ All core functionality is implemented and tested. The system can autonomously:
   - JobPollerWorker: Polls in-flight jobs and processes completions
 - Comprehensive test coverage
 
+**Image Voting & Curation** ✅
+- ELO-based A vs B voting interface
+- Triage-right strategy (prioritizes rightmost/completed images)
+- Kill-left navigation for branch rejection
+- RecordVote command with transaction safety
+- RejectImageBranch command to prune failed branches
+- Secure image serving through Rails (GET /images/:id)
+- Responsive dark UI with Tailwind CSS
+- 82 passing specs including vote recording and image serving
+
 **Developer Tools** ✅
 - Rake task: `pipeline:setup_example` - Creates complete 4-step pipeline
 - Rake task: `pipeline:create_run` - Quick run creation from CLI
@@ -832,10 +857,11 @@ All core functionality is implemented and tested. The system can autonomously:
 
 ### Test Coverage
 
-- **144 passing specs** across all packs
-- Pipeline pack: 55 specs
+- **226+ passing specs** across all packs
+- Pipeline pack: 79 specs (including voting tests)
 - Job Orchestration: 25 specs
 - ComfyUI Integration: 51 specs
+- Request specs: 9 specs
 - Developer Tools: 13 specs
 - Zero failures
 - 100% Packwerk compliance

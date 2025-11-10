@@ -5,6 +5,14 @@ Rails.application.routes.draw do
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
 
+  # Voting interface
+  get "vote" => "image_votes#show", as: :vote
+  post "vote" => "image_votes#vote"
+  post "vote/reject/:id" => "image_votes#reject", as: :reject_vote
+
+  # Image serving
+  get "images/:id" => "images#show", as: :candidate_image
+
   # Defines the root path route ("/")
-  # root "posts#index"
+  root "image_votes#show"
 end

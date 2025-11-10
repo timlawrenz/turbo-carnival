@@ -13,6 +13,10 @@ class JobSubmitterWorker
     when :no_work
       schedule_next_run
     end
+  rescue StandardError => e
+    Rails.logger.error("JobSubmitterWorker failed: #{e.class} - #{e.message}")
+    Rails.logger.error(e.backtrace.join("\n"))
+    schedule_next_run
   end
 
   private
@@ -32,7 +36,10 @@ class JobSubmitterWorker
       parent_candidate: select_result.parent_candidate
     )
 
-    return unless payload_result.success?
+    unless payload_result.success?
+      Rails.logger.error("BuildJobPayload failed for step #{select_result.next_step.id}: #{payload_result.error}")
+      return
+    end
 
     SubmitJob.call(
       job_payload: payload_result.job_payload,
@@ -51,6 +58,11 @@ class JobSubmitterWorker
   end
 
   def schedule_next_run
+    require 'sidekiq/api'
+    
+    scheduled_jobs = Sidekiq::ScheduledSet.new.select { |job| job.klass == self.class.name }
+    return if scheduled_jobs.any?
+    
     interval = ENV.fetch("COMFYUI_SUBMIT_INTERVAL", 10).to_i
     self.class.perform_in(interval.seconds)
   end

@@ -1,0 +1,6 @@
+---
+:concurrency: 5
+:queues:
+  - job_submission
+  - job_polling
+  - default

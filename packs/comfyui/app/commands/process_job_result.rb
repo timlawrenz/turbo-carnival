@@ -28,8 +28,8 @@ class ProcessJobResult < GLCommand::Callable
       status: "active"
     )
 
-    # Link the job to the created candidate (if column exists)
-    # job.update!(image_candidate: candidate) rescue nil
+    # Link the job to the created candidate
+    job.update!(image_candidate: candidate)
 
     context.image_candidate = candidate
   end

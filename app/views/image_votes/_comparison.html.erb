@@ -1,0 +1,57 @@
+<div class="space-y-6">
+  <div class="text-center text-white mb-8">
+    <h1 class="text-3xl font-bold mb-2">Vote for the Better Image</h1>
+    <p class="text-gray-400">Click an image to vote for it • Click "Kill" to reject and navigate to parent</p>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-8">
+    <!-- Left Image -->
+    <%= form_with url: vote_path, method: :post do |f| %>
+      <%= f.hidden_field :winner_id, value: candidate_a.id %>
+      <%= f.hidden_field :loser_id, value: candidate_b.id %>
+      
+      <%= f.button type: "submit", class: "w-full bg-gray-800 rounded-lg overflow-hidden shadow-xl hover:shadow-2xl transition-all hover:scale-105 cursor-pointer text-left" do %>
+        <div class="aspect-square bg-gray-700 flex items-center justify-center">
+          <% if candidate_a.image_path.present? %>
+            <%= image_tag candidate_image_path(candidate_a), class: "w-full h-full object-contain", alt: "Candidate A" %>
+          <% else %>
+            <span class="text-gray-500 text-xl">Image A (ID: <%= candidate_a.id %>)</span>
+          <% end %>
+        </div>
+        <div class="p-4 bg-gray-800 border-t border-gray-700">
+          <div>
+            <p class="text-white font-semibold"><%= candidate_a.pipeline_step.name %></p>
+            <p class="text-gray-400 text-sm">ELO: <%= candidate_a.elo_score %></p>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+
+    <!-- Right Image -->
+    <%= form_with url: vote_path, method: :post do |f| %>
+      <%= f.hidden_field :winner_id, value: candidate_b.id %>
+      <%= f.hidden_field :loser_id, value: candidate_a.id %>
+      
+      <%= f.button type: "submit", class: "w-full bg-gray-800 rounded-lg overflow-hidden shadow-xl hover:shadow-2xl transition-all hover:scale-105 cursor-pointer text-left" do %>
+        <div class="aspect-square bg-gray-700 flex items-center justify-center">
+          <% if candidate_b.image_path.present? %>
+            <%= image_tag candidate_image_path(candidate_b), class: "w-full h-full object-contain", alt: "Candidate B" %>
+          <% else %>
+            <span class="text-gray-500 text-xl">Image B (ID: <%= candidate_b.id %>)</span>
+          <% end %>
+        </div>
+        <div class="p-4 bg-gray-800 border-t border-gray-700">
+          <div>
+            <p class="text-white font-semibold"><%= candidate_b.pipeline_step.name %></p>
+            <p class="text-gray-400 text-sm">ELO: <%= candidate_b.elo_score %></p>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="flex justify-center gap-4 mt-8">
+    <%= button_to "Kill Left Image", reject_vote_path(candidate_a), method: :post, class: "px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors" %>
+    <%= button_to "Kill Right Image", reject_vote_path(candidate_b), method: :post, class: "px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors" %>
+  </div>
+</div>

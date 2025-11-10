@@ -131,4 +131,93 @@ RSpec.describe ImageCandidate, type: :model do
       expect(run.image_candidates).to contain_exactly(candidate1, candidate2)
     end
   end
+
+  describe "#calculate_elo_change" do
+    it "calculates equal gain/loss for evenly matched candidates" do
+      candidate_a = FactoryBot.create(:image_candidate, elo_score: 1000)
+      candidate_b = FactoryBot.create(:image_candidate, elo_score: 1000)
+
+      change = candidate_a.calculate_elo_change(candidate_b, true)
+      expect(change).to eq(16)
+    end
+
+    it "calculates larger gain for underdog winning" do
+      underdog = FactoryBot.create(:image_candidate, elo_score: 800)
+      favorite = FactoryBot.create(:image_candidate, elo_score: 1200)
+
+      change = underdog.calculate_elo_change(favorite, true)
+      expect(change).to be > 16
+    end
+
+    it "calculates smaller gain for favorite winning" do
+      favorite = FactoryBot.create(:image_candidate, elo_score: 1200)
+      underdog = FactoryBot.create(:image_candidate, elo_score: 800)
+
+      change = favorite.calculate_elo_change(underdog, true)
+      expect(change).to be < 16
+    end
+
+    it "calculates negative change for losing" do
+      candidate_a = FactoryBot.create(:image_candidate, elo_score: 1000)
+      candidate_b = FactoryBot.create(:image_candidate, elo_score: 1000)
+
+      change = candidate_a.calculate_elo_change(candidate_b, false)
+      expect(change).to eq(-16)
+    end
+  end
+
+  describe "#parent_with_sibling" do
+    it "returns nil for root candidate" do
+      root = FactoryBot.create(:image_candidate, parent: nil)
+      expect(root.parent_with_sibling).to be_nil
+    end
+
+    it "returns parent and sibling for candidate with siblings" do
+      parent = FactoryBot.create(:image_candidate)
+      child1 = FactoryBot.create(:image_candidate, parent: parent)
+      child2 = FactoryBot.create(:image_candidate, parent: parent)
+
+      result = child1.parent_with_sibling
+      expect(result[:parent]).to eq(parent)
+      expect(result[:sibling]).to eq(child2)
+    end
+
+    it "returns parent with nil sibling when no siblings exist" do
+      parent = FactoryBot.create(:image_candidate)
+      only_child = FactoryBot.create(:image_candidate, parent: parent)
+
+      result = only_child.parent_with_sibling
+      expect(result[:parent]).to eq(parent)
+      expect(result[:sibling]).to be_nil
+    end
+  end
+
+  describe ".unvoted_pairs" do
+    it "returns all possible pairs for a pipeline step" do
+      step = FactoryBot.create(:pipeline_step)
+      c1 = FactoryBot.create(:image_candidate, pipeline_step: step)
+      c2 = FactoryBot.create(:image_candidate, pipeline_step: step)
+      c3 = FactoryBot.create(:image_candidate, pipeline_step: step)
+
+      pairs = ImageCandidate.unvoted_pairs(step)
+      expect(pairs.length).to eq(3) # [c1,c2], [c1,c3], [c2,c3]
+    end
+
+    it "excludes rejected candidates from pairs" do
+      step = FactoryBot.create(:pipeline_step)
+      c1 = FactoryBot.create(:image_candidate, pipeline_step: step)
+      c2 = FactoryBot.create(:image_candidate, pipeline_step: step, status: "rejected")
+      c3 = FactoryBot.create(:image_candidate, pipeline_step: step)
+
+      pairs = ImageCandidate.unvoted_pairs(step)
+      expect(pairs.length).to eq(1) # only [c1,c3]
+      expect(pairs.first).to eq([c1, c3])
+    end
+
+    it "returns empty array when no candidates exist" do
+      step = FactoryBot.create(:pipeline_step)
+      pairs = ImageCandidate.unvoted_pairs(step)
+      expect(pairs).to be_empty
+    end
+  end
 end

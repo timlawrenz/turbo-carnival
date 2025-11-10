@@ -50,6 +50,7 @@ group :development, :test do
   gem "factory_bot_rails", "~> 6.4"
   gem "shoulda-matchers", "~> 6.0"
   gem "faker", "~> 3.2"
+  gem "climate_control", "~> 1.2"
 end
 
 # Packs for modular Rails architecture
@@ -57,3 +58,6 @@ gem "packs-rails"
 
 # State machines for model state management
 gem "state_machines-activerecord", "~> 0.9"
+
+# GLCommand for business logic command pattern
+gem "gl_command", "~> 1.4"

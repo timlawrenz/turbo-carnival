@@ -1,0 +1,11 @@
+# Package for job orchestration logic
+#
+# This pack implements the core job selection algorithm for deciding which
+# ComfyUI job to run next. Depends on the pipeline pack for data access.
+
+enforce_dependencies: true
+dependencies:
+  - "."
+  - "packs/pipeline"
+metadata:
+  owner: Platform Team

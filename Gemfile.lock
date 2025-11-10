@@ -89,6 +89,7 @@ GEM
     brakeman (7.1.1)
       racc
     builder (3.3.0)
+    climate_control (1.2.0)
     code_ownership (2.0.0)
       code_teams (~> 1.0)
       packs-specification
@@ -133,6 +134,13 @@ GEM
     fugit (1.12.1)
       et-orbi (~> 1.4)
       raabro (~> 1.4)
+    gl_command (1.4.0)
+      activerecord (>= 3.2.0)
+      gl_exception_notifier (>= 1.0.2)
+    gl_exception_notifier (1.0.2)
+      sentry-rails
+      sentry-ruby
+      sentry-sidekiq
     globalid (1.3.0)
       activesupport (>= 6.1)
     i18n (1.14.7)
@@ -294,6 +302,8 @@ GEM
       erb
       psych (>= 4.0.0)
       tsort
+    redis-client (0.26.1)
+      connection_pool
     regexp_parser (2.11.3)
     reline (0.6.2)
       io-console (~> 0.5)
@@ -344,8 +354,23 @@ GEM
       rubocop-rails (>= 2.30)
     ruby-progressbar (1.13.0)
     securerandom (0.4.1)
+    sentry-rails (6.1.0)
+      railties (>= 5.2.0)
+      sentry-ruby (~> 6.1.0)
+    sentry-ruby (6.1.0)
+      bigdecimal
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+    sentry-sidekiq (6.1.0)
+      sentry-ruby (~> 6.1.0)
+      sidekiq (>= 5.0)
     shoulda-matchers (6.5.0)
       activesupport (>= 5.2.0)
+    sidekiq (8.0.9)
+      connection_pool (>= 2.5.0)
+      json (>= 2.9.0)
+      logger (>= 1.6.2)
+      rack (>= 3.1.0)
+      redis-client (>= 0.23.2)
     smart_properties (1.17.0)
     solid_cable (3.0.12)
       actioncable (>= 7.2)
@@ -422,9 +447,11 @@ PLATFORMS
 DEPENDENCIES
   bootsnap
   brakeman
+  climate_control (~> 1.2)
   debug
   factory_bot_rails (~> 6.4)
   faker (~> 3.2)
+  gl_command (~> 1.4)
   kamal
   packs-rails
   pg (~> 1.1)

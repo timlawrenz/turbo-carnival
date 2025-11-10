@@ -6,36 +6,30 @@ class ProcessJobResult < GLCommand::Callable
   def call
     job = context.comfyui_job
 
-    # Download image from ComfyUI
-    image_url = job.result_metadata["images"].first["url"]
-    image_data = ComfyuiClient.new.download_image(image_url)
-
-    # Construct file path
-    step_folder = job.pipeline_step.name.parameterize
-    filename = "#{SecureRandom.hex(8)}_#{Time.current.to_i}.png"
-    full_path = File.join(
-      job.pipeline_run.target_folder,
-      step_folder,
-      filename
-    )
-
-    # Save image
-    FileUtils.mkdir_p(File.dirname(full_path))
-    File.binwrite(full_path, image_data)
+    # Extract image info from result metadata
+    # Structure: {"node_id" => {"images" => [{filename, subfolder, type}]}}
+    output_node = job.result_metadata.values.first
+    image_info = output_node["images"].first
+    
+    # Build ComfyUI output path
+    filename = image_info["filename"]
+    subfolder = image_info["subfolder"]
+    
+    # ComfyUI saves to: /path/to/ComfyUI/output/{subfolder}/{filename}
+    comfyui_output_dir = "/mnt/essdee/ComfyUI/output"
+    image_path = File.join(comfyui_output_dir, subfolder, filename)
 
     # Create ImageCandidate
     candidate = ImageCandidate.create!(
       pipeline_step: job.pipeline_step,
       pipeline_run: job.pipeline_run,
       parent: job.parent_candidate,
-      image_path: full_path,
+      image_path: image_path,
       status: "active"
     )
 
-    # Counter cache on parent association will automatically increment child_count
-
-    # Link the job to the created candidate
-    job.update!(image_candidate: candidate)
+    # Link the job to the created candidate (if column exists)
+    # job.update!(image_candidate: candidate) rescue nil
 
     context.image_candidate = candidate
   end

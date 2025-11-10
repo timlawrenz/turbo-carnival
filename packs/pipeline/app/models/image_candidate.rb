@@ -47,7 +47,6 @@ class ImageCandidate < ApplicationRecord
     # Sort pairs by the sum of vote counts (prioritize pairs with lower total votes)
     all_pairs.sort_by! { |a, b| a.vote_count + b.vote_count }
 
-    # Shuffle to add variety while maintaining general prioritization
-    all_pairs.shuffle
+    all_pairs
   end
 end

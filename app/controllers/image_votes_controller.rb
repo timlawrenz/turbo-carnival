@@ -33,7 +33,7 @@ class ImageVotesController < ApplicationController
 
     pipeline_steps.each do |step|
       pairs = ImageCandidate.unvoted_pairs(step)
-      return pairs.first if pairs.any?
+      return pairs.sample if pairs.any?  # Use .sample instead of .first for random selection
     end
 
     nil

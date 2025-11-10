@@ -40,7 +40,9 @@ RSpec.describe SubmitJob do
       end
 
       it "submits workflow to ComfyUI API" do
-        expect(comfyui_client).to receive(:submit_workflow).with(job_payload[:workflow]).and_return(comfyui_response)
+        # The workflow is converted to JSON and back during job variable substitution
+        # so we expect the stringified version
+        expect(comfyui_client).to receive(:submit_workflow).with(job_payload[:workflow].deep_stringify_keys).and_return(comfyui_response)
 
         described_class.call(
           job_payload: job_payload,

@@ -5,7 +5,12 @@ class BuildJobPayload < GLCommand::Callable
   returns :job_payload
 
   def call
-    workflow = JSON.parse(context.pipeline_step.comfy_workflow_json)
+    workflow_json = context.pipeline_step.comfy_workflow_json
+    
+    # Replace template variables before parsing
+    workflow_json = replace_template_variables(workflow_json)
+    
+    workflow = JSON.parse(workflow_json)
 
     payload = {
       workflow: workflow,
@@ -32,6 +37,27 @@ class BuildJobPayload < GLCommand::Callable
   end
 
   private
+
+  def replace_template_variables(workflow_json)
+    variables = build_variable_map
+    
+    variables.each do |key, value|
+      workflow_json = workflow_json.gsub("{{#{key}}}", value.to_s)
+    end
+    
+    workflow_json
+  end
+
+  def build_variable_map
+    variables = (context.pipeline_run.variables || {}).dup
+    
+    # Add dynamic system variables
+    variables["timestamp"] = Time.now.to_i
+    variables["timestamp_ms"] = (Time.now.to_f * 1000).to_i
+    variables["random"] = rand(1_000_000_000)
+    
+    variables
+  end
 
   def build_output_folder
     step_name = context.pipeline_step.name.parameterize

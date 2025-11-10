@@ -82,6 +82,18 @@ packs/
       models/
       factories/
     package.yml
+  
+  job_orchestration/  # Intelligent job selection logic
+    app/
+      commands/
+        select_next_job.rb
+        build_job_payload.rb
+      services/
+        job_orchestration_config.rb
+    spec/
+      commands/
+      services/
+    package.yml
 ```
 
 ### Core Data Models
@@ -159,7 +171,9 @@ Tests use:
 - Core data models (Pipeline, PipelineStep, ImageCandidate)
 - Database migrations with optimized indexes
 - State machine for ImageCandidate status
-- Comprehensive test coverage (33 specs passing)
+- Tree structure with parent/child relationships
+- ELO scoring system for candidate ranking
+- Comprehensive test coverage (55 specs passing)
 - Pack boundaries validated
 
 ✅ **Pipeline Runs & Variable Templating Implemented**
@@ -168,9 +182,21 @@ Tests use:
 - Variable requirement flags on PipelineStep
 - Support for running same pipeline 20+ times/day with different inputs
 - Target folder organization for run images
-- Comprehensive test coverage (55 specs passing)
+- One run creates many ImageCandidates (100+) across all pipeline steps
+- Full test coverage
+
+✅ **Job Orchestration Implemented**
+- SelectNextJob command using right-to-left priority algorithm
+- ELO-weighted raffle for probabilistic candidate selection
+- Autonomous deficit mode for base image generation
+- BuildJobPayload command for variable substitution
+- Configuration via environment variables (N=5, T=10)
+- Returns job modes: :child_generation, :base_generation, :no_work
+- Comprehensive test coverage (25 specs, 80 total)
 
 ### Example Usage
+
+#### Pipeline Setup
 
 ```ruby
 # Define pipeline template once
@@ -188,13 +214,17 @@ step2 = pipeline.pipeline_steps.create!(
   needs_parent_image_path: true  # Only needs parent image
 )
 
-step4 = pipeline.pipeline_steps.create!(
-  name: "Upscale", order: 4,
+step3 = pipeline.pipeline_steps.create!(
+  name: "Upscale", order: 3,
   comfy_workflow_json: '{"workflow": "upscale"}',
   needs_run_prompt: true,          # Needs both
   needs_parent_image_path: true
 )
+```
 
+#### Execute Pipeline Runs
+
+```ruby
 # Run multiple times per day with different prompts
 gym_run = pipeline.pipeline_runs.create!(
   name: "Gym Shoot",
@@ -212,10 +242,63 @@ home_run = pipeline.pipeline_runs.create!(
 # All organized in the run's target_folder
 ```
 
+#### Select Next Job
+
+```ruby
+# The system intelligently decides which job to run next
+result = SelectNextJob.call
+
+case result.mode
+when :child_generation
+  # Generate child from selected parent candidate
+  parent = result.parent_candidate
+  next_step = result.next_step
+  
+  # Build the job payload
+  payload = BuildJobPayload.call(
+    pipeline_step: next_step,
+    pipeline_run: parent.pipeline_run,
+    parent_candidate: parent
+  )
+  
+  # Send payload.job_payload to ComfyUI
+  # payload.job_payload includes:
+  #   - workflow: parsed JSON
+  #   - variables: { prompt, parent_image, etc }
+  #   - output_folder: constructed path
+
+when :base_generation
+  # No eligible parents, but need more final candidates
+  # Generate new base image
+  step = result.next_step  # First step
+  
+  payload = BuildJobPayload.call(
+    pipeline_step: step,
+    pipeline_run: PipelineRun.last  # Or create new run
+  )
+
+when :no_work
+  # Pipeline is complete or no deficit
+  # System is satisfied
+end
+```
+
+### Algorithm Highlights
+
+**Right-to-Left Priority**: The system always prioritizes finishing work over starting new branches. A step-3 candidate with low ELO beats a step-1 candidate with high ELO.
+
+**ELO-Weighted Raffle**: Within the same priority group, candidates are selected probabilistically based on their ELO scores. A candidate with ELO 1200 has 60% chance vs one with ELO 800 at 40%.
+
+**Autonomous Deficit Mode**: When the final pipeline step has fewer than T (target) active candidates, the system automatically generates new base images to maintain the funnel.
+
+**Configuration**:
+- `MAX_CHILDREN_PER_NODE` (default: 5) - Each candidate can have up to N children
+- `TARGET_LEAF_NODES` (default: 10) - Maintain at least T candidates in final step
+
 🚧 **In Progress**
-- Job orchestration logic (next job selection algorithm)
-- Voting/ranking UI
-- ComfyUI integration
+- ComfyUI API integration
+- Result processing and image storage
+- Voting/ranking UI for ELO updates
 
 ## License
 

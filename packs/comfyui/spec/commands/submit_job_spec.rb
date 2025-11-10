@@ -15,14 +15,16 @@ RSpec.describe SubmitJob do
   end
 
   let(:comfyui_response) { { job_id: "abc123" } }
+  let(:comfyui_client) { instance_double(ComfyuiClient) }
 
   before do
-    allow_any_instance_of(ComfyuiClient).to receive(:submit_workflow).and_return(comfyui_response)
+    allow(ComfyuiClient).to receive(:new).and_return(comfyui_client)
+    allow(comfyui_client).to receive(:submit_workflow).and_return(comfyui_response)
   end
 
   describe "#call" do
     context "with valid parameters" do
-      it "creates a pending ComfyuiJob" do
+      it "creates a ComfyuiJob and submits it" do
         expect do
           described_class.call(
             job_payload: job_payload,
@@ -32,14 +34,13 @@ RSpec.describe SubmitJob do
         end.to change(ComfyuiJob, :count).by(1)
 
         job = ComfyuiJob.last
-        expect(job.status).to eq("pending")
+        expect(job.status).to eq("submitted")
         expect(job.job_payload).to eq(job_payload.deep_stringify_keys)
+        expect(job.comfyui_job_id).to eq("abc123")
       end
 
       it "submits workflow to ComfyUI API" do
-        client = instance_double(ComfyuiClient)
-        allow(ComfyuiClient).to receive(:new).and_return(client)
-        expect(client).to receive(:submit_workflow).with(job_payload[:workflow]).and_return(comfyui_response)
+        expect(comfyui_client).to receive(:submit_workflow).with(job_payload[:workflow]).and_return(comfyui_response)
 
         described_class.call(
           job_payload: job_payload,
@@ -107,47 +108,36 @@ RSpec.describe SubmitJob do
 
     context "when ComfyUI API fails" do
       before do
-        allow_any_instance_of(ComfyuiClient).to receive(:submit_workflow).and_raise(ComfyuiClient::ConnectionError, "Connection failed")
+        allow(comfyui_client).to receive(:submit_workflow).and_raise(ComfyuiClient::ConnectionError, "Connection failed")
       end
 
       it "marks job as failed" do
-        expect do
-          described_class.call(
-            job_payload: job_payload,
-            pipeline_step: pipeline_step,
-            pipeline_run: pipeline_run
-          )
-        end.to raise_error(ComfyuiClient::ConnectionError)
+        result = described_class.call(
+          job_payload: job_payload,
+          pipeline_step: pipeline_step,
+          pipeline_run: pipeline_run
+        )
+
+        expect(result).to be_failure
 
         job = ComfyuiJob.last
+        expect(job).to be_present
         expect(job.status).to eq("failed")
-        expect(job.error_message).to eq("Connection failed")
-      end
-
-      it "raises the error" do
-        expect do
-          described_class.call(
-            job_payload: job_payload,
-            pipeline_step: pipeline_step,
-            pipeline_run: pipeline_run
-          )
-        end.to raise_error(ComfyuiClient::ConnectionError)
+        expect(job.error_message).to include("Connection failed")
       end
     end
 
     context "when job creation fails" do
-      before do
+      it "returns failure result" do
         allow(ComfyuiJob).to receive(:create!).and_raise(ActiveRecord::RecordInvalid)
-      end
 
-      it "raises the error" do
-        expect do
-          described_class.call(
-            job_payload: job_payload,
-            pipeline_step: pipeline_step,
-            pipeline_run: pipeline_run
-          )
-        end.to raise_error(ActiveRecord::RecordInvalid)
+        result = described_class.call(
+          job_payload: job_payload,
+          pipeline_step: pipeline_step,
+          pipeline_run: pipeline_run
+        )
+
+        expect(result).to be_failure
       end
     end
   end

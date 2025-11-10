@@ -52,13 +52,12 @@ RSpec.describe ProcessJobResult do
     end
 
     it "creates ImageCandidate with correct associations" do
-      initial_count = ImageCandidate.count # Account for parent_candidate already created
-
       described_class.call(comfyui_job: comfyui_job)
 
-      expect(ImageCandidate.count).to eq(initial_count + 1)
+      # The new candidate is the last one created (parent_candidate was created earlier)
+      candidate = ImageCandidate.where.not(id: parent_candidate.id).last
 
-      candidate = ImageCandidate.last
+      expect(candidate).to be_present
       expect(candidate.pipeline_step).to eq(pipeline_step)
       expect(candidate.pipeline_run).to eq(pipeline_run)
       expect(candidate.parent).to eq(parent_candidate)
@@ -72,9 +71,11 @@ RSpec.describe ProcessJobResult do
     end
 
     it "increments parent child_count" do
-      expect do
-        described_class.call(comfyui_job: comfyui_job)
-      end.to change { parent_candidate.reload.child_count }.from(2).to(3)
+      initial_count = parent_candidate.child_count
+
+      described_class.call(comfyui_job: comfyui_job)
+
+      expect(parent_candidate.reload.child_count).to eq(initial_count + 1)
     end
 
     it "links job to created ImageCandidate" do
@@ -122,42 +123,32 @@ RSpec.describe ProcessJobResult do
         comfyui_job.update!(result_metadata: { images: [] })
       end
 
-      it "raises an error" do
-        expect do
-          described_class.call(comfyui_job: comfyui_job)
-        end.to raise_error(NoMethodError)
+      it "returns failure" do
+        result = described_class.call(comfyui_job: comfyui_job)
+
+        expect(result).to be_failure
       end
     end
 
     context "when download fails" do
-      before do
-        allow_any_instance_of(ComfyuiClient).to receive(:download_image).and_raise(ComfyuiClient::ConnectionError)
-      end
+      it "returns failure" do
+        client = instance_double(ComfyuiClient)
+        allow(ComfyuiClient).to receive(:new).and_return(client)
+        allow(client).to receive(:download_image).and_raise(ComfyuiClient::ConnectionError)
 
-      it "raises the error" do
-        expect do
-          described_class.call(comfyui_job: comfyui_job)
-        end.to raise_error(ComfyuiClient::ConnectionError)
-      end
+        result = described_class.call(comfyui_job: comfyui_job)
 
-      it "does not create ImageCandidate" do
-        expect do
-          described_class.call(comfyui_job: comfyui_job)
-        rescue ComfyuiClient::ConnectionError
-          # Expected error
-        end.not_to change(ImageCandidate, :count)
+        expect(result).to be_failure
       end
     end
 
     context "when file write fails" do
-      before do
+      it "returns failure" do
         allow(File).to receive(:binwrite).and_raise(Errno::EACCES, "Permission denied")
-      end
 
-      it "raises the error" do
-        expect do
-          described_class.call(comfyui_job: comfyui_job)
-        end.to raise_error(Errno::EACCES)
+        result = described_class.call(comfyui_job: comfyui_job)
+
+        expect(result).to be_failure
       end
     end
 

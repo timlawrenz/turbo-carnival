@@ -32,8 +32,7 @@ class ProcessJobResult < GLCommand::Callable
       status: "active"
     )
 
-    # Update parent's child_count if this is a child
-    job.parent_candidate&.increment!(:child_count)
+    # Counter cache on parent association will automatically increment child_count
 
     # Link the job to the created candidate
     job.update!(image_candidate: candidate)

@@ -224,7 +224,7 @@
   },
   "16": {
     "inputs": {
-      "noise_seed": {{auto_seed}},
+      "noise_seed": "{{auto_seed}}"
     },
     "class_type": "RandomNoise",
     "_meta": {

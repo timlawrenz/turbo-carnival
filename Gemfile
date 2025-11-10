@@ -65,3 +65,4 @@ gem "gl_command", "~> 1.4"
 # HTTP client for ComfyUI API
 gem "faraday", "~> 2.9"
 gem "faraday-retry", "~> 2.2"
+gem "sidekiq", "~> 7.0"

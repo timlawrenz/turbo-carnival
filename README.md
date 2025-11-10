@@ -94,6 +94,19 @@ packs/
       commands/
       services/
     package.yml
+  
+  comfyui/            # ComfyUI API integration (in progress)
+    app/
+      models/
+        comfyui_job.rb
+      services/
+        comfyui_client.rb
+      commands/        # TODO: SubmitJob, PollJobStatus, ProcessJobResult
+      workers/         # TODO: JobSubmitterWorker, JobPollerWorker
+    spec/
+      models/
+      factories/
+    package.yml
 ```
 
 ### Core Data Models
@@ -193,6 +206,15 @@ Tests use:
 - Configuration via environment variables (N=5, T=10)
 - Returns job modes: :child_generation, :base_generation, :no_work
 - Comprehensive test coverage (25 specs, 80 total)
+
+🚧 **ComfyUI Integration (In Progress - Foundation Complete)**
+- ComfyuiJob model for tracking submitted jobs through lifecycle
+- ComfyUI API client with Faraday HTTP and automatic retry
+- Database schema with JSONB for workflow payload and results
+- Job status tracking: pending → submitted → running → completed/failed
+- Configuration system (base URL, timeouts, retry limits)
+- Model tests and factories (13 specs)
+- **Remaining**: Commands (SubmitJob, PollJobStatus, ProcessJobResult), Background workers (JobSubmitterWorker, JobPollerWorker), ~8-12 hours of work
 
 ### Example Usage
 
@@ -294,11 +316,29 @@ end
 **Configuration**:
 - `MAX_CHILDREN_PER_NODE` (default: 5) - Each candidate can have up to N children
 - `TARGET_LEAF_NODES` (default: 10) - Maintain at least T candidates in final step
+- `COMFYUI_BASE_URL` (default: http://localhost:8188) - ComfyUI API endpoint
+- `COMFYUI_POLL_INTERVAL` (default: 5) - Seconds between status checks
+- `COMFYUI_SUBMIT_INTERVAL` (default: 10) - Seconds between job submissions
+- `COMFYUI_TIMEOUT` (default: 300) - API request timeout in seconds
+- `COMFYUI_MAX_RETRIES` (default: 3) - Max retries for failed API calls
 
-🚧 **In Progress**
-- ComfyUI API integration
-- Result processing and image storage
-- Voting/ranking UI for ELO updates
+### Next Steps
+
+🚧 **Remaining Work for Full Autonomy**:
+- SubmitJob, PollJobStatus, ProcessJobResult commands (~3-4 hours)
+- Background workers for continuous operation (~2-3 hours)
+- Integration tests for full job lifecycle (~1-2 hours)
+- Voting/ranking UI for ELO updates (future)
+
+See `openspec/changes/add-comfyui-integration/PROGRESS.md` for detailed status.
+
+### Test Coverage
+
+- **93 passing specs** across all packs
+- Pipeline pack: 55 specs
+- Job Orchestration: 25 specs
+- ComfyUI (foundation): 13 specs
+- Zero failures
 
 ## License
 

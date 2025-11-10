@@ -18,6 +18,7 @@ This application is a **Curation and Workflow Management Hub** for AI image gene
 - **Ruby 3.4.5** / **Rails 8.0.4** - Web framework
 - **PostgreSQL** - Database
 - **Puma** - Web server
+- **Sidekiq 7.3.9** - Background job processing
 - **Solid Cache/Queue/Cable** - Database-backed Rails infrastructure
 - **Packwerk** + **packs-rails** - Modular architecture with enforced boundaries
 - **ViewComponent** - Reusable UI components
@@ -53,6 +54,32 @@ bin/packwerk validate
 
 # Code style check
 bundle exec rubocop
+
+# Start Sidekiq workers (for autonomous operation)
+bundle exec sidekiq
+```
+
+### Running Autonomous Workers
+
+To run the system autonomously:
+
+```bash
+# Start the Sidekiq workers
+bundle exec sidekiq
+
+# This starts both workers:
+# - JobSubmitterWorker: Selects and submits jobs every 10s
+# - JobPollerWorker: Polls and processes jobs every 5s
+```
+
+Configure worker intervals via environment variables:
+
+```bash
+# Customize polling intervals (defaults shown)
+COMFYUI_SUBMIT_INTERVAL=10  # Seconds between job submissions
+COMFYUI_POLL_INTERVAL=5     # Seconds between status polls
+
+bundle exec sidekiq
 ```
 
 ### Pre-commit Validation
@@ -207,14 +234,21 @@ Tests use:
 - Returns job modes: :child_generation, :base_generation, :no_work
 - Comprehensive test coverage (25 specs, 80 total)
 
-🚧 **ComfyUI Integration (In Progress - Foundation Complete)**
+✅ **ComfyUI Integration Complete**
 - ComfyuiJob model for tracking submitted jobs through lifecycle
 - ComfyUI API client with Faraday HTTP and automatic retry
 - Database schema with JSONB for workflow payload and results
 - Job status tracking: pending → submitted → running → completed/failed
 - Configuration system (base URL, timeouts, retry limits)
-- Model tests and factories (13 specs)
-- **Remaining**: Commands (SubmitJob, PollJobStatus, ProcessJobResult), Background workers (JobSubmitterWorker, JobPollerWorker), ~8-12 hours of work
+- Full command layer:
+  - SubmitJob: Creates job record and submits to ComfyUI API
+  - PollJobStatus: Checks API for job progress updates
+  - ProcessJobResult: Downloads images and creates ImageCandidates
+- Background workers for autonomous operation:
+  - JobSubmitterWorker: Continuously selects and submits new jobs
+  - JobPollerWorker: Polls in-flight jobs and processes completions
+- Comprehensive test coverage (51 specs, 144 total)
+- All validations passing (Rubocop, Packwerk, RSpec)
 
 ### Example Usage
 

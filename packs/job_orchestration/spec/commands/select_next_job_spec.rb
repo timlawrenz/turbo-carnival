@@ -8,7 +8,7 @@ RSpec.describe SelectNextJob do
 
   describe "#call" do
     context "when eligible parents exist" do
-      it "selects from highest order step" do
+      it "selects parents to fill out steps with < 2 candidates first (breadth-first)" do
         candidate_step1 = FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 2, elo_score: 1500)
         candidate_step2 = FactoryBot.create(:image_candidate, pipeline_step: step2, child_count: 2, elo_score: 800)
 
@@ -16,8 +16,24 @@ RSpec.describe SelectNextJob do
 
         expect(result).to be_success
         expect(result.mode).to eq(:child_generation)
-        expect(result.parent_candidate).to eq(candidate_step2)
-        expect(result.next_step).to eq(step3)
+        # Should select step1 candidate to create a 2nd step2 candidate (breadth-first)
+        expect(result.parent_candidate).to eq(candidate_step1)
+        expect(result.next_step).to eq(step2)
+      end
+      
+      it "uses triage-right when all steps have >= 2 candidates" do
+        # Create 2 candidates in each step
+        2.times { FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 2) }
+        candidate_step2_a = FactoryBot.create(:image_candidate, pipeline_step: step2, child_count: 2, elo_score: 1500)
+        candidate_step2_b = FactoryBot.create(:image_candidate, pipeline_step: step2, child_count: 2, elo_score: 800)
+        2.times { FactoryBot.create(:image_candidate, pipeline_step: step3, child_count: 2) }
+
+        result = described_class.call
+
+        expect(result).to be_success
+        expect(result.mode).to eq(:child_generation)
+        # Now it should use triage-right and select from step2 (highest with eligible parents)
+        expect([candidate_step2_a, candidate_step2_b]).to include(result.parent_candidate)
       end
 
       it "excludes rejected candidates" do
@@ -100,8 +116,11 @@ RSpec.describe SelectNextJob do
           end
         end
 
-        it "does not trigger when final step meets target" do
+        it "does not trigger when final step meets target AND all steps have >= 2 candidates" do
           ClimateControl.modify TARGET_LEAF_NODES: "10" do
+            # Create at least 2 in each step, all with max children
+            2.times { FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 5) }
+            2.times { FactoryBot.create(:image_candidate, pipeline_step: step2, child_count: 5) }
             12.times { FactoryBot.create(:image_candidate, pipeline_step: step3, child_count: 5) }
 
             result = described_class.call
@@ -112,8 +131,9 @@ RSpec.describe SelectNextJob do
       end
 
       context "no work mode" do
-        it "returns no work when no deficit" do
+        it "returns no work when no deficit and all steps have min candidates" do
           ClimateControl.modify TARGET_LEAF_NODES: "10" do
+            2.times { FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 5) }
             15.times { FactoryBot.create(:image_candidate, pipeline_step: step3, child_count: 5) }
 
             result = described_class.call

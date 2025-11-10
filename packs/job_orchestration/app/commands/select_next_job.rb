@@ -29,10 +29,46 @@ class SelectNextJob < GLCommand::Callable
   end
 
   def handle_child_generation(eligible_parents)
-    # Group by pipeline step order and select highest
     parents_with_order = eligible_parents.to_a
     return if parents_with_order.empty?
 
+    # NEW: Check each step to ensure minimum candidates exist before going deeper
+    # This creates breadth-first growth (2 at each level before going deep)
+    min_candidates_per_step = 2
+    
+    pipeline = parents_with_order.first.pipeline_step.pipeline
+    
+    # Find the earliest step that needs more candidates
+    pipeline.pipeline_steps.order(:order).each do |step|
+      # Skip the first step (handled in handle_no_eligible_parents)
+      next if step == pipeline.pipeline_steps.first
+      
+      active_count = ImageCandidate.where(
+        pipeline_step: step,
+        status: "active"
+      ).count
+      
+      # If this step has < 2 candidates, create more at this level
+      if active_count < min_candidates_per_step
+        # Find parents from the previous step
+        prev_step = pipeline.pipeline_steps.where("\"order\" < ?", step.order).order(order: :desc).first
+        
+        if prev_step
+          # Select from parents in the previous step
+          candidates_from_prev = parents_with_order.select { |p| p.pipeline_step_id == prev_step.id }
+          
+          if candidates_from_prev.any?
+            selected_parent = weighted_raffle(candidates_from_prev)
+            context.parent_candidate = selected_parent
+            context.next_step = step
+            context.mode = :child_generation
+            return
+          end
+        end
+      end
+    end
+
+    # All steps have minimum candidates, use original triage-right logic
     highest_order = parents_with_order.map { |p| p.pipeline_step.order }.max
     top_priority_candidates = parents_with_order.select { |p| p.pipeline_step.order == highest_order }
 
@@ -53,11 +89,37 @@ class SelectNextJob < GLCommand::Callable
   def handle_no_eligible_parents
     # Check for deficit mode
     target = JobOrchestrationConfig.target_leaf_nodes
+    min_candidates_per_step = 2
 
-    # Find all pipelines and check their final steps
+    # Find all pipelines and check their steps
     pipelines = Pipeline.includes(:pipeline_steps).all
 
     pipelines.each do |pipeline|
+      # First, ensure step 1 has at least 2 candidates
+      first_step = pipeline.pipeline_steps.first
+      if first_step
+        step1_count = ImageCandidate.where(
+          pipeline_step: first_step,
+          status: "active"
+        ).count
+        
+        if step1_count < min_candidates_per_step
+          in_flight_count = ComfyuiJob.where(
+            pipeline_step: first_step,
+            status: %w[pending submitted running]
+          ).count
+          
+          # Create base images until we have 2 in step 1
+          if in_flight_count < min_candidates_per_step
+            context.parent_candidate = nil
+            context.next_step = first_step
+            context.mode = :base_generation
+            return
+          end
+        end
+      end
+      
+      # Then check final step for target deficit
       final_step = pipeline.pipeline_steps.last
       next unless final_step
 
@@ -68,7 +130,6 @@ class SelectNextJob < GLCommand::Callable
 
       if active_count < target
         # Check if we already have enough jobs in flight for the first step
-        first_step = pipeline.pipeline_steps.first
         in_flight_count = ComfyuiJob.where(
           pipeline_step: first_step,
           status: %w[pending submitted running]

@@ -280,7 +280,7 @@
   },
   "107": {
     "inputs": {
-      "seed": {{auto_seed}}
+      "seed": "{{auto_seed}}"
     },
     "class_type": "Seed",
     "_meta": {

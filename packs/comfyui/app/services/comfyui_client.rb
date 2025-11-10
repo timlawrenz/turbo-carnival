@@ -13,14 +13,39 @@ class ComfyuiClient
       req.headers["Content-Type"] = "application/json"
     end
 
-    parse_response(response)
+    result = parse_response(response)
+    # ComfyUI returns prompt_id, we normalize to job_id for our API
+    { job_id: result[:prompt_id], prompt_number: result[:number] }
   rescue Faraday::Error => e
     raise ConnectionError, "Failed to connect to ComfyUI: #{e.message}"
   end
 
   def get_job_status(job_id)
     response = connection.get("/history/#{job_id}")
-    parse_response(response)
+    history = parse_response(response)
+    
+    # History returns a hash with prompt_id as key
+    job_data = history[job_id.to_sym] || history[job_id.to_s]
+    
+    return { status: "not_found" } unless job_data
+    
+    status = job_data.dig(:status, :status_str)
+    completed = job_data.dig(:status, :completed)
+    outputs = job_data[:outputs]
+    
+    case status
+    when "success"
+      { status: "completed", output: outputs }
+    when "error"
+      error_messages = job_data.dig(:status, :messages)&.select { |m| m[0] == "execution_error" }
+      { status: "failed", error: error_messages&.first&.dig(1, :exception_message) || "Unknown error" }
+    else
+      if completed
+        { status: "completed", output: outputs }
+      else
+        { status: "running" }
+      end
+    end
   rescue Faraday::Error => e
     raise ConnectionError, "Failed to get job status: #{e.message}"
   end

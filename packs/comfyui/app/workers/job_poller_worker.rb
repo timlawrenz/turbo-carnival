@@ -4,10 +4,20 @@ class JobPollerWorker
   sidekiq_options queue: :job_polling, retry: 3
 
   def perform
+    # Poll status of in-flight jobs (may transition to completed)
     in_flight_jobs = ComfyuiJob.in_flight
-
     in_flight_jobs.find_each do |job|
       poll_and_process(job)
+    end
+
+    # Process any completed jobs that haven't been processed yet
+    completed_unprocessed = ComfyuiJob.where(status: 'completed', image_candidate_id: nil)
+    completed_unprocessed.find_each do |job|
+      begin
+        ProcessJobResult.call!(comfyui_job: job)
+      rescue => e
+        Rails.logger.error("Failed to process completed job #{job.id}: #{e.message}")
+      end
     end
 
     schedule_next_run

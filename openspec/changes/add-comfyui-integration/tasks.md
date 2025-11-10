@@ -1,24 +1,24 @@
 ## 1. Setup
-- [ ] 1.1 Create Packwerk pack structure at `packs/comfyui/`
-- [ ] 1.2 Create pack configuration file `packs/comfyui/package.yml`
-- [ ] 1.3 Add dependencies on job_orchestration and pipeline packs
-- [ ] 1.4 Run `bin/packwerk validate` to ensure pack setup is correct
+- [x] 1.1 Create Packwerk pack structure at `packs/comfyui/`
+- [x] 1.2 Create pack configuration file `packs/comfyui/package.yml`
+- [x] 1.3 Add dependencies on job_orchestration and pipeline packs
+- [x] 1.4 Run `bin/packwerk validate` to ensure pack setup is correct
 
 ## 2. ComfyUI API Client
-- [ ] 2.1 Create `ComfyuiClient` class for HTTP communication
-- [ ] 2.2 Implement `submit_workflow` method
-- [ ] 2.3 Implement `get_job_status` method
-- [ ] 2.4 Implement `download_image` method
-- [ ] 2.5 Add configuration for ComfyUI base URL
+- [x] 2.1 Create `ComfyuiClient` class for HTTP communication
+- [x] 2.2 Implement `submit_workflow` method
+- [x] 2.3 Implement `get_job_status` method
+- [x] 2.4 Implement `download_image` method
+- [x] 2.5 Add configuration for ComfyUI base URL
 - [ ] 2.6 Write unit tests with HTTP mocking
 
 ## 3. Job Tracking
-- [ ] 3.1 Create migration for `comfyui_jobs` table
-- [ ] 3.2 Create `ComfyuiJob` model
-- [ ] 3.3 Add status tracking: pending, submitted, running, completed, failed
-- [ ] 3.4 Store ComfyUI job ID and metadata
-- [ ] 3.5 Associate with ImageCandidate and PipelineRun
-- [ ] 3.6 Write model tests
+- [x] 3.1 Create migration for `comfyui_jobs` table
+- [x] 3.2 Create `ComfyuiJob` model
+- [x] 3.3 Add status tracking: pending, submitted, running, completed, failed
+- [x] 3.4 Store ComfyUI job ID and metadata
+- [x] 3.5 Associate with ImageCandidate and PipelineRun
+- [x] 3.6 Write model tests
 
 ## 4. SubmitJob Command
 - [ ] 4.1 Create `SubmitJob` GLCommand
@@ -60,15 +60,15 @@
 - [ ] 8.5 Write integration tests
 
 ## 9. Configuration
-- [ ] 9.1 Add COMFYUI_BASE_URL environment variable
-- [ ] 9.2 Add COMFYUI_POLL_INTERVAL configuration
-- [ ] 9.3 Add COMFYUI_TIMEOUT configuration
-- [ ] 9.4 Add COMFYUI_MAX_RETRIES configuration
+- [x] 9.1 Add COMFYUI_BASE_URL environment variable
+- [x] 9.2 Add COMFYUI_POLL_INTERVAL configuration
+- [x] 9.3 Add COMFYUI_TIMEOUT configuration
+- [x] 9.4 Add COMFYUI_MAX_RETRIES configuration
 - [ ] 9.5 Document all configuration options
 
 ## 10. Validation
-- [ ] 10.1 Run `bin/packwerk check` to verify pack boundaries
-- [ ] 10.2 Run `bin/packwerk validate` to verify pack configuration
-- [ ] 10.3 Run `bin/rspec` to ensure all tests pass
-- [ ] 10.4 Run `bin/rubocop` to ensure code style compliance
+- [x] 10.1 Run `bin/packwerk check` to verify pack boundaries
+- [x] 10.2 Run `bin/packwerk validate` to verify pack configuration
+- [x] 10.3 Run `bin/rspec` to ensure all tests pass (93 specs passing)
+- [x] 10.4 Run `bin/rubocop` to ensure code style compliance
 - [ ] 10.5 Test with actual ComfyUI instance (optional for MVP)

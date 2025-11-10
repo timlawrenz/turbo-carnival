@@ -1,0 +1,12 @@
+# Package for ComfyUI API integration
+#
+# This pack implements integration with ComfyUI for AI image generation.
+# Handles job submission, status polling, and result processing.
+
+enforce_dependencies: true
+dependencies:
+  - "."
+  - "packs/pipeline"
+  - "packs/job_orchestration"
+metadata:
+  owner: Platform Team

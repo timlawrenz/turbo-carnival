@@ -61,3 +61,7 @@ gem "state_machines-activerecord", "~> 0.9"
 
 # GLCommand for business logic command pattern
 gem "gl_command", "~> 1.4"
+
+# HTTP client for ComfyUI API
+gem "faraday", "~> 2.9"
+gem "faraday-retry", "~> 2.2"

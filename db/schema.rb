@@ -10,9 +10,31 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_09_234928) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_10_003726) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "comfyui_jobs", force: :cascade do |t|
+    t.bigint "image_candidate_id"
+    t.bigint "pipeline_run_id", null: false
+    t.bigint "pipeline_step_id", null: false
+    t.string "comfyui_job_id"
+    t.string "status", default: "pending", null: false
+    t.jsonb "job_payload", null: false
+    t.jsonb "result_metadata"
+    t.text "error_message"
+    t.integer "retry_count", default: 0, null: false
+    t.datetime "submitted_at"
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["comfyui_job_id"], name: "index_comfyui_jobs_on_comfyui_job_id"
+    t.index ["image_candidate_id"], name: "index_comfyui_jobs_on_image_candidate_id"
+    t.index ["job_payload"], name: "index_comfyui_jobs_on_job_payload", using: :gin
+    t.index ["pipeline_run_id"], name: "index_comfyui_jobs_on_pipeline_run_id"
+    t.index ["pipeline_step_id"], name: "index_comfyui_jobs_on_pipeline_step_id"
+    t.index ["status"], name: "index_comfyui_jobs_on_status"
+  end
 
   create_table "image_candidates", force: :cascade do |t|
     t.bigint "pipeline_step_id", null: false
@@ -66,6 +88,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_09_234928) do
     t.index ["name"], name: "index_pipelines_on_name"
   end
 
+  add_foreign_key "comfyui_jobs", "image_candidates"
+  add_foreign_key "comfyui_jobs", "pipeline_runs"
+  add_foreign_key "comfyui_jobs", "pipeline_steps"
   add_foreign_key "image_candidates", "image_candidates", column: "parent_id"
   add_foreign_key "image_candidates", "pipeline_runs"
   add_foreign_key "image_candidates", "pipeline_steps"

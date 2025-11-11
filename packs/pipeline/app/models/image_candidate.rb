@@ -16,6 +16,13 @@ class ImageCandidate < ApplicationRecord
     event :reject do
       transition active: :rejected
     end
+    
+    after_transition active: :rejected do |candidate, transition|
+      # Decrement parent's child_count when rejecting a child
+      if candidate.parent
+        candidate.parent.decrement!(:child_count)
+      end
+    end
   end
 
   scope :active, -> { where(status: "active") }

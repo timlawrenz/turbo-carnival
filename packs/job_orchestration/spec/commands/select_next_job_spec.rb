@@ -2,6 +2,7 @@ require "rails_helper"
 
 RSpec.describe SelectNextJob do
   let(:pipeline) { FactoryBot.create(:pipeline) }
+  let!(:pipeline_run) { FactoryBot.create(:pipeline_run, pipeline: pipeline, status: 'running') }
   let!(:step1) { FactoryBot.create(:pipeline_step, pipeline: pipeline, order: 1) }
   let!(:step2) { FactoryBot.create(:pipeline_step, pipeline: pipeline, order: 2) }
   let!(:step3) { FactoryBot.create(:pipeline_step, pipeline: pipeline, order: 3) }
@@ -10,9 +11,9 @@ RSpec.describe SelectNextJob do
     context "when eligible parents exist" do
       it "selects parents to fill out steps with < 2 candidates first (breadth-first)" do
         # Need 2 step 1 candidates to pass the base image check
-        2.times { FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 5) }
-        candidate_step1 = FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 2, elo_score: 1500)
-        candidate_step2 = FactoryBot.create(:image_candidate, pipeline_step: step2, child_count: 2, elo_score: 800)
+        2.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 5) }
+        candidate_step1 = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 2, elo_score: 1500)
+        candidate_step2 = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step2, child_count: 2, elo_score: 800)
 
         result = described_class.call
 
@@ -25,10 +26,10 @@ RSpec.describe SelectNextJob do
       
       it "uses triage-right when all steps have >= 2 candidates" do
         # Create 2 candidates in each step
-        2.times { FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 2) }
-        candidate_step2_a = FactoryBot.create(:image_candidate, pipeline_step: step2, child_count: 2, elo_score: 1500)
-        candidate_step2_b = FactoryBot.create(:image_candidate, pipeline_step: step2, child_count: 2, elo_score: 800)
-        2.times { FactoryBot.create(:image_candidate, pipeline_step: step3, child_count: 2) }
+        2.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 2) }
+        candidate_step2_a = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step2, child_count: 2, elo_score: 1500)
+        candidate_step2_b = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step2, child_count: 2, elo_score: 800)
+        2.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step3, child_count: 2) }
 
         result = described_class.call
 
@@ -39,9 +40,9 @@ RSpec.describe SelectNextJob do
       end
 
       it "excludes rejected candidates" do
-        2.times { FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 5) }
-        FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 2, status: "rejected")
-        candidate_active = FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 2, status: "active")
+        2.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 5) }
+        FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 2, status: "rejected")
+        candidate_active = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 2, status: "active")
 
         result = described_class.call
 
@@ -51,8 +52,8 @@ RSpec.describe SelectNextJob do
 
       it "excludes candidates with max children" do
         ClimateControl.modify MAX_CHILDREN_PER_NODE: "5" do
-          FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 5)
-          candidate_eligible = FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 4)
+          FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 5)
+          candidate_eligible = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 4)
 
           result = described_class.call
 
@@ -61,9 +62,9 @@ RSpec.describe SelectNextJob do
       end
 
       it "excludes candidates at final step" do
-        2.times { FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 5) }
-        FactoryBot.create(:image_candidate, pipeline_step: step3, child_count: 2)
-        candidate_step2 = FactoryBot.create(:image_candidate, pipeline_step: step2, child_count: 2)
+        2.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 5) }
+        FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step3, child_count: 2)
+        candidate_step2 = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step2, child_count: 2)
 
         result = described_class.call
 
@@ -73,9 +74,9 @@ RSpec.describe SelectNextJob do
 
     context "ELO-weighted raffle" do
       it "selects from candidates at same step" do
-        2.times { FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 5) }
-        candidate_a = FactoryBot.create(:image_candidate, pipeline_step: step2, child_count: 2, elo_score: 1200)
-        candidate_b = FactoryBot.create(:image_candidate, pipeline_step: step2, child_count: 2, elo_score: 800)
+        2.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 5) }
+        candidate_a = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step2, child_count: 2, elo_score: 1200)
+        candidate_b = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step2, child_count: 2, elo_score: 800)
 
         # Run multiple times to test distribution
         results = 100.times.map { described_class.call.parent_candidate }
@@ -88,8 +89,8 @@ RSpec.describe SelectNextJob do
       end
 
       it "handles single candidate" do
-        2.times { FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 5) }
-        candidate = FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 2)
+        2.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 5) }
+        candidate = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 2)
 
         result = described_class.call
 
@@ -97,8 +98,8 @@ RSpec.describe SelectNextJob do
       end
 
       it "handles zero ELO scores" do
-        candidate_a = FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 2, elo_score: 0)
-        candidate_b = FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 2, elo_score: 0)
+        candidate_a = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 2, elo_score: 0)
+        candidate_b = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 2, elo_score: 0)
 
         result = described_class.call
 
@@ -111,7 +112,7 @@ RSpec.describe SelectNextJob do
         it "triggers base generation when final step has too few candidates" do
           ClimateControl.modify TARGET_LEAF_NODES: "10" do
             # Create 7 candidates in final step (less than target of 10)
-            7.times { FactoryBot.create(:image_candidate, pipeline_step: step3, child_count: 5) }
+            7.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step3, child_count: 5) }
 
             result = described_class.call
 
@@ -125,9 +126,9 @@ RSpec.describe SelectNextJob do
         it "does not trigger when final step meets target AND all steps have >= 2 candidates" do
           ClimateControl.modify TARGET_LEAF_NODES: "10" do
             # Create at least 2 in each step, all with max children
-            2.times { FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 5) }
-            2.times { FactoryBot.create(:image_candidate, pipeline_step: step2, child_count: 5) }
-            12.times { FactoryBot.create(:image_candidate, pipeline_step: step3, child_count: 5) }
+            2.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 5) }
+            2.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step2, child_count: 5) }
+            12.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step3, child_count: 5) }
 
             result = described_class.call
 
@@ -139,8 +140,8 @@ RSpec.describe SelectNextJob do
       context "no work mode" do
         it "returns no work when no deficit and all steps have min candidates" do
           ClimateControl.modify TARGET_LEAF_NODES: "10" do
-            2.times { FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 5) }
-            15.times { FactoryBot.create(:image_candidate, pipeline_step: step3, child_count: 5) }
+            2.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 5) }
+            15.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step3, child_count: 5) }
 
             result = described_class.call
 
@@ -156,6 +157,7 @@ RSpec.describe SelectNextJob do
     context "edge cases" do
       # Clear the eager-loaded steps for these edge case tests
       before do
+        PipelineRun.delete_all
         PipelineStep.delete_all
         Pipeline.delete_all
       end

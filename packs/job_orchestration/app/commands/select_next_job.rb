@@ -17,6 +17,10 @@ class SelectNextJob < GLCommand::Callable
 
   private
 
+  def active_pipeline_run_ids
+    @active_pipeline_run_ids ||= PipelineRun.where.not(status: 'completed').pluck(:id)
+  end
+
   def ensure_minimum_base_images
     min_candidates_per_step = 2
     
@@ -26,7 +30,8 @@ class SelectNextJob < GLCommand::Callable
       
       step1_count = ImageCandidate.where(
         pipeline_step: first_step,
-        status: "active"
+        status: "active",
+        pipeline_run_id: active_pipeline_run_ids
       ).count
       
       if step1_count < min_candidates_per_step
@@ -60,6 +65,7 @@ class SelectNextJob < GLCommand::Callable
     ImageCandidate
       .includes(pipeline_step: :pipeline)
       .where(status: "active")
+      .where(pipeline_run_id: active_pipeline_run_ids)
       .where("child_count < ?", max_children)
       .where("failure_count < ?", max_failures)  # Exclude high-failure candidates
       .where.not(pipeline_step_id: final_step_ids)
@@ -82,7 +88,8 @@ class SelectNextJob < GLCommand::Callable
       
       active_count = ImageCandidate.where(
         pipeline_step: step,
-        status: "active"
+        status: "active",
+        pipeline_run_id: active_pipeline_run_ids
       ).count
       
       # If this step has < 2 candidates, create more at this level
@@ -136,7 +143,8 @@ class SelectNextJob < GLCommand::Callable
 
       active_count = ImageCandidate.where(
         pipeline_step: final_step,
-        status: "active"
+        status: "active",
+        pipeline_run_id: active_pipeline_run_ids
       ).count
 
       if active_count < target

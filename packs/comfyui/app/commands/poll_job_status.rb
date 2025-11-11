@@ -30,6 +30,18 @@ class PollJobStatus < GLCommand::Callable
       )
       context.status = "failed"
       context.needs_processing = false
+      
+      # Track failure on parent and auto-reject if threshold reached
+      if job.parent_candidate
+        parent = job.parent_candidate
+        parent.update!(failure_count: parent.failure_count + 1)
+        
+        max_failures = ENV.fetch("MAX_PARENT_FAILURES", 3).to_i
+        if parent.failure_count >= max_failures
+          Rails.logger.warn("Parent #{parent.id} reached #{parent.failure_count} failures - auto-rejecting")
+          RejectImageBranch.call(image_candidate: parent)
+        end
+      end
     end
   rescue StandardError => e
     # Log error but re-raise for caller to handle

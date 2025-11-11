@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_10_215403) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_11_004652) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -49,6 +49,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_10_215403) do
     t.datetime "updated_at", null: false
     t.bigint "pipeline_run_id"
     t.integer "vote_count", default: 0, null: false
+    t.integer "failure_count", default: 0, null: false
     t.index ["elo_score"], name: "index_image_candidates_on_elo_score"
     t.index ["parent_id"], name: "index_image_candidates_on_parent_id"
     t.index ["pipeline_run_id"], name: "index_image_candidates_on_pipeline_run_id"

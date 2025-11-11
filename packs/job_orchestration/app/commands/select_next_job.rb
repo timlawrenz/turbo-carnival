@@ -50,6 +50,7 @@ class SelectNextJob < GLCommand::Callable
 
   def find_eligible_parents
     max_children = JobOrchestrationConfig.max_children_per_node
+    max_failures = ENV.fetch("MAX_PARENT_FAILURES", 3).to_i
 
     # Get IDs of final steps for each pipeline
     final_step_ids = Pipeline.includes(:pipeline_steps).map do |pipeline|
@@ -60,6 +61,7 @@ class SelectNextJob < GLCommand::Callable
       .includes(pipeline_step: :pipeline)
       .where(status: "active")
       .where("child_count < ?", max_children)
+      .where("failure_count < ?", max_failures)  # Exclude high-failure candidates
       .where.not(pipeline_step_id: final_step_ids)
   end
 

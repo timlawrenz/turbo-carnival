@@ -2,6 +2,10 @@ class SelectNextJob < GLCommand::Callable
   returns :parent_candidate, :next_step, :mode
 
   def call
+    # FIRST: Ensure step 1 has minimum candidates (highest priority)
+    first_step_check = ensure_minimum_base_images
+    return if first_step_check
+
     eligible_parents = find_eligible_parents
 
     if eligible_parents.any?
@@ -12,6 +16,37 @@ class SelectNextJob < GLCommand::Callable
   end
 
   private
+
+  def ensure_minimum_base_images
+    min_candidates_per_step = 2
+    
+    Pipeline.includes(:pipeline_steps).all.each do |pipeline|
+      first_step = pipeline.pipeline_steps.first
+      next unless first_step
+      
+      step1_count = ImageCandidate.where(
+        pipeline_step: first_step,
+        status: "active"
+      ).count
+      
+      if step1_count < min_candidates_per_step
+        in_flight_count = ComfyuiJob.where(
+          pipeline_step: first_step,
+          status: %w[pending submitted running]
+        ).count
+        
+        # Only submit if not already in flight
+        if in_flight_count < min_candidates_per_step
+          context.parent_candidate = nil
+          context.next_step = first_step
+          context.mode = :base_generation
+          return true
+        end
+      end
+    end
+    
+    false
+  end
 
   def find_eligible_parents
     max_children = JobOrchestrationConfig.max_children_per_node
@@ -89,37 +124,11 @@ class SelectNextJob < GLCommand::Callable
   def handle_no_eligible_parents
     # Check for deficit mode
     target = JobOrchestrationConfig.target_leaf_nodes
-    min_candidates_per_step = 2
 
-    # Find all pipelines and check their steps
+    # Find all pipelines and check their final steps
     pipelines = Pipeline.includes(:pipeline_steps).all
 
     pipelines.each do |pipeline|
-      # First, ensure step 1 has at least 2 candidates
-      first_step = pipeline.pipeline_steps.first
-      if first_step
-        step1_count = ImageCandidate.where(
-          pipeline_step: first_step,
-          status: "active"
-        ).count
-        
-        if step1_count < min_candidates_per_step
-          in_flight_count = ComfyuiJob.where(
-            pipeline_step: first_step,
-            status: %w[pending submitted running]
-          ).count
-          
-          # Create base images until we have 2 in step 1
-          if in_flight_count < min_candidates_per_step
-            context.parent_candidate = nil
-            context.next_step = first_step
-            context.mode = :base_generation
-            return
-          end
-        end
-      end
-      
-      # Then check final step for target deficit
       final_step = pipeline.pipeline_steps.last
       next unless final_step
 
@@ -130,6 +139,7 @@ class SelectNextJob < GLCommand::Callable
 
       if active_count < target
         # Check if we already have enough jobs in flight for the first step
+        first_step = pipeline.pipeline_steps.first
         in_flight_count = ComfyuiJob.where(
           pipeline_step: first_step,
           status: %w[pending submitted running]

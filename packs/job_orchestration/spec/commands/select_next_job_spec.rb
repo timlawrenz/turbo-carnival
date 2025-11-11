@@ -9,6 +9,8 @@ RSpec.describe SelectNextJob do
   describe "#call" do
     context "when eligible parents exist" do
       it "selects parents to fill out steps with < 2 candidates first (breadth-first)" do
+        # Need 2 step 1 candidates to pass the base image check
+        2.times { FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 5) }
         candidate_step1 = FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 2, elo_score: 1500)
         candidate_step2 = FactoryBot.create(:image_candidate, pipeline_step: step2, child_count: 2, elo_score: 800)
 
@@ -37,6 +39,7 @@ RSpec.describe SelectNextJob do
       end
 
       it "excludes rejected candidates" do
+        2.times { FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 5) }
         FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 2, status: "rejected")
         candidate_active = FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 2, status: "active")
 
@@ -58,6 +61,7 @@ RSpec.describe SelectNextJob do
       end
 
       it "excludes candidates at final step" do
+        2.times { FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 5) }
         FactoryBot.create(:image_candidate, pipeline_step: step3, child_count: 2)
         candidate_step2 = FactoryBot.create(:image_candidate, pipeline_step: step2, child_count: 2)
 
@@ -69,6 +73,7 @@ RSpec.describe SelectNextJob do
 
     context "ELO-weighted raffle" do
       it "selects from candidates at same step" do
+        2.times { FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 5) }
         candidate_a = FactoryBot.create(:image_candidate, pipeline_step: step2, child_count: 2, elo_score: 1200)
         candidate_b = FactoryBot.create(:image_candidate, pipeline_step: step2, child_count: 2, elo_score: 800)
 
@@ -83,6 +88,7 @@ RSpec.describe SelectNextJob do
       end
 
       it "handles single candidate" do
+        2.times { FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 5) }
         candidate = FactoryBot.create(:image_candidate, pipeline_step: step1, child_count: 2)
 
         result = described_class.call

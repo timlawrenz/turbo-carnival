@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_11_004652) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_11_005309) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -50,12 +50,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_11_004652) do
     t.bigint "pipeline_run_id"
     t.integer "vote_count", default: 0, null: false
     t.integer "failure_count", default: 0, null: false
+    t.boolean "winner", default: false, null: false
+    t.datetime "winner_at"
     t.index ["elo_score"], name: "index_image_candidates_on_elo_score"
     t.index ["parent_id"], name: "index_image_candidates_on_parent_id"
     t.index ["pipeline_run_id"], name: "index_image_candidates_on_pipeline_run_id"
     t.index ["pipeline_step_id"], name: "index_image_candidates_on_pipeline_step_id"
     t.index ["status", "child_count"], name: "index_image_candidates_on_status_and_child_count"
     t.index ["vote_count"], name: "index_image_candidates_on_vote_count"
+    t.index ["winner"], name: "index_image_candidates_on_winner"
   end
 
   create_table "pipeline_runs", force: :cascade do |t|

@@ -9,6 +9,10 @@ Rails.application.routes.draw do
   get "vote" => "image_votes#show", as: :vote
   post "vote" => "image_votes#vote"
   post "vote/reject/:id" => "image_votes#reject", as: :reject_vote
+  post "vote/winner/:id" => "image_votes#declare_winner", as: :declare_winner
+  
+  # Winners gallery
+  get "winners" => "winners#index", as: :winners
 
   # Image serving
   get "images/:id" => "images#show", as: :candidate_image

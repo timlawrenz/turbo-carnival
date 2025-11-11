@@ -2,6 +2,9 @@
   <div class="text-center text-white mb-8">
     <h1 class="text-3xl font-bold mb-2">Vote for the Better Image</h1>
     <p class="text-gray-400">Click an image to vote for it • Click "Kill" to reject and navigate to parent</p>
+    <div class="mt-4">
+      <%= link_to "🏆 View Winners", winners_path, class: "text-yellow-500 hover:text-yellow-400 underline" %>
+    </div>
   </div>
 
   <div class="grid md:grid-cols-2 gap-8">
@@ -53,5 +56,10 @@
   <div class="flex justify-center gap-4 mt-8">
     <%= button_to "Kill Left Image", reject_vote_path(candidate_a), method: :post, class: "px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors" %>
     <%= button_to "Kill Right Image", reject_vote_path(candidate_b), method: :post, class: "px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors" %>
+  </div>
+  
+  <div class="flex justify-center gap-4 mt-4">
+    <%= button_to "🏆 Declare Left Winner", declare_winner_path(candidate_a), method: :post, class: "px-6 py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors font-semibold" %>
+    <%= button_to "🏆 Declare Right Winner", declare_winner_path(candidate_b), method: :post, class: "px-6 py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors font-semibold" %>
   </div>
 </div>

@@ -68,5 +68,29 @@ RSpec.describe RecordVote do
       expect(winner.reload.elo_score).to eq(1000)
       expect(winner.reload.vote_count).to eq(0)
     end
+
+    it "creates a Vote record to track the matchup" do
+      winner = FactoryBot.create(:image_candidate)
+      loser = FactoryBot.create(:image_candidate)
+
+      expect {
+        described_class.call!(winner: winner, loser: loser)
+      }.to change(Vote, :count).by(1)
+
+      vote = Vote.last
+      expect(vote.winner_id).to eq(winner.id)
+      expect(vote.loser_id).to eq(loser.id)
+    end
+
+    it "prevents voting on the same pair twice" do
+      winner = FactoryBot.create(:image_candidate)
+      loser = FactoryBot.create(:image_candidate)
+
+      described_class.call!(winner: winner, loser: loser)
+
+      expect {
+        described_class.call!(winner: winner, loser: loser)
+      }.to raise_error(ActiveRecord::RecordInvalid, /Winner has already been taken/)
+    end
   end
 end

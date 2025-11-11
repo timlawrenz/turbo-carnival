@@ -41,12 +41,27 @@ class ImageCandidate < ApplicationRecord
 
     return [] if candidates.empty?
 
+    # Get all existing votes for these candidates
+    candidate_ids = candidates.map(&:id)
+    existing_votes = Vote.where(winner_id: candidate_ids, loser_id: candidate_ids)
+                         .pluck(:winner_id, :loser_id)
+                         .to_set
+    
+    # Also check reverse pairs (loser, winner) since either direction counts as voted
+    reverse_votes = existing_votes.map { |w, l| [l, w] }.to_set
+    all_voted_pairs = existing_votes + reverse_votes
+
     # Generate all possible pairs
     all_pairs = candidates.combination(2).to_a
 
-    # Sort pairs by the sum of vote counts (prioritize pairs with lower total votes)
-    all_pairs.sort_by! { |a, b| a.vote_count + b.vote_count }
+    # Filter out pairs that have already been voted on
+    unvoted = all_pairs.reject do |a, b|
+      all_voted_pairs.include?([a.id, b.id])
+    end
 
-    all_pairs
+    # Sort pairs by the sum of vote counts (prioritize pairs with lower total votes)
+    unvoted.sort_by! { |a, b| a.vote_count + b.vote_count }
+
+    unvoted
   end
 end

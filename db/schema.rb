@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_11_005309) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_11_165245) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -96,6 +96,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_11_005309) do
     t.index ["name"], name: "index_pipelines_on_name"
   end
 
+  create_table "votes", force: :cascade do |t|
+    t.integer "winner_id", null: false
+    t.integer "loser_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["loser_id"], name: "index_votes_on_loser_id"
+    t.index ["winner_id", "loser_id"], name: "index_votes_on_winner_id_and_loser_id", unique: true
+    t.index ["winner_id"], name: "index_votes_on_winner_id"
+  end
+
   add_foreign_key "comfyui_jobs", "image_candidates"
   add_foreign_key "comfyui_jobs", "image_candidates", column: "parent_candidate_id"
   add_foreign_key "comfyui_jobs", "pipeline_runs"
@@ -105,4 +115,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_11_005309) do
   add_foreign_key "image_candidates", "pipeline_steps"
   add_foreign_key "pipeline_runs", "pipelines"
   add_foreign_key "pipeline_steps", "pipelines"
+  add_foreign_key "votes", "image_candidates", column: "loser_id"
+  add_foreign_key "votes", "image_candidates", column: "winner_id"
 end

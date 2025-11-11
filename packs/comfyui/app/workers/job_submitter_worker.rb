@@ -33,12 +33,12 @@ class JobSubmitterWorker
 
   def submit_job(select_result)
     # Determine the pipeline_run
-    pipeline_run = if select_result.parent_candidate
+    pipeline_run = if select_result.parent_candidate&.pipeline_run
                      select_result.parent_candidate.pipeline_run
-    else
-                     # For base generation, use the first active run or create one
+                   else
+                     # For base generation or orphan parents, use the last active run or create one
                      PipelineRun.last || create_default_run(select_result.next_step.pipeline)
-    end
+                   end
 
     payload_result = BuildJobPayload.call(
       pipeline_step: select_result.next_step,

@@ -37,13 +37,6 @@ class ImageVotesController < ApplicationController
     redirect_to vote_path
   end
 
-  def declare_winner
-    candidate = ImageCandidate.find(params[:id])
-    candidate.update!(winner: true, winner_at: Time.current)
-    
-    redirect_to vote_path, notice: "Image ##{candidate.id} declared as winner! 🏆"
-  end
-
   private
 
   def fetch_next_pair

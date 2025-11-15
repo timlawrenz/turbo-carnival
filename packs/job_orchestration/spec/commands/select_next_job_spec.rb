@@ -11,9 +11,9 @@ RSpec.describe SelectNextJob do
     context "when eligible parents exist" do
       it "selects parents to fill out steps with < 2 candidates first (breadth-first)" do
         # Need 2 step 1 candidates to pass the base image check
-        2.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 5) }
-        candidate_step1 = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 2, elo_score: 1500)
-        candidate_step2 = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step2, child_count: 2, elo_score: 800)
+        2.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 2) }
+        candidate_step1 = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 1, elo_score: 1500)
+        candidate_step2 = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step2, child_count: 0, elo_score: 800)
 
         result = described_class.call
 
@@ -24,61 +24,75 @@ RSpec.describe SelectNextJob do
         expect(result.next_step).to eq(step2)
       end
       
-      it "uses triage-right when all steps have >= 2 candidates" do
-        # Create 2 candidates in each step
-        2.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 2) }
-        candidate_step2_a = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step2, child_count: 2, elo_score: 1500)
-        candidate_step2_b = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step2, child_count: 2, elo_score: 800)
-        2.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step3, child_count: 2) }
+      it "returns no_work when all steps have >= 2 candidates" do
+        ClimateControl.modify TARGET_LEAF_NODES: "2" do
+          # Create 2 candidates in each step - breadth-first is complete
+          2.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 2) }
+          2.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step2, child_count: 2, elo_score: 1500) }
+          2.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step3, child_count: 2) }
 
-        result = described_class.call
+          result = described_class.call
 
-        expect(result).to be_success
-        expect(result.mode).to eq(:child_generation)
-        # Now it should use triage-right and select from step2 (highest with eligible parents)
-        expect([candidate_step2_a, candidate_step2_b]).to include(result.parent_candidate)
+          expect(result).to be_success
+          expect(result.mode).to eq(:no_work)
+          # Strict breadth-first: all steps filled, no more work
+          expect(result.parent_candidate).to be_nil
+          expect(result.next_step).to be_nil
+        end
       end
 
       it "excludes rejected candidates" do
-        2.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 5) }
-        FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 2, status: "rejected")
-        candidate_active = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 2, status: "active")
+        # Create 2 active step1 candidates + 1 rejected
+        2.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 2) }
+        FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 0, status: "rejected")
+        candidate_active = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 0, status: "active")
 
         result = described_class.call
 
         expect(result).to be_success
         expect(result.parent_candidate).to eq(candidate_active)
+        expect(result.next_step).to eq(step2)
       end
 
       it "excludes candidates with max children" do
         ClimateControl.modify MAX_CHILDREN_PER_NODE: "5" do
+          # Need 5 step1 candidates (breadth-first with N=5)
+          4.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 5) }
           FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 5)
           candidate_eligible = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 4)
 
           result = described_class.call
 
           expect(result.parent_candidate).to eq(candidate_eligible)
+          expect(result.next_step).to eq(step2)
         end
       end
 
       it "excludes candidates at final step" do
-        2.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 5) }
-        FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step3, child_count: 2)
-        candidate_step2 = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step2, child_count: 2)
+        # Create 2 step1, 2 step2 (breadth filled)
+        2.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 2) }
+        candidate_step2 = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step2, child_count: 0)
+        FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step2, child_count: 2)
+        # Only 1 step3 candidate - needs filling to reach 2
+        FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step3, child_count: 0)
 
         result = described_class.call
 
+        # Should select step2 parent to fill step3 to 2 candidates
         expect(result.parent_candidate).to eq(candidate_step2)
+        expect(result.next_step).to eq(step3)
       end
     end
 
     context "ELO-weighted raffle" do
       it "selects from candidates at same step" do
-        2.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 5) }
-        candidate_a = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step2, child_count: 2, elo_score: 1200)
-        candidate_b = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step2, child_count: 2, elo_score: 800)
+        # Create 2 step1 candidates to satisfy breadth-first
+        2.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 2) }
+        # Create 2 step2 candidates with different ELO - need to fill step3
+        candidate_a = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 0, elo_score: 1200)
+        candidate_b = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 0, elo_score: 800)
 
-        # Run multiple times to test distribution
+        # Run multiple times to test distribution (need step2 to have < 2)
         results = 100.times.map { described_class.call.parent_candidate }
 
         expect(results).to include(candidate_a)
@@ -89,21 +103,25 @@ RSpec.describe SelectNextJob do
       end
 
       it "handles single candidate" do
-        2.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 5) }
-        candidate = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 2)
+        # Create 2 step1 candidates (satisfy breadth-first)
+        2.times { FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 2) }
+        # Single eligible candidate at step1 for creating step2
+        candidate = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 0)
 
         result = described_class.call
 
         expect(result.parent_candidate).to eq(candidate)
+        expect(result.next_step).to eq(step2)
       end
 
       it "handles zero ELO scores" do
-        candidate_a = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 2, elo_score: 0)
-        candidate_b = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 2, elo_score: 0)
+        candidate_a = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 0, elo_score: 0)
+        candidate_b = FactoryBot.create(:image_candidate, pipeline_run: pipeline_run, pipeline_step: step1, child_count: 0, elo_score: 0)
 
         result = described_class.call
 
         expect(result.parent_candidate).to be_in([ candidate_a, candidate_b ])
+        expect(result.next_step).to eq(step2)
       end
     end
 

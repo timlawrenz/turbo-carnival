@@ -5,17 +5,39 @@ Rails.application.routes.draw do
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
 
-  # Voting interface
-  get "vote" => "image_votes#show", as: :vote
-  post "vote" => "image_votes#vote"
-  post "vote/reject/:id" => "image_votes#reject", as: :reject_vote
+  # Mount importmap for JavaScript modules
+  mount Importmap::Engine, at: "/importmap"
+
+  # Runs dashboard (main entry point)
+  resources :runs, only: [:index, :show] do
+    member do
+      post :complete  # POST /runs/14/complete
+      get :winners    # GET /runs/14/winners
+      get :card       # GET /runs/14/card (for Turbo Frame refresh)
+    end
+    
+    # Voting scoped to run
+    get 'vote', to: 'image_votes#show'           # GET  /runs/14/vote
+    post 'vote', to: 'image_votes#vote'          # POST /runs/14/vote
+    post 'vote/reject/:id', to: 'image_votes#reject', as: :reject_vote
+                                                  # POST /runs/14/vote/reject/123
+    
+    # Gallery scoped to run
+    get 'gallery', to: 'gallery#index'            # GET /runs/14/gallery?step=2
+    post 'gallery/reject/:id', to: 'gallery#reject', as: :gallery_reject
+                                                  # POST /runs/14/gallery/reject/123
+  end
+  
+  # Legacy routes (redirect to first active run)
+  get "vote" => "redirects#vote"
+  get "gallery" => "redirects#gallery"
   
   # Winners gallery
   get "winners" => "winners#index", as: :winners
 
-  # Image serving
+  # Image serving (global, no run scope needed)
   get "images/:id" => "images#show", as: :candidate_image
 
   # Defines the root path route ("/")
-  root "image_votes#show"
+  root "runs#index"
 end

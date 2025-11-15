@@ -8,6 +8,10 @@ class ImageCandidate < ApplicationRecord
   validates :status, inclusion: { in: %w[active rejected] }
   validates :child_count, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :vote_count, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+  
+  # Broadcast updates to the run when candidates change
+  after_create_commit :broadcast_run_update
+  after_update_commit :broadcast_run_update
 
   state_machine :status, initial: :active do
     state :active
@@ -22,10 +26,17 @@ class ImageCandidate < ApplicationRecord
       if candidate.parent
         candidate.parent.decrement!(:child_count)
       end
+      
+      # Broadcast run update after rejection
+      candidate.broadcast_run_update
     end
   end
 
   scope :active, -> { where(status: "active") }
+  
+  def broadcast_run_update
+    pipeline_run&.broadcast_refresh
+  end
 
   def calculate_elo_change(opponent, won)
     k_factor = 32

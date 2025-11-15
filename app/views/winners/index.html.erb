@@ -1,51 +1,62 @@
 <div class="min-h-screen bg-gray-900 p-8">
   <div class="max-w-7xl mx-auto">
     <div class="flex justify-between items-center mb-8">
-      <div>
-        <h1 class="text-4xl font-bold text-white">🏆 Top 3 Leaders</h1>
-        <% if @step %>
-          <p class="text-gray-400 mt-2">From <%= @step.name %> (Step <%= @step.order %>) - Ordered by ELO</p>
-        <% end %>
-      </div>
-      <%= link_to "← Back to Voting", vote_path, class: "px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors" %>
+      <h1 class="text-4xl font-bold text-white">🏆 Winners by Run</h1>
+      <%= link_to "← Back to runs", runs_path, class: "px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors" %>
     </div>
 
-    <% if @winners.any? %>
-      <div class="grid md:grid-cols-3 gap-6">
-        <% @winners.each_with_index do |winner, index| %>
-          <div class="bg-gray-800 rounded-lg overflow-hidden shadow-xl">
-            <div class="relative">
-              <div class="absolute top-2 right-2 bg-yellow-500 text-gray-900 px-3 py-1 rounded-full font-bold text-sm">
-                <% if index == 0 %>🥇<% elsif index == 1 %>🥈<% else %>🥉<% end %> #<%= index + 1 %>
-              </div>
-              <div class="aspect-square bg-gray-700 flex items-center justify-center">
-                <% if winner.image_path.present? %>
-                  <%= image_tag candidate_image_path(winner), class: "w-full h-full object-contain", alt: "Winner #{index + 1}" %>
-                <% else %>
-                  <span class="text-gray-500">No image</span>
-                <% end %>
-              </div>
+    <% if @runs.any? %>
+      <div class="space-y-8">
+        <% @runs.each do |run| %>
+          <% 
+            pipeline = run.pipeline
+            final_step = pipeline.pipeline_steps.order(:order).last
+            top_3 = ImageCandidate.where(
+              pipeline_step: final_step,
+              pipeline_run: run,
+              status: 'active'
+            ).order(elo_score: :desc).limit(3)
+            display_name = run.name.presence || run.variables['run_name'] || "Run ##{run.id}"
+          %>
+          
+          <div class="bg-gray-800 rounded-lg p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-2xl font-bold text-white"><%= display_name %></h2>
+              <%= link_to "View all →", winners_run_path(run), class: "text-yellow-400 hover:text-yellow-300" %>
             </div>
             
-            <div class="p-4">
-              <h3 class="text-white font-semibold text-lg mb-2">
-                <%= winner.pipeline_step.name %>
-              </h3>
-              <div class="text-gray-400 text-sm space-y-1">
-                <p>ID: <%= winner.id %></p>
-                <p class="text-yellow-500 font-bold text-lg">ELO: <%= winner.elo_score %></p>
-                <p>Votes: <%= winner.vote_count %></p>
-                <p>Children: <%= winner.child_count %></p>
+            <% if top_3.any? %>
+              <div class="grid md:grid-cols-3 gap-4">
+                <% top_3.each_with_index do |winner, index| %>
+                  <div class="bg-gray-700 rounded-lg overflow-hidden">
+                    <div class="relative">
+                      <div class="absolute top-2 right-2 bg-yellow-500 text-gray-900 px-2 py-1 rounded-full font-bold text-xs">
+                        <% if index == 0 %>🥇<% elsif index == 1 %>🥈<% else %>🥉<% end %> #<%= index + 1 %>
+                      </div>
+                      <div class="aspect-square bg-gray-600 flex items-center justify-center">
+                        <% if winner.image_path.present? %>
+                          <%= image_tag candidate_image_path(winner), class: "w-full h-full object-contain" %>
+                        <% else %>
+                          <span class="text-gray-400">No image</span>
+                        <% end %>
+                      </div>
+                    </div>
+                    <div class="p-3">
+                      <div class="text-yellow-400 font-bold text-lg">⭐ <%= winner.elo_score %></div>
+                      <div class="text-xs text-gray-400">ID: <%= winner.id %></div>
+                    </div>
+                  </div>
+                <% end %>
               </div>
-            </div>
+            <% else %>
+              <p class="text-gray-400">No candidates yet</p>
+            <% end %>
           </div>
         <% end %>
       </div>
     <% else %>
-      <div class="text-center py-20">
-        <p class="text-gray-400 text-xl">No candidates yet in the final step.</p>
-        <p class="text-gray-500 mt-2">Start voting to evolve images through the pipeline!</p>
-        <%= link_to "Start Voting →", vote_path, class: "inline-block mt-4 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors" %>
+      <div class="text-center text-gray-400 py-12">
+        <p class="text-xl">No runs found</p>
       </div>
     <% end %>
   </div>

@@ -46,6 +46,31 @@ bin/packwerk validate
 bundle exec rubocop
 ```
 
+### Quick Start: Web Interface
+
+The web interface provides real-time monitoring and curation:
+
+```bash
+# Start the Rails server
+bin/rails server
+
+# Visit the runs dashboard
+open http://localhost:3000
+
+# Features:
+# - See all runs with live progress updates
+# - Vote on candidates per-run (/runs/:id/vote)
+# - Browse galleries per-run (/runs/:id/gallery)
+# - View tree structure (/runs/:id - Details)
+# - See top 3 winners (/runs/:id/winners)
+```
+
+**Key Features**:
+- **Live Updates**: Run cards auto-refresh via Turbo Streams when new candidates are generated
+- **Per-Run Isolation**: All voting, browsing, and stats scoped to individual runs
+- **Smart Navigation**: Vote button disables when no pairs available, gallery links to latest step with images
+- **Tree Visualization**: See parent-child relationships and ELO scores in tree view
+
 ### Quick Start: Voting Interface
 
 The voting interface allows you to curate generated images using ELO-based ranking:
@@ -105,11 +130,38 @@ COMFYUI_SUBMIT_INTERVAL=10  # Seconds between job submissions
 COMFYUI_POLL_INTERVAL=5     # Seconds between status polls
 
 # Job selection algorithm
-PIPELINE_N=5   # Max children per candidate
-PIPELINE_T=10  # Target final candidates
+MAX_CHILDREN_PER_NODE=2  # Max children per candidate (breadth-first: 2-3 recommended)
+TARGET_LEAF_NODES=10     # Target final candidates
 
 bundle exec sidekiq
 ```
+
+**Job Selection Strategy**:
+The system uses a **per-parent breadth-first** approach with **round-robin run selection**:
+
+**Per-Run Round-Robin**:
+- Multiple PipelineRuns can be active simultaneously
+- System cycles through runs fairly: Run A → Run B → Run C → Run A...
+- Each run progresses independently
+- Completed runs are excluded from job selection
+
+**Per-Parent Breadth-First**:
+- Each parent candidate gets N children (default: 2) before moving to next step
+- Ensures full tree exploration - no "bottom-right" branch starvation
+- Tree grows geometrically: 2 → 4 → 8 → 16 → 32 candidates per step
+- Control growth by rejecting low-ELO candidates early
+
+**Example Tree Growth (N=2)**:
+```
+Step 1: [Parent A, Parent B]           = 2 total
+Step 2: [2 from A, 2 from B]           = 4 total  
+Step 3: [2 from each of 4 parents]     = 8 total
+Step 4: [2 from each of 8 parents]     = 16 total
+```
+
+**Configuration**:
+- `MAX_CHILDREN_PER_NODE=2` - Children per parent (keep at 2-3 for manageable growth)
+- `TARGET_LEAF_NODES=10` - Maintain this many candidates in final step (deprecated in favor of per-parent strategy)
 
 
 ## How It Works
@@ -841,7 +893,8 @@ All core functionality is implemented and tested. The system can autonomously:
 - Comprehensive test coverage
 
 **Image Voting & Curation** ✅
-- ELO-based A vs B voting interface
+- ELO-based A vs B voting interface scoped per-run
+- Per-run voting, gallery, and winners pages
 - Triage-right strategy (prioritizes rightmost/completed images)
 - Kill-left navigation for branch rejection
 - RecordVote command with transaction safety
@@ -849,6 +902,16 @@ All core functionality is implemented and tested. The system can autonomously:
 - Secure image serving through Rails (GET /images/:id)
 - Responsive dark UI with Tailwind CSS
 - 82 passing specs including vote recording and image serving
+
+**Web Interface** ✅
+- Real-time runs dashboard with Turbo Streams
+- Live updates when new candidates are generated
+- Per-run tree visualization showing parent-child relationships
+- Progress tracking with accurate per-parent counts
+- Vote button auto-disables when no unvoted pairs available
+- Gallery links to latest step with images
+- Beautiful dark theme with Tailwind CSS
+- Full RESTful routing: `/runs/:id/vote`, `/runs/:id/gallery`, `/runs/:id/winners`
 
 **Developer Tools** ✅
 - Rake task: `pipeline:setup_example` - Creates complete 4-step pipeline
@@ -1004,8 +1067,8 @@ end
 **Autonomous Deficit Mode**: When the final pipeline step has fewer than T (target) active candidates, the system automatically generates new base images to maintain the funnel.
 
 **Configuration**:
-- `PIPELINE_N` (default: 5) - Each candidate can have up to N children
-- `PIPELINE_T` (default: 10) - Maintain at least T candidates in final step
+- `MAX_CHILDREN_PER_NODE` (default: 2) - Each candidate can have up to N children (breadth-first strategy: keep low at 2-3)
+- `TARGET_LEAF_NODES` (default: 10) - Maintain at least T candidates in final step
 - `COMFYUI_BASE_URL` (default: http://localhost:8188) - ComfyUI API endpoint
 - `COMFYUI_POLL_INTERVAL` (default: 5) - Seconds between status checks
 - `COMFYUI_SUBMIT_INTERVAL` (default: 10) - Seconds between job submissions

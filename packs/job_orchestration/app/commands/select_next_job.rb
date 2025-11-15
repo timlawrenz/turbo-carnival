@@ -1,167 +1,248 @@
 class SelectNextJob < GLCommand::Callable
-  returns :parent_candidate, :next_step, :mode
+  returns :parent_candidate, :next_step, :mode, :pipeline_run
 
   def call
-    # FIRST: Ensure step 1 has minimum candidates (highest priority)
-    first_step_check = ensure_minimum_base_images
-    return if first_step_check
-
-    eligible_parents = find_eligible_parents
-
-    if eligible_parents.any?
-      handle_child_generation(eligible_parents)
-    else
-      handle_no_eligible_parents
+    # Select a run that needs work (round-robin)
+    selected_run = select_run_needing_work
+    
+    unless selected_run
+      context.mode = :no_work
+      context.pipeline_run = nil
+      context.parent_candidate = nil
+      context.next_step = nil
+      Rails.logger.info("SelectNextJob: No active runs need work")
+      return
     end
+
+    # Work on the selected run
+    work_on_run(selected_run)
   end
 
   private
 
-  def active_pipeline_run_ids
-    @active_pipeline_run_ids ||= PipelineRun.where.not(status: 'completed').pluck(:id)
+  def select_run_needing_work
+    active_runs = PipelineRun.where.not(status: 'completed').order(:id).to_a
+    
+    return nil if active_runs.empty?
+    
+    # Get last worked run ID from cache/session
+    last_worked_id = Rails.cache.read('last_worked_run_id') || 0
+    
+    # Find next run after last_worked that needs work
+    start_index = active_runs.index { |r| r.id > last_worked_id } || 0
+    
+    # Check from start_index to end
+    (start_index...active_runs.size).each do |i|
+      run = active_runs[i]
+      if run_needs_work?(run)
+        Rails.cache.write('last_worked_run_id', run.id)
+        return run
+      end
+    end
+    
+    # Wrap around: check from beginning to start_index
+    (0...start_index).each do |i|
+      run = active_runs[i]
+      if run_needs_work?(run)
+        Rails.cache.write('last_worked_run_id', run.id)
+        return run
+      end
+    end
+    
+    nil
   end
 
-  def ensure_minimum_base_images
-    min_candidates_per_step = 2
+  def run_needs_work?(run)
+    max_children = JobOrchestrationConfig.max_children_per_node
+    pipeline = run.pipeline
     
-    Pipeline.includes(:pipeline_steps).all.each do |pipeline|
-      first_step = pipeline.pipeline_steps.first
-      next unless first_step
+    # Check if base step needs more candidates
+    first_step = pipeline.pipeline_steps.first
+    base_count = ImageCandidate.where(
+      pipeline_step: first_step,
+      pipeline_run: run,
+      status: 'active'
+    ).count
+    
+    return true if base_count < max_children
+    
+    # Check if any parent needs more children
+    pipeline.pipeline_steps.order(:order).each do |step|
+      next if step == first_step
       
-      step1_count = ImageCandidate.where(
-        pipeline_step: first_step,
-        status: "active",
-        pipeline_run_id: active_pipeline_run_ids
-      ).count
+      # Find parents from previous step
+      prev_step = pipeline.pipeline_steps.where("\"order\" < ?", step.order).reorder("\"order\" DESC").first
+      next unless prev_step
       
-      if step1_count < min_candidates_per_step
-        in_flight_count = ComfyuiJob.where(
-          pipeline_step: first_step,
-          status: %w[pending submitted running]
+      # Get all active parents at previous step
+      parents = ImageCandidate.where(
+        pipeline_step: prev_step,
+        pipeline_run: run,
+        status: 'active'
+      )
+      
+      # Check if any parent needs more children
+      parents.each do |parent|
+        child_count = parent.children.where(
+          pipeline_step: step,
+          status: 'active'
         ).count
-        
-        # Only submit if not already in flight
-        if in_flight_count < min_candidates_per_step
-          context.parent_candidate = nil
-          context.next_step = first_step
-          context.mode = :base_generation
-          return true
-        end
+        return true if child_count < max_children
       end
     end
     
     false
   end
 
-  def find_eligible_parents
+  def work_on_run(run)
+    context.pipeline_run = run
+    Rails.logger.info("SelectNextJob: Working on run #{run.id} (#{run.name})")
+    
+    # FIRST: Ensure step 1 has minimum candidates
+    first_step_check = ensure_minimum_base_images(run)
+    return if first_step_check
+
+    eligible_parents = find_eligible_parents(run)
+
+    if eligible_parents.any?
+      handle_child_generation(run, eligible_parents)
+    else
+      handle_no_eligible_parents(run)
+    end
+  end
+
+  def ensure_minimum_base_images(run)
+    min_candidates_per_step = JobOrchestrationConfig.max_children_per_node
+    pipeline = run.pipeline
+    first_step = pipeline.pipeline_steps.first
+    
+    return false unless first_step
+    
+    step1_count = ImageCandidate.where(
+      pipeline_step: first_step,
+      pipeline_run: run,
+      status: "active"
+    ).count
+    
+    if step1_count < min_candidates_per_step
+      in_flight_count = ComfyuiJob.where(
+        pipeline_step: first_step,
+        pipeline_run: run,
+        status: %w[pending submitted running]
+      ).count
+      
+      # Only submit if not already in flight
+      if in_flight_count < min_candidates_per_step
+        context.parent_candidate = nil
+        context.next_step = first_step
+        context.mode = :base_generation
+        Rails.logger.info("SelectNextJob: Run #{run.id} - Filling step 1 to #{min_candidates_per_step} candidates (#{step1_count} active, #{in_flight_count} in flight)")
+        return true
+      end
+    end
+    
+    false
+  end
+
+  def find_eligible_parents(run)
     max_children = JobOrchestrationConfig.max_children_per_node
     max_failures = ENV.fetch("MAX_PARENT_FAILURES", 3).to_i
+    pipeline = run.pipeline
 
-    # Get IDs of final steps for each pipeline
-    final_step_ids = Pipeline.includes(:pipeline_steps).map do |pipeline|
-      pipeline.pipeline_steps.max_by(&:order)&.id
-    end.compact
+    # Get ID of final step
+    final_step_id = pipeline.pipeline_steps.max_by(&:order)&.id
 
     ImageCandidate
       .includes(pipeline_step: :pipeline)
       .where(status: "active")
-      .where(pipeline_run_id: active_pipeline_run_ids)
+      .where(pipeline_run: run)
       .where("child_count < ?", max_children)
-      .where("failure_count < ?", max_failures)  # Exclude high-failure candidates
-      .where.not(pipeline_step_id: final_step_ids)
+      .where("failure_count < ?", max_failures)
+      .where.not(pipeline_step_id: final_step_id)
   end
 
-  def handle_child_generation(eligible_parents)
+  def handle_child_generation(run, eligible_parents)
     parents_with_order = eligible_parents.to_a
     return if parents_with_order.empty?
 
-    # NEW: Check each step to ensure minimum candidates exist before going deeper
-    # This creates breadth-first growth (2 at each level before going deep)
-    min_candidates_per_step = 2
+    # Per-parent breadth-first: each parent gets N children before advancing
+    max_children = JobOrchestrationConfig.max_children_per_node
+    pipeline = run.pipeline
     
-    pipeline = parents_with_order.first.pipeline_step.pipeline
-    
-    # Find the earliest step that needs more candidates
+    # Find the earliest step that has parents needing more children
     pipeline.pipeline_steps.order(:order).each do |step|
-      # Skip the first step (handled in handle_no_eligible_parents)
+      # Skip the first step (handled in ensure_minimum_base_images)
       next if step == pipeline.pipeline_steps.first
       
-      active_count = ImageCandidate.where(
-        pipeline_step: step,
-        status: "active",
-        pipeline_run_id: active_pipeline_run_ids
-      ).count
+      # Find parents from the previous step
+      prev_step = pipeline.pipeline_steps.where("\"order\" < ?", step.order).reorder("\"order\" DESC").first
+      next unless prev_step
       
-      # If this step has < 2 candidates, create more at this level
-      if active_count < min_candidates_per_step
-        # Find parents from the previous step
-        prev_step = pipeline.pipeline_steps.where("\"order\" < ?", step.order).order(order: :desc).first
+      # Get all active parents at previous step for this run
+      parents_at_prev_step = ImageCandidate.where(
+        pipeline_step: prev_step,
+        pipeline_run: run,
+        status: 'active'
+      )
+      
+      # Find parents that need more children at this step
+      parents_needing_children = parents_at_prev_step.select do |parent|
+        child_count = parent.children.where(
+          pipeline_step: step,
+          status: 'active'
+        ).count
+        child_count < max_children
+      end
+      
+      if parents_needing_children.any?
+        # Select a parent that needs children (weighted by ELO)
+        selected_parent = weighted_raffle(parents_needing_children)
+        current_children = selected_parent.children.where(pipeline_step: step, status: 'active').count
         
-        if prev_step
-          # Select from parents in the previous step
-          candidates_from_prev = parents_with_order.select { |p| p.pipeline_step_id == prev_step.id }
-          
-          if candidates_from_prev.any?
-            selected_parent = weighted_raffle(candidates_from_prev)
-            context.parent_candidate = selected_parent
-            context.next_step = step
-            context.mode = :child_generation
-            return
-          end
-        end
+        context.parent_candidate = selected_parent
+        context.next_step = step
+        context.mode = :child_generation
+        Rails.logger.info("SelectNextJob: Run #{run.id} - Parent #{selected_parent.id} needs child at step #{step.order} (#{current_children}/#{max_children})")
+        return
       end
     end
 
-    # All steps have minimum candidates, use original triage-right logic
-    highest_order = parents_with_order.map { |p| p.pipeline_step.order }.max
-    top_priority_candidates = parents_with_order.select { |p| p.pipeline_step.order == highest_order }
-
-    # Perform ELO-weighted raffle
-    selected_parent = weighted_raffle(top_priority_candidates)
-
-    # Find next step
-    next_step = selected_parent.pipeline_step.pipeline.pipeline_steps
-      .where("\"order\" > ?", selected_parent.pipeline_step.order)
-      .order(:order)
-      .first
-
-    context.parent_candidate = selected_parent
-    context.next_step = next_step
-    context.mode = :child_generation
+    # All parents have N children - no more work on this run
+    Rails.logger.info("SelectNextJob: Run #{run.id} - All parents have #{max_children} children")
+    context.parent_candidate = nil
+    context.next_step = nil
+    context.mode = :no_work
   end
 
-  def handle_no_eligible_parents
+  def handle_no_eligible_parents(run)
     # Check for deficit mode
     target = JobOrchestrationConfig.target_leaf_nodes
+    pipeline = run.pipeline
+    final_step = pipeline.pipeline_steps.last
+    
+    return unless final_step
 
-    # Find all pipelines and check their final steps
-    pipelines = Pipeline.includes(:pipeline_steps).all
+    active_count = ImageCandidate.where(
+      pipeline_step: final_step,
+      pipeline_run: run,
+      status: "active"
+    ).count
 
-    pipelines.each do |pipeline|
-      final_step = pipeline.pipeline_steps.last
-      next unless final_step
-
-      active_count = ImageCandidate.where(
-        pipeline_step: final_step,
-        status: "active",
-        pipeline_run_id: active_pipeline_run_ids
+    if active_count < target
+      # Check if we already have enough jobs in flight for the first step
+      first_step = pipeline.pipeline_steps.first
+      in_flight_count = ComfyuiJob.where(
+        pipeline_step: first_step,
+        pipeline_run: run,
+        status: %w[pending submitted running]
       ).count
-
-      if active_count < target
-        # Check if we already have enough jobs in flight for the first step
-        first_step = pipeline.pipeline_steps.first
-        in_flight_count = ComfyuiJob.where(
-          pipeline_step: first_step,
-          status: %w[pending submitted running]
-        ).count
-        
-        # Only trigger base generation if we don't have enough jobs in flight
-        if in_flight_count < target
-          context.parent_candidate = nil
-          context.next_step = first_step
-          context.mode = :base_generation
-          return
-        end
+      
+      # Only trigger base generation if we don't have enough jobs in flight
+      if in_flight_count < target
+        context.parent_candidate = nil
+        context.next_step = first_step
+        context.mode = :base_generation
+        return
       end
     end
 

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Pipeline Runs</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="bg-gray-900 min-h-screen">
+    <%= turbo_stream_from "runs" %>
+    <div class="container mx-auto px-4 py-8">
+      <!-- Header -->
+      <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-white">
+          📋 Pipeline Runs
+        </h1>
+        <div class="flex gap-4">
+          <%= link_to "🏆 Winners", winners_path, class: "px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors" %>
+        </div>
+      </div>
+
+      <% if notice %>
+        <div class="bg-green-600 text-white px-6 py-4 rounded-lg mb-6">
+          <%= notice %>
+        </div>
+      <% end %>
+
+      <% if alert %>
+        <div class="bg-red-600 text-white px-6 py-4 rounded-lg mb-6">
+          <%= alert %>
+        </div>
+      <% end %>
+
+      <!-- Runs List -->
+      <% if @runs.any? %>
+        <div class="grid grid-cols-1 gap-6">
+          <% @runs.each do |run| %>
+            <%= render partial: 'run_card', locals: { run: run } %>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="text-center text-gray-400 py-12">
+          <p class="text-xl mb-4">No pipeline runs found</p>
+          <p class="text-sm">Create a new run to get started</p>
+        </div>
+      <% end %>
+    </div>
+  </body>
+</html>

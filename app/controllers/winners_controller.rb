@@ -1,12 +1,20 @@
 class WinnersController < ApplicationController
+  before_action :load_run, only: [:show]
+
   def index
-    # Get the rightmost pipeline step (highest order)
-    rightmost_step = PipelineStep.order(order: :desc).first
+    # Show all runs with their top candidates
+    @runs = PipelineRun.includes(:pipeline).order(created_at: :desc)
+  end
+
+  def show
+    # Show top 3 winners for a specific run
+    pipeline = @run.pipeline
+    rightmost_step = pipeline.pipeline_steps.order(order: :desc).first
     
     if rightmost_step
-      # Get top 3 active candidates from rightmost step, ordered by ELO
       @winners = ImageCandidate.where(
         pipeline_step: rightmost_step,
+        pipeline_run: @run,
         status: 'active'
       ).order(elo_score: :desc).limit(3)
       
@@ -15,5 +23,11 @@ class WinnersController < ApplicationController
       @winners = []
       @step = nil
     end
+  end
+
+  private
+
+  def load_run
+    @run = PipelineRun.find(params[:id])
   end
 end

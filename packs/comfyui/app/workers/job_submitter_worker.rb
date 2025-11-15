@@ -32,13 +32,8 @@ class JobSubmitterWorker
   private
 
   def submit_job(select_result)
-    # Determine the pipeline_run
-    pipeline_run = if select_result.parent_candidate&.pipeline_run
-                     select_result.parent_candidate.pipeline_run
-                   else
-                     # For base generation or orphan parents, use the last active run or create one
-                     PipelineRun.last || create_default_run(select_result.next_step.pipeline)
-                   end
+    # Use the pipeline_run from SelectNextJob result
+    pipeline_run = select_result.pipeline_run
 
     payload_result = BuildJobPayload.call(
       pipeline_step: select_result.next_step,
@@ -56,14 +51,6 @@ class JobSubmitterWorker
       pipeline_step: select_result.next_step,
       pipeline_run: pipeline_run,
       parent_candidate: select_result.parent_candidate
-    )
-  end
-
-  def create_default_run(pipeline)
-    PipelineRun.create!(
-      pipeline: pipeline,
-      variables: { prompt: "default prompt" },
-      target_folder: Rails.root.join("storage", "pipeline_runs", Time.current.to_i.to_s).to_s
     )
   end
 

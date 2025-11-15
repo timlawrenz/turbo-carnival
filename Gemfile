@@ -6,6 +6,10 @@ gem "rails", "~> 8.0.4"
 gem "pg", "~> 1.1"
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
+
+# The modern asset pipeline for Rails [https://github.com/rails/propshaft]
+gem "propshaft"
+
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 # gem "jbuilder"
 
@@ -65,4 +69,11 @@ gem "gl_command", "~> 1.4"
 # HTTP client for ComfyUI API
 gem "faraday", "~> 2.9"
 gem "faraday-retry", "~> 2.2"
+
+# Background jobs
 gem "sidekiq", "~> 7.0"
+
+# Hotwire for SPA-like features
+gem "turbo-rails"
+gem "stimulus-rails"
+gem "importmap-rails"

@@ -1,9 +1,30 @@
-<div class="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-  <div id="voting-interface" class="w-full max-w-7xl">
-    <% if @pair %>
-      <%= render "comparison", candidate_a: @candidate_a, candidate_b: @candidate_b %>
-    <% else %>
-      <%= render "complete" %>
-    <% end %>
+<div class="min-h-screen bg-gray-900 flex flex-col">
+  <!-- Header with run context -->
+  <div class="bg-gray-800 border-b border-gray-700 px-6 py-4">
+    <div class="container mx-auto flex justify-between items-center">
+      <div>
+        <h1 class="text-xl font-bold text-white">
+          🗳️ Voting: <%= @run.name.presence || @run.variables['run_name'] || "Run ##{@run.id}" %>
+        </h1>
+        <div class="text-sm text-gray-400 mt-1">
+          <%= link_to "← Back to runs", runs_path, class: "hover:text-white" %>
+          <span class="mx-2">|</span>
+          <%= link_to "Gallery", run_gallery_path(@run), class: "hover:text-white" %>
+        </div>
+      </div>
+      <div class="text-right text-sm text-gray-400">
+        Pipeline: <%= @run.pipeline.name %>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex-1 flex items-center justify-center p-4">
+    <div id="voting-interface" class="w-full max-w-7xl">
+      <% if @pair %>
+        <%= render "comparison", candidate_a: @candidate_a, candidate_b: @candidate_b %>
+      <% else %>
+        <%= render "complete" %>
+      <% end %>
+    </div>
   </div>
 </div>

@@ -1,4 +1,6 @@
 class ImageVotesController < ApplicationController
+  before_action :load_run
+
   def show
     @pair = fetch_next_pair
 
@@ -15,7 +17,7 @@ class ImageVotesController < ApplicationController
 
     RecordVote.call!(winner: winner, loser: loser)
 
-    redirect_to vote_path
+    redirect_to run_vote_path(@run)
   end
 
   def reject
@@ -34,10 +36,14 @@ class ImageVotesController < ApplicationController
       }
     end
 
-    redirect_to vote_path
+    redirect_to run_vote_path(@run)
   end
 
   private
+
+  def load_run
+    @run = PipelineRun.find(params[:run_id])
+  end
 
   def fetch_next_pair
     # Check if we're navigating from a kill action
@@ -45,10 +51,11 @@ class ImageVotesController < ApplicationController
       nav = session.delete(:kill_navigation) # Use once then clear
       parent = ImageCandidate.find_by(id: nav['parent_id'], status: 'active')
       
-      if parent
+      if parent && parent.pipeline_run_id == @run.id
         # Find another candidate in the same step as the parent
         candidates = ImageCandidate.where(
           pipeline_step_id: parent.pipeline_step_id,
+          pipeline_run: @run,
           status: 'active'
         ).where.not(id: parent.id)
         
@@ -58,11 +65,13 @@ class ImageVotesController < ApplicationController
     end
 
     # Triage-right: prioritize rightmost pipeline steps
-    pipeline_steps = PipelineStep.order(order: :desc)
+    pipeline_steps = @run.pipeline.pipeline_steps.order(order: :desc)
 
     pipeline_steps.each do |step|
-      pairs = ImageCandidate.unvoted_pairs(step)
-      return pairs.sample if pairs.any?  # Use .sample instead of .first for random selection
+      pairs = ImageCandidate.unvoted_pairs(step).select do |a, b|
+        a.pipeline_run_id == @run.id && b.pipeline_run_id == @run.id
+      end
+      return pairs.sample if pairs.any?
     end
 
     nil

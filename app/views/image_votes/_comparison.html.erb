@@ -21,9 +21,9 @@
         </div>
         <div class="aspect-square bg-gray-700 flex items-center justify-center">
           <% if candidate_a.image_path.present? %>
-            <%= image_tag candidate_image_path(candidate_a), class: "w-full h-full object-contain", alt: "Candidate A" %>
+            <%= image_tag candidate_image_path(candidate_a), class: "w-full h-full object-contain" %>
           <% else %>
-            <span class="text-gray-500 text-xl">Image A (ID: <%= candidate_a.id %>)</span>
+            <span class="text-gray-500 text-xl">Image (ID: <%= candidate_a.id %>)</span>
           <% end %>
         </div>
       <% end %>
@@ -42,9 +42,9 @@
         </div>
         <div class="aspect-square bg-gray-700 flex items-center justify-center">
           <% if candidate_b.image_path.present? %>
-            <%= image_tag candidate_image_path(candidate_b), class: "w-full h-full object-contain", alt: "Candidate B" %>
+            <%= image_tag candidate_image_path(candidate_b), class: "w-full h-full object-contain" %>
           <% else %>
-            <span class="text-gray-500 text-xl">Image B (ID: <%= candidate_b.id %>)</span>
+            <span class="text-gray-500 text-xl">Image (ID: <%= candidate_b.id %>)</span>
           <% end %>
         </div>
       <% end %>

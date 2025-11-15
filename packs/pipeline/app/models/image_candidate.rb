@@ -12,6 +12,7 @@ class ImageCandidate < ApplicationRecord
   # Broadcast updates to the run when candidates change
   after_create_commit :broadcast_run_update
   after_update_commit :broadcast_run_update
+  after_destroy_commit :broadcast_run_update
 
   state_machine :status, initial: :active do
     state :active

@@ -1,4 +1,6 @@
 class PipelineRun < ApplicationRecord
+  include Turbo::Broadcastable
+  
   belongs_to :pipeline
   has_many :image_candidates, dependent: :destroy
 

@@ -12,14 +12,14 @@ class PipelineRun < ApplicationRecord
   
   def broadcast_run_update
     broadcast_replace_to "runs",
-      partial: "runs/run_card",
+      partial: "runs/run_card_content",
       locals: { run: self },
       target: "run_#{id}"
   end
   
   def broadcast_refresh
     broadcast_replace_to "runs",
-      partial: "runs/run_card",
+      partial: "runs/run_card_content",
       locals: { run: self },
       target: "run_#{id}"
   end

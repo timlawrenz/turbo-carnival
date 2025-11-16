@@ -1,6 +1,6 @@
 <div class="min-h-screen bg-gray-900 flex flex-col">
   <!-- Header with run context -->
-  <div class="bg-gray-800 border-b border-gray-700 px-6 py-4">
+  <div class="bg-gray-800 border-b border-gray-700 px-6 py-3 flex-shrink-0">
     <div class="container mx-auto flex justify-between items-center">
       <div>
         <h1 class="text-xl font-bold text-white">
@@ -18,8 +18,8 @@
     </div>
   </div>
 
-  <div class="flex-1 flex items-center justify-center p-4">
-    <div id="voting-interface" class="w-full max-w-7xl">
+  <div class="flex-1 flex items-stretch p-4 min-h-0">
+    <div id="voting-interface" class="w-full flex flex-col min-h-0">
       <% if @pair %>
         <%= render "comparison", candidate_a: @candidate_a, candidate_b: @candidate_b %>
       <% else %>

@@ -65,7 +65,7 @@ class ImageVotesController < ApplicationController
     end
 
     # Triage-right: prioritize rightmost pipeline steps
-    pipeline_steps = @run.pipeline.pipeline_steps.order(order: :desc)
+    pipeline_steps = @run.pipeline.pipeline_steps.reorder(order: :desc)
 
     pipeline_steps.each do |step|
       pairs = ImageCandidate.unvoted_pairs(step).select do |a, b|

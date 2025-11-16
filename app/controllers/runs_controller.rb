@@ -65,7 +65,7 @@ class RunsController < ApplicationController
   def winners
     @run = PipelineRun.find(params[:id])
     pipeline = @run.pipeline
-    rightmost_step = pipeline.pipeline_steps.order(order: :desc).first
+    rightmost_step = pipeline.pipeline_steps.reorder(order: :desc).first
     
     if rightmost_step
       @winners = ImageCandidate.where(

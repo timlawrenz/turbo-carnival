@@ -9,7 +9,7 @@ class WinnersController < ApplicationController
   def show
     # Show top 3 winners for a specific run
     pipeline = @run.pipeline
-    rightmost_step = pipeline.pipeline_steps.order(order: :desc).first
+    rightmost_step = pipeline.pipeline_steps.reorder(order: :desc).first
     
     if rightmost_step
       @winners = ImageCandidate.where(

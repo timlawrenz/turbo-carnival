@@ -46,8 +46,10 @@
                   <div class="mt-3 pt-3 border-t border-gray-700">
                     <div class="flex items-start gap-2">
                       <div class="flex-1 min-w-0">
-                        <p class="text-xs text-gray-500 mb-1">File:</p>
-                        <p class="text-xs text-gray-300 break-all"><%= File.basename(winner.image_path) %></p>
+                        <p class="text-xs text-gray-500 mb-1">Path:</p>
+                        <p class="text-xs text-gray-300 truncate" style="direction: rtl; text-align: left;" title="<%= winner.image_path %>">
+                          <%= winner.image_path %>
+                        </p>
                       </div>
                       <button 
                         onclick="navigator.clipboard.writeText('<%= winner.image_path %>'); this.textContent='✓'; setTimeout(() => this.textContent='📋', 1000)"

@@ -42,6 +42,22 @@
                 <p class="text-yellow-500 font-bold text-lg">ELO: <%= winner.elo_score %></p>
                 <p>Votes: <%= winner.vote_count %></p>
                 <p>Children: <%= winner.child_count %></p>
+                <% if winner.image_path.present? %>
+                  <div class="mt-3 pt-3 border-t border-gray-700">
+                    <div class="flex items-start gap-2">
+                      <div class="flex-1 min-w-0">
+                        <p class="text-xs text-gray-500 mb-1">File:</p>
+                        <p class="text-xs text-gray-300 break-all"><%= File.basename(winner.image_path) %></p>
+                      </div>
+                      <button 
+                        onclick="navigator.clipboard.writeText('<%= winner.image_path %>'); this.textContent='✓'; setTimeout(() => this.textContent='📋', 1000)"
+                        class="flex-shrink-0 px-2 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded text-xs transition-colors"
+                        title="Copy full path">
+                        📋
+                      </button>
+                    </div>
+                  </div>
+                <% end %>
               </div>
             </div>
           </div>

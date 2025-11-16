@@ -52,7 +52,27 @@
                         </p>
                       </div>
                       <button 
-                        onclick="navigator.clipboard.writeText('<%= winner.image_path %>'); this.textContent='✓'; setTimeout(() => this.textContent='📋', 1000)"
+                        onclick="
+                          const path = '<%= winner.image_path %>';
+                          if (navigator.clipboard && navigator.clipboard.writeText) {
+                            navigator.clipboard.writeText(path).then(() => {
+                              this.textContent='✓';
+                              setTimeout(() => this.textContent='📋', 1000);
+                            });
+                          } else {
+                            // Fallback for HTTP or older browsers
+                            const textarea = document.createElement('textarea');
+                            textarea.value = path;
+                            textarea.style.position = 'fixed';
+                            textarea.style.opacity = '0';
+                            document.body.appendChild(textarea);
+                            textarea.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(textarea);
+                            this.textContent='✓';
+                            setTimeout(() => this.textContent='📋', 1000);
+                          }
+                        "
                         class="flex-shrink-0 px-2 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded text-xs transition-colors"
                         title="Copy full path">
                         📋

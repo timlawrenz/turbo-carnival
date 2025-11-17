@@ -1,6 +1,31 @@
 class RunsController < ApplicationController
   def index
     @runs = PipelineRun.includes(:pipeline).order(created_at: :desc)
+    @pipelines = Pipeline.order(:name)
+  end
+
+  def new
+    @pipelines = Pipeline.order(:name)
+    @run = PipelineRun.new
+  end
+
+  def create
+    result = CreatePipelineRun.call(
+      pipeline_id: run_params[:pipeline_id],
+      name: run_params[:name],
+      target_folder: run_params[:target_folder],
+      variables: parse_variables(run_params[:variables])
+    )
+
+    if result.success?
+      redirect_to run_path(result.run), notice: "Run '#{result.run.name}' created successfully"
+    else
+      @pipelines = Pipeline.order(:name)
+      @run = PipelineRun.new(run_params.except(:variables))
+      @variables_json = run_params[:variables]
+      flash.now[:alert] = result.error || "Failed to create run"
+      render :new, status: :unprocessable_entity
+    end
   end
 
   def show
@@ -88,5 +113,18 @@ class RunsController < ApplicationController
     @run.update!(status: 'completed')
     
     redirect_to runs_path, notice: "Run '#{@run.name}' marked as complete"
+  end
+
+  private
+
+  def run_params
+    params.require(:pipeline_run).permit(:pipeline_id, :name, :target_folder, :variables)
+  end
+
+  def parse_variables(variables_string)
+    return {} if variables_string.blank?
+    JSON.parse(variables_string)
+  rescue JSON::ParserError
+    {}
   end
 end

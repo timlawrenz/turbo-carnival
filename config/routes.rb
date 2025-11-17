@@ -9,7 +9,7 @@ Rails.application.routes.draw do
   mount Importmap::Engine, at: "/importmap"
 
   # Runs dashboard (main entry point)
-  resources :runs, only: [:index, :show] do
+  resources :runs, only: [:index, :show, :new, :create] do
     member do
       post :complete  # POST /runs/14/complete
       get :winners    # GET /runs/14/winners

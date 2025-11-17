@@ -13,6 +13,7 @@ class RunsController < ApplicationController
     result = CreatePipelineRun.call(
       pipeline_id: run_params[:pipeline_id],
       name: run_params[:name],
+      prompt: run_params[:prompt],
       target_folder: run_params[:target_folder],
       variables: parse_variables(run_params[:variables])
     )
@@ -23,7 +24,7 @@ class RunsController < ApplicationController
       @pipelines = Pipeline.order(:name)
       @run = PipelineRun.new(run_params.except(:variables))
       @variables_json = run_params[:variables]
-      flash.now[:alert] = result.error || "Failed to create run"
+      flash.now[:alert] = result.full_error_message || "Failed to create run"
       render :new, status: :unprocessable_entity
     end
   end
@@ -118,7 +119,7 @@ class RunsController < ApplicationController
   private
 
   def run_params
-    params.require(:pipeline_run).permit(:pipeline_id, :name, :target_folder, :variables)
+    params.require(:pipeline_run).permit(:pipeline_id, :name, :prompt, :target_folder, :variables)
   end
 
   def parse_variables(variables_string)

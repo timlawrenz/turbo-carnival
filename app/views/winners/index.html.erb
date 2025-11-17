@@ -16,7 +16,7 @@
               pipeline_run: run,
               status: 'active'
             ).order(elo_score: :desc).limit(3)
-            display_name = run.name.presence || run.variables['run_name'] || "Run ##{run.id}"
+            display_name = run.name || "Run ##{run.id}"
           %>
           
           <div class="bg-gray-800 rounded-lg p-6">

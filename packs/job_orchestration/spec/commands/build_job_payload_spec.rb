@@ -5,8 +5,9 @@ RSpec.describe BuildJobPayload do
   let(:pipeline_run) do
     FactoryBot.create(:pipeline_run,
       pipeline: pipeline,
+      prompt: "at the gym",
       target_folder: "/storage/runs/test-run",
-      variables: { prompt: "at the gym", persona_id: 123, style: "realistic" })
+      variables: { persona_id: 123, style: "realistic" })
   end
 
   describe "#call" do
@@ -27,7 +28,7 @@ RSpec.describe BuildJobPayload do
     end
 
     context "with needs_run_prompt" do
-      it "includes prompt from run variables" do
+      it "includes prompt from run column" do
         step = FactoryBot.create(:pipeline_step,
           pipeline: pipeline,
           needs_run_prompt: true,
@@ -89,7 +90,7 @@ RSpec.describe BuildJobPayload do
     end
 
     context "with needs_run_variables" do
-      it "includes all run variables" do
+      it "includes all run variables plus prompt" do
         step = FactoryBot.create(:pipeline_step,
           pipeline: pipeline,
           needs_run_variables: true,

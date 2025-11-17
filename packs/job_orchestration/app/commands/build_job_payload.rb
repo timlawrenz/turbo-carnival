@@ -20,7 +20,7 @@ class BuildJobPayload < GLCommand::Callable
 
     # Add run prompt if needed
     if context.pipeline_step.needs_run_prompt
-      payload[:variables][:prompt] = context.pipeline_run&.variables&.[]("prompt") || "default prompt"
+      payload[:variables][:prompt] = context.pipeline_run&.prompt || "default prompt"
     end
 
     # Add parent image path if needed
@@ -32,6 +32,11 @@ class BuildJobPayload < GLCommand::Callable
     if context.pipeline_step.needs_run_variables
       run_vars = context.pipeline_run&.variables || {}
       payload[:variables].merge!(run_vars.symbolize_keys)
+      
+      # Also add prompt if present
+      if context.pipeline_run&.prompt.present?
+        payload[:variables][:prompt] = context.pipeline_run.prompt
+      end
     end
 
     context.job_payload = payload
@@ -51,6 +56,11 @@ class BuildJobPayload < GLCommand::Callable
 
   def build_variable_map
     variables = (context.pipeline_run&.variables || {}).dup
+    
+    # Add prompt from column if present
+    if context.pipeline_run&.prompt.present?
+      variables["prompt"] = context.pipeline_run.prompt
+    end
     
     # Add dynamic system variables
     variables["timestamp"] = Time.now.to_i

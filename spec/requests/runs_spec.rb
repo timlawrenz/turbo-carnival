@@ -48,8 +48,9 @@ RSpec.describe "Runs", type: :request do
           pipeline_run: {
             pipeline_id: pipeline.id,
             name: "My Test Run",
+            prompt: "at the gym",
             target_folder: "/storage/test",
-            variables: '{"prompt": "at the gym"}'
+            variables: '{"style": "cinematic"}'
           }
         }
       }.to change(PipelineRun, :count).by(1)
@@ -58,14 +59,16 @@ RSpec.describe "Runs", type: :request do
       run = PipelineRun.last
       expect(response).to redirect_to(run_path(run))
       expect(run.name).to eq("My Test Run")
+      expect(run.prompt).to eq("at the gym")
       expect(run.target_folder).to eq("/storage/test")
-      expect(run.variables).to eq({ "prompt" => "at the gym" })
+      expect(run.variables).to eq({ "style" => "cinematic" })
     end
 
     it "calls CreatePipelineRun command" do
       expect(CreatePipelineRun).to receive(:call).with(
         pipeline_id: pipeline.id.to_s,
         name: "Test Run",
+        prompt: "test prompt",
         target_folder: nil,
         variables: {}
       ).and_call_original
@@ -73,7 +76,8 @@ RSpec.describe "Runs", type: :request do
       post runs_path, params: {
         pipeline_run: {
           pipeline_id: pipeline.id,
-          name: "Test Run"
+          name: "Test Run",
+          prompt: "test prompt"
         }
       }
     end
@@ -120,6 +124,7 @@ RSpec.describe "Runs", type: :request do
         pipeline_run: {
           pipeline_id: pipeline.id,
           name: "Test Run",
+          prompt: "at the gym",
           variables: "invalid json"
         }
       }
@@ -127,6 +132,7 @@ RSpec.describe "Runs", type: :request do
       # Should still succeed but with empty variables
       expect(response).to have_http_status(:redirect)
       run = PipelineRun.last
+      expect(run.prompt).to eq("at the gym")
       expect(run.variables).to eq({})
     end
   end

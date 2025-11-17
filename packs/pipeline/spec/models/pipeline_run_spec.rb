@@ -23,17 +23,30 @@ RSpec.describe PipelineRun, type: :model do
     end
   end
 
+  describe "prompt storage" do
+    it "stores prompt in dedicated column" do
+      run = FactoryBot.create(:pipeline_run, prompt: "at home")
+      expect(run.prompt).to eq("at home")
+    end
+
+    it "allows null prompt" do
+      run = FactoryBot.create(:pipeline_run, prompt: nil)
+      expect(run.prompt).to be_nil
+    end
+  end
+
   describe "variable storage" do
-    it "stores prompt variable" do
-      run = FactoryBot.create(:pipeline_run, variables: { prompt: "at home" })
-      expect(run.variables["prompt"]).to eq("at home")
+    it "stores custom variables" do
+      run = FactoryBot.create(:pipeline_run, variables: { style: "realistic" })
+      expect(run.variables["style"]).to eq("realistic")
     end
 
     it "stores multiple variables" do
       run = FactoryBot.create(:pipeline_run,
-        variables: { prompt: "at the gym", persona_id: 456, style: "realistic" })
+        prompt: "at the gym",
+        variables: { persona_id: 456, style: "realistic" })
 
-      expect(run.variables["prompt"]).to eq("at the gym")
+      expect(run.prompt).to eq("at the gym")
       expect(run.variables["persona_id"]).to eq(456)
       expect(run.variables["style"]).to eq("realistic")
     end
@@ -50,9 +63,9 @@ RSpec.describe PipelineRun, type: :model do
     it "allows creating multiple runs for same pipeline" do
       pipeline = FactoryBot.create(:pipeline)
 
-      run1 = FactoryBot.create(:pipeline_run, pipeline: pipeline, variables: { prompt: "at gym" })
-      run2 = FactoryBot.create(:pipeline_run, pipeline: pipeline, variables: { prompt: "at home" })
-      run3 = FactoryBot.create(:pipeline_run, pipeline: pipeline, variables: { prompt: "at café" })
+      run1 = FactoryBot.create(:pipeline_run, pipeline: pipeline, prompt: "at gym")
+      run2 = FactoryBot.create(:pipeline_run, pipeline: pipeline, prompt: "at home")
+      run3 = FactoryBot.create(:pipeline_run, pipeline: pipeline, prompt: "at café")
 
       expect(pipeline.pipeline_runs).to contain_exactly(run1, run2, run3)
     end

@@ -8,16 +8,29 @@ RSpec.describe CreatePipelineRun do
       result = described_class.call(
         pipeline_id: pipeline.id,
         name: "Test Run",
+        prompt: "test prompt",
         target_folder: "/storage/test",
-        variables: { prompt: "test prompt" }
+        variables: { style: "cinematic" }
       )
 
       expect(result).to be_success
       expect(result.run).to be_a(PipelineRun)
       expect(result.run.name).to eq("Test Run")
+      expect(result.run.prompt).to eq("test prompt")
       expect(result.run.target_folder).to eq("/storage/test")
-      expect(result.run.variables).to eq({ "prompt" => "test prompt" })
+      expect(result.run.variables).to eq({ "style" => "cinematic" })
       expect(result.run.status).to eq("pending")
+    end
+
+    it "creates run with prompt but no variables" do
+      result = described_class.call(
+        pipeline_id: pipeline.id,
+        prompt: "at the gym"
+      )
+
+      expect(result).to be_success
+      expect(result.run.prompt).to eq("at the gym")
+      expect(result.run.variables).to eq({})
     end
 
     it "generates default name when not provided" do

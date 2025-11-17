@@ -35,7 +35,7 @@
     completion_pct = (completed_steps.to_f / step_stats.size * 100).round
     
     # Display name: use name column, fall back to run_name from variables, or show ID
-    display_name = run.name.presence || run.variables['run_name'] || "Run ##{run.id}"
+    display_name = run.name || "Run ##{run.id}"
     
     # Check if there are any unvoted pairs for this run
     has_votes = pipeline.pipeline_steps.order(order: :desc).any? do |step|

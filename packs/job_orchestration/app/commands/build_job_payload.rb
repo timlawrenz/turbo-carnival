@@ -62,6 +62,11 @@ class BuildJobPayload < GLCommand::Callable
       variables["prompt"] = context.pipeline_run.prompt
     end
     
+    # Add run_name from name column if present
+    if context.pipeline_run&.name.present?
+      variables["run_name"] = context.pipeline_run.name
+    end
+    
     # Add dynamic system variables
     variables["timestamp"] = Time.now.to_i
     variables["timestamp_ms"] = (Time.now.to_f * 1000).to_i

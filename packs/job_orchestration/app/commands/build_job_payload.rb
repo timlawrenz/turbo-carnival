@@ -48,7 +48,9 @@ class BuildJobPayload < GLCommand::Callable
     variables = build_variable_map
     
     variables.each do |key, value|
-      workflow_json = workflow_json.gsub("{{#{key}}}", value.to_s)
+      # Properly escape the value as a JSON string literal
+      escaped_value = value.to_s.to_json[1..-2]
+      workflow_json = workflow_json.gsub("{{#{key}}}", escaped_value)
     end
     
     workflow_json

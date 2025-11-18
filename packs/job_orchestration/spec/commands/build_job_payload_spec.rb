@@ -58,6 +58,31 @@ RSpec.describe BuildJobPayload do
         expect(result).to be_success
         expect(result.job_payload[:workflow]).to eq({ "path" => "/output/Test Run 123/image.png" })
       end
+
+      it "properly escapes newlines in prompt values" do
+        run_with_multiline_prompt = FactoryBot.create(:pipeline_run,
+          pipeline: pipeline,
+          prompt: "Line 1\nLine 2\nLine 3")
+        step = FactoryBot.create(:pipeline_step,
+          pipeline: pipeline,
+          comfy_workflow_json: '{"text": "{{prompt}}"}')
+
+        result = described_class.call(
+          pipeline_step: step,
+          pipeline_run: run_with_multiline_prompt
+        )
+
+        expect(result).to be_success
+        expect(result.job_payload[:workflow]).to eq({ "text" => "Line 1\nLine 2\nLine 3" })
+        
+        # Verify the workflow can be serialized to valid JSON
+        expect { result.job_payload[:workflow].to_json }.not_to raise_error
+        
+        # Verify deserializing gives back the same content
+        json_str = result.job_payload[:workflow].to_json
+        parsed = JSON.parse(json_str)
+        expect(parsed["text"]).to eq("Line 1\nLine 2\nLine 3")
+      end
     end
 
     context "with needs_run_prompt" do

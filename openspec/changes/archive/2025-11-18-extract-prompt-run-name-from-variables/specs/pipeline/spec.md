@@ -2,24 +2,28 @@
 
 ## MODIFIED Requirements
 
-### Requirement: The system SHALL provide a `PipelineRun` model to track individual executions of a pipeline with specific input variables
-The system SHALL provide a `PipelineRun` model to track individual executions of a pipeline with a prompt and optional custom variables.
+### Requirement: Run Creation Interface
+The system SHALL provide a web interface for users to create new pipeline runs with prompt as a separate field.
 
-#### Scenario: User creates a pipeline run with a prompt
-- **WHEN** a user creates a pipeline run with prompt "at the gym"
-- **THEN** the run is created with `prompt` column set to "at the gym"
+#### Scenario: User creates run with basic settings
+- **WHEN** a user navigates to the new run page
+- **THEN** a form is displayed with fields for pipeline selection, run name, prompt, and target folder
 
-#### Scenario: Different prompts create separate runs
-- **WHEN** the same pipeline is executed 3 times with different prompts
-- **THEN** three separate PipelineRun records exist with different prompt values
+#### Scenario: User submits valid run creation form
+- **WHEN** a user selects pipeline "Portrait Pipeline", enters name "Gym Shoot", enters prompt "at the gym", and submits the form
+- **THEN** a new PipelineRun is created with status "pending"
+- **AND** the prompt is stored in the `prompt` column
+- **AND** the user is redirected to the run detail page
 
-#### Scenario: Run belongs to a pipeline
-- **WHEN** a pipeline run is created
-- **THEN** it belongs to a specific Pipeline template
+#### Scenario: User creates run with custom variables
+- **WHEN** a user creates a run with prompt "at the gym" and variables `{"style": "cinematic"}`
+- **THEN** the PipelineRun is created with prompt in the `prompt` column
+- **AND** other variables are stored in the variables JSONB column
 
-#### Scenario: Run tracks all image candidates
-- **WHEN** a pipeline run creates 30 base images, 10 face images, and 5 upscaled images
-- **THEN** all 45 ImageCandidates belong to the same PipelineRun
+#### Scenario: User attempts to create run without required fields
+- **WHEN** a user submits the form without selecting a pipeline
+- **THEN** validation errors are displayed
+- **AND** no PipelineRun is created
 
 ## ADDED Requirements
 
@@ -67,12 +71,3 @@ The system SHALL merge the `prompt` column back into the variables hash when bui
 - **WHEN** a workflow JSON contains `{{prompt}}`
 - **THEN** it is replaced with the run's prompt value during job submission
 
-## REMOVED Requirements
-
-### Requirement: The system SHALL store run-specific variables in a JSONB column for flexible schema
-**Reason**: Prompt and run_name are no longer stored in variables - they are dedicated columns
-
-**Migration**: 
-- `variables['prompt']` → `prompt` column
-- `variables['run_name']` → `name` column  
-- Other custom variables remain in JSONB `variables` column

@@ -1,4 +1,4 @@
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: The system SHALL select the next job using a per-run strict breadth-first strategy.
 The system SHALL select one pipeline run to work on and fill that run's steps to N active candidates before advancing to the next step within that run.
@@ -23,7 +23,7 @@ The system SHALL select one pipeline run to work on and fill that run's steps to
 - **WHEN** a run has N candidates at all steps
 - **THEN** mark that run as eligible for completion and move to next run
 
-#### Scenario: No active runs
+## ADDED Requirements
 - **WHEN** all runs are marked as completed
 - **THEN** return :no_work mode
 

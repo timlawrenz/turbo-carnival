@@ -45,11 +45,10 @@ class PipelineRun < ApplicationRecord
   def create_pipeline_run_steps
     # Create PipelineRunStep for each step in the pipeline
     pipeline.pipeline_steps.each do |step|
-      approved = (step.order == 1) # Auto-approve first step
       pipeline_run_steps.create!(
         pipeline_step: step,
-        approved: approved,
-        approved_at: approved ? Time.current : nil,
+        approved: false,
+        approved_at: nil,
         top_k_count: JobOrchestrationConfig.max_children_per_node
       )
     end

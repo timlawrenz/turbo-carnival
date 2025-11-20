@@ -124,6 +124,7 @@ class SelectNextJob < GLCommand::Callable
       status: "active"
     ).count
     
+    # Step 1 always generates - no approval gate needed
     if step1_count < min_candidates_per_step
       in_flight_count = ComfyuiJob.where(
         pipeline_step: first_step,
@@ -160,7 +161,7 @@ class SelectNextJob < GLCommand::Callable
       .where("failure_count < ?", max_failures)
       .where.not(pipeline_step_id: final_step_id)
     
-    # Filter by approval gates and top-K
+    # Filter by approval: current step must be approved to become parents
     candidates.select do |candidate|
       step_approved_for_run?(candidate.pipeline_step, run) &&
       in_top_k?(candidate, run)
@@ -209,9 +210,12 @@ class SelectNextJob < GLCommand::Callable
         status: 'active'
       )
       
-      # Filter to only approved top-K parents
+      # Filter to only approved top-K parents (prev_step must be approved)
+      prs = run.pipeline_run_steps.find_by(pipeline_step: prev_step)
+      next unless prs&.approved? # Skip if previous step not approved yet
+      
       parents_at_prev_step = parents_at_prev_step.select do |parent|
-        step_approved_for_run?(prev_step, run) && in_top_k?(parent, run)
+        in_top_k?(parent, run)
       end
       
       # Find parents that need more children at this step
@@ -239,8 +243,6 @@ class SelectNextJob < GLCommand::Callable
     # All parents have N children - check if waiting for approval
     # Check if there are any unapproved steps with candidates ready
     pipeline.pipeline_steps.order(:order).each do |step|
-      next if step.order == 1 # Skip first step (always auto-approved)
-      
       prs = run.pipeline_run_steps.find_by(pipeline_step: step)
       candidate_count = ImageCandidate.where(
         pipeline_step: step,

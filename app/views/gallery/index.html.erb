@@ -92,8 +92,9 @@
             </div>
             
             <% unless prs&.approved? %>
-              <div class="bg-gray-900 rounded-lg p-4 min-w-[300px]">
-                <%= form_with url: run_approve_step_path(@run, @selected_step), method: :post, class: "space-y-4" do |f| %>
+              <% if @candidates.any? %>
+                <div class="bg-gray-900 rounded-lg p-4 min-w-[300px]">
+                  <%= form_with url: run_approve_step_path(@run, @selected_step), method: :post, class: "space-y-4" do |f| %>
                   <div>
                     <label class="block text-sm font-medium text-gray-300 mb-2">
                       How many candidates should advance?
@@ -129,6 +130,13 @@
                       data: { turbo_confirm: "Approve this step? Only the top K candidates will advance to the next step." } %>
                 <% end %>
               </div>
+              <% else %>
+                <div class="bg-gray-800 rounded-lg p-4 min-w-[300px]">
+                  <p class="text-sm text-gray-400 text-center">
+                    ⏳ Waiting for candidates to generate...
+                  </p>
+                </div>
+              <% end %>
             <% end %>
           </div>
           

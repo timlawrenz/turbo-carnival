@@ -22,21 +22,9 @@ class ImageVotesController < ApplicationController
 
   def reject
     candidate = ImageCandidate.find(params[:id])
-    result = RejectImageBranch.call!(image_candidate: candidate)
+    RejectImageBranch.call!(image_candidate: candidate)
 
-    # Navigate to parent's step if available
-    if result.parent_navigation && result.parent_navigation[:parent]
-      parent = result.parent_navigation[:parent]
-      sibling = result.parent_navigation[:sibling]
-      
-      # Store in session for next page load
-      session[:kill_navigation] = {
-        parent_id: parent.id,
-        sibling_id: sibling&.id
-      }
-    end
-
-    redirect_to run_vote_path(@run)
+    redirect_to run_vote_path(@run), notice: "Candidate rejected"
   end
 
   private
@@ -46,24 +34,6 @@ class ImageVotesController < ApplicationController
   end
 
   def fetch_next_pair
-    # Check if we're navigating from a kill action
-    if session[:kill_navigation]
-      nav = session.delete(:kill_navigation) # Use once then clear
-      parent = ImageCandidate.find_by(id: nav['parent_id'], status: 'active')
-      
-      if parent && parent.pipeline_run_id == @run.id
-        # Find another candidate in the same step as the parent
-        candidates = ImageCandidate.where(
-          pipeline_step_id: parent.pipeline_step_id,
-          pipeline_run: @run,
-          status: 'active'
-        ).where.not(id: parent.id)
-        
-        other = candidates.sample
-        return [parent, other] if other
-      end
-    end
-
     # Triage-right: prioritize rightmost pipeline steps
     pipeline_steps = @run.pipeline.pipeline_steps.reorder(order: :desc)
 

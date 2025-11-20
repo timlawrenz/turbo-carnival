@@ -152,13 +152,37 @@ class SelectNextJob < GLCommand::Callable
     # Get ID of final step
     final_step_id = pipeline.pipeline_steps.max_by(&:order)&.id
 
-    ImageCandidate
+    candidates = ImageCandidate
       .includes(pipeline_step: :pipeline)
       .where(status: "active")
       .where(pipeline_run: run)
       .where("child_count < ?", max_children)
       .where("failure_count < ?", max_failures)
       .where.not(pipeline_step_id: final_step_id)
+    
+    # Filter by approval gates and top-K
+    candidates.select do |candidate|
+      step_approved_for_run?(candidate.pipeline_step, run) &&
+      in_top_k?(candidate, run)
+    end
+  end
+  
+  def step_approved_for_run?(step, run)
+    run.step_approved?(step)
+  end
+  
+  def in_top_k?(candidate, run)
+    prs = run.pipeline_run_steps.find_by(pipeline_step: candidate.pipeline_step)
+    return false unless prs&.approved?
+    
+    k = prs.top_k_count
+    top_k_ids = ImageCandidate
+      .where(pipeline_step: candidate.pipeline_step, pipeline_run: run, status: 'active')
+      .order(elo_score: :desc)
+      .limit(k)
+      .pluck(:id)
+    
+    top_k_ids.include?(candidate.id)
   end
 
   def handle_child_generation(run, eligible_parents)
@@ -185,6 +209,11 @@ class SelectNextJob < GLCommand::Callable
         status: 'active'
       )
       
+      # Filter to only approved top-K parents
+      parents_at_prev_step = parents_at_prev_step.select do |parent|
+        step_approved_for_run?(prev_step, run) && in_top_k?(parent, run)
+      end
+      
       # Find parents that need more children at this step
       parents_needing_children = parents_at_prev_step.select do |parent|
         child_count = parent.children.where(
@@ -207,7 +236,27 @@ class SelectNextJob < GLCommand::Callable
       end
     end
 
-    # All parents have N children - no more work on this run
+    # All parents have N children - check if waiting for approval
+    # Check if there are any unapproved steps with candidates ready
+    pipeline.pipeline_steps.order(:order).each do |step|
+      next if step.order == 1 # Skip first step (always auto-approved)
+      
+      prs = run.pipeline_run_steps.find_by(pipeline_step: step)
+      candidate_count = ImageCandidate.where(
+        pipeline_step: step,
+        pipeline_run: run,
+        status: 'active'
+      ).count
+      
+      if !prs&.approved? && candidate_count > 0
+        Rails.logger.info("SelectNextJob: Run #{run.id} - Waiting for Step #{step.order} (#{step.name}) approval")
+        context.parent_candidate = nil
+        context.next_step = nil
+        context.mode = :waiting_for_approval
+        return
+      end
+    end
+    
     Rails.logger.info("SelectNextJob: Run #{run.id} - All parents have #{max_children} children")
     context.parent_candidate = nil
     context.next_step = nil
@@ -215,38 +264,10 @@ class SelectNextJob < GLCommand::Callable
   end
 
   def handle_no_eligible_parents(run)
-    # Check for deficit mode
-    target = JobOrchestrationConfig.target_leaf_nodes
-    pipeline = run.pipeline
-    final_step = pipeline.pipeline_steps.last
+    # With approval gates, we should not do deficit-based generation
+    # Instead, wait for user approval at each step
+    # Check for deficit mode is removed - gates control progression
     
-    return unless final_step
-
-    active_count = ImageCandidate.where(
-      pipeline_step: final_step,
-      pipeline_run: run,
-      status: "active"
-    ).count
-
-    if active_count < target
-      # Check if we already have enough jobs in flight for the first step
-      first_step = pipeline.pipeline_steps.first
-      in_flight_count = ComfyuiJob.where(
-        pipeline_step: first_step,
-        pipeline_run: run,
-        status: %w[pending submitted running]
-      ).count
-      
-      # Only trigger base generation if we don't have enough jobs in flight
-      if in_flight_count < target
-        context.parent_candidate = nil
-        context.next_step = first_step
-        context.mode = :base_generation
-        return
-      end
-    end
-
-    # No deficit, no work
     context.parent_candidate = nil
     context.next_step = nil
     context.mode = :no_work

@@ -1,16 +1,16 @@
 ## 1. ViewComponents
-- [ ] 1.1 Create `VotingCardComponent` with image display and vote buttons
-- [ ] 1.2 Create `VotingCardComponent` preview in `spec/components/previews/`
-- [ ] 1.3 Create `ComparisonViewComponent` to render A vs B layout
-- [ ] 1.4 Create `ComparisonViewComponent` preview
-- [ ] 1.5 Create `KillLeftNavigatorComponent` for parent traversal UI
-- [ ] 1.6 Create `KillLeftNavigatorComponent` preview
+- [x] 1.1 Create `VotingCardComponent` with image display and vote buttons
+- [x] 1.2 Create `VotingCardComponent` preview in `spec/components/previews/`
+- [x] 1.3 Create `ComparisonViewComponent` to render A vs B layout
+- [x] 1.4 Create `ComparisonViewComponent` preview
+- [x] 1.5 Create `KillLeftNavigatorComponent` for parent traversal UI
+- [x] 1.6 Create `KillLeftNavigatorComponent` preview
 
 ## 2. Stimulus Controllers
-- [ ] 2.1 Create `voting_controller.js` for vote button interactions
-- [ ] 2.2 Create `kill_left_controller.js` for parent navigation
-- [ ] 2.3 Add keyboard shortcuts (left/right arrow for voting, K for kill)
-- [ ] 2.4 Implement optimistic UI updates with Turbo Streams
+- [x] 2.1 Create `voting_controller.js` for vote button interactions
+- [x] 2.2 Create `kill_left_controller.js` for parent navigation
+- [x] 2.3 Add keyboard shortcuts (left/right arrow for voting, K for kill)
+- [x] 2.4 Implement optimistic UI updates with Turbo Streams
 
 ## 3. Backend - Controllers
 - [x] 3.1 Create `ImageVotesController#show` - render comparison view
@@ -29,7 +29,7 @@
 - [x] 5.1 Add `ImageCandidate#calculate_elo_change(opponent, won)` method
 - [x] 5.2 Add `ImageCandidate#parent_with_sibling` query method
 - [x] 5.3 Add `ImageCandidate.unvoted_pairs(pipeline_step)` scope
-- [ ] 5.4 Add validation to prevent self-voting
+- [x] 5.4 Add validation to prevent self-voting
 
 ## 6. Routing
 - [x] 6.1 Add `/vote` route for main voting interface
@@ -42,7 +42,7 @@
 - [x] 7.2 Unit tests for `RejectImageBranch` command with rollback
 - [x] 7.3 Unit tests for `ImageCandidate` ELO and query methods
 - [x] 7.4 Request specs for `ImageVotesController` actions
-- [ ] 7.5 Component tests for ViewComponents
+- [x] 7.5 Component tests for ViewComponents
 - [ ] 7.6 N+1 query test for vote pair fetching
 
 ## 8. Styling

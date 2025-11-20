@@ -172,32 +172,6 @@ RSpec.describe ImageCandidate, type: :model do
     end
   end
 
-  describe "#parent_with_sibling" do
-    it "returns nil for root candidate" do
-      root = FactoryBot.create(:image_candidate, parent: nil)
-      expect(root.parent_with_sibling).to be_nil
-    end
-
-    it "returns parent and sibling for candidate with siblings" do
-      parent = FactoryBot.create(:image_candidate)
-      child1 = FactoryBot.create(:image_candidate, parent: parent)
-      child2 = FactoryBot.create(:image_candidate, parent: parent)
-
-      result = child1.parent_with_sibling
-      expect(result[:parent]).to eq(parent)
-      expect(result[:sibling]).to eq(child2)
-    end
-
-    it "returns parent with nil sibling when no siblings exist" do
-      parent = FactoryBot.create(:image_candidate)
-      only_child = FactoryBot.create(:image_candidate, parent: parent)
-
-      result = only_child.parent_with_sibling
-      expect(result[:parent]).to eq(parent)
-      expect(result[:sibling]).to be_nil
-    end
-  end
-
   describe ".unvoted_pairs" do
     it "returns pairs for a pipeline step" do
       step = FactoryBot.create(:pipeline_step)

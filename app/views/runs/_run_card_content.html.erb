@@ -9,30 +9,38 @@
         status: 'active'
       ).count
       
-      # Calculate target based on parents at previous step
+      # Calculate target based on approved top-K parents from previous step
       if step.order == 1
         # First step: just need N base images
         target = max_children
       else
-        # Other steps: N children per parent from previous step
+        # Other steps: need to check if previous step is approved
         prev_step = pipeline.pipeline_steps.find_by(order: step.order - 1)
-        parent_count = ImageCandidate.where(
-          pipeline_step: prev_step,
-          pipeline_run: run,
-          status: 'active'
-        ).count
-        target = parent_count * max_children
+        prev_prs = run.pipeline_run_steps.find_by(pipeline_step: prev_step)
+        
+        if prev_prs&.approved?
+          # Use top_k_count from approval (how many parents can advance)
+          eligible_parent_count = [prev_prs.top_k_count, prev_prs.top_k_candidates.count].min
+          target = eligible_parent_count * max_children
+        else
+          # Step not approved yet - target is 0 (blocked)
+          target = 0
+        end
       end
       
       {
         order: step.order,
         name: step.name,
         active_count: active_count,
-        target: target
+        target: target,
+        approved: (step.order == 1 || run.pipeline_run_steps.find_by(pipeline_step: step)&.approved?)
       }
     end
-    completed_steps = step_stats.count { |s| s[:active_count] >= s[:target] }
-    completion_pct = (completed_steps.to_f / step_stats.size * 100).round
+    
+    # Only count approved steps toward completion
+    approved_steps = step_stats.select { |s| s[:approved] }
+    completed_steps = approved_steps.count { |s| s[:target] > 0 && s[:active_count] >= s[:target] }
+    completion_pct = approved_steps.any? ? (completed_steps.to_f / approved_steps.size * 100).round : 0
     
     # Display name: use name column, fall back to run_name from variables, or show ID
     display_name = run.name || "Run ##{run.id}"
@@ -78,18 +86,49 @@
       <div class="flex gap-2 mb-2">
         <% step_stats.each do |stat| %>
           <% 
-            # Handle division by zero when target is 0
-            percentage = stat[:target] > 0 ? (stat[:active_count].to_f / stat[:target] * 100) : 0
-            width = [percentage, 100].min
-            is_complete = stat[:active_count] >= stat[:target]
+            if stat[:target] > 0
+              percentage = (stat[:active_count].to_f / stat[:target] * 100)
+              width = [percentage, 100].min
+              is_complete = stat[:active_count] >= stat[:target]
+            else
+              # Unapproved or blocked step
+              percentage = 0
+              width = 0
+              is_complete = false
+            end
+            
+            # Determine status icon
+            if stat[:approved] && is_complete
+              status_icon = "✅"
+              bar_color = "bg-green-500"
+            elsif stat[:approved] && !is_complete
+              status_icon = "🔄"
+              bar_color = "bg-yellow-500"
+            elsif !stat[:approved] && stat[:active_count] > 0
+              status_icon = "⏸️"
+              bar_color = "bg-gray-500"
+            else
+              status_icon = "🔒"
+              bar_color = "bg-gray-600"
+            end
           %>
           <div class="flex-1">
-            <div class="text-xs text-gray-400 mb-1"><%= stat[:name] %></div>
+            <div class="text-xs text-gray-400 mb-1">
+              <%= status_icon %> <%= stat[:name] %>
+            </div>
             <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
-              <div class="h-full <%= is_complete ? 'bg-green-500' : 'bg-yellow-500' %>" 
+              <div class="h-full <%= bar_color %>" 
                    style="width: <%= width %>%"></div>
             </div>
-            <div class="text-xs text-gray-500 mt-1"><%= stat[:active_count] %>/<%= stat[:target] %></div>
+            <div class="text-xs text-gray-500 mt-1">
+              <% if stat[:target] > 0 %>
+                <%= stat[:active_count] %>/<%= stat[:target] %>
+              <% elsif !stat[:approved] && stat[:active_count] > 0 %>
+                <%= stat[:active_count] %> (awaiting approval)
+              <% else %>
+                Blocked
+              <% end %>
+            </div>
           </div>
         <% end %>
       </div>

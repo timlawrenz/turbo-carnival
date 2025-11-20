@@ -26,6 +26,8 @@ Rails.application.routes.draw do
     get 'gallery', to: 'gallery#index'            # GET /runs/14/gallery?step=2
     post 'gallery/reject/:id', to: 'gallery#reject', as: :gallery_reject
                                                   # POST /runs/14/gallery/reject/123
+    post 'steps/:step_id/approve', to: 'gallery#approve_step', as: :approve_step
+                                                  # POST /runs/14/steps/2/approve
   end
   
   # Legacy routes (redirect to first active run)

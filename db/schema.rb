@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_17_143501) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_20_014438) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -59,6 +59,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_17_143501) do
     t.index ["status", "child_count"], name: "index_image_candidates_on_status_and_child_count"
     t.index ["vote_count"], name: "index_image_candidates_on_vote_count"
     t.index ["winner"], name: "index_image_candidates_on_winner"
+  end
+
+  create_table "pipeline_run_steps", force: :cascade do |t|
+    t.bigint "pipeline_run_id", null: false
+    t.bigint "pipeline_step_id", null: false
+    t.boolean "approved", default: false, null: false
+    t.datetime "approved_at"
+    t.integer "top_k_count", default: 3, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["pipeline_run_id", "pipeline_step_id"], name: "index_pipeline_run_steps_on_run_and_step", unique: true
+    t.index ["pipeline_run_id"], name: "index_pipeline_run_steps_on_pipeline_run_id"
+    t.index ["pipeline_step_id"], name: "index_pipeline_run_steps_on_pipeline_step_id"
   end
 
   create_table "pipeline_runs", force: :cascade do |t|
@@ -114,6 +127,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_17_143501) do
   add_foreign_key "image_candidates", "image_candidates", column: "parent_id"
   add_foreign_key "image_candidates", "pipeline_runs"
   add_foreign_key "image_candidates", "pipeline_steps"
+  add_foreign_key "pipeline_run_steps", "pipeline_runs"
+  add_foreign_key "pipeline_run_steps", "pipeline_steps"
   add_foreign_key "pipeline_runs", "pipelines"
   add_foreign_key "pipeline_steps", "pipelines"
   add_foreign_key "votes", "image_candidates", column: "loser_id"

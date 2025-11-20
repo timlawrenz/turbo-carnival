@@ -2,6 +2,11 @@ class RecordVote < GLCommand::Callable
   requires :winner, :loser
 
   def call
+    # Validate that winner and loser are different
+    if context.winner.id == context.loser.id
+      stop_and_fail!("Cannot vote for the same image against itself")
+    end
+
     ActiveRecord::Base.transaction do
       # Create vote record to track this matchup
       Vote.create!(

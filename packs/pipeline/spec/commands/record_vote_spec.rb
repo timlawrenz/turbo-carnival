@@ -92,5 +92,14 @@ RSpec.describe RecordVote do
         described_class.call!(winner: winner, loser: loser)
       }.to raise_error(ActiveRecord::RecordInvalid, /Winner has already been taken/)
     end
+
+    it "prevents self-voting (same candidate as winner and loser)" do
+      candidate = FactoryBot.create(:image_candidate)
+
+      result = described_class.call(winner: candidate, loser: candidate)
+
+      expect(result).to be_failure
+      expect(result.full_error_message).to include("Cannot vote for the same image against itself")
+    end
   end
 end

@@ -1,0 +1,7 @@
+<div class="<%= @container_classes %>">
+  <% if has_image? %>
+    <%= image_tag @image_path, class: @classes %>
+  <% else %>
+    <span class="text-gray-500 text-xl"><%= @fallback_text %></span>
+  <% end %>
+</div>

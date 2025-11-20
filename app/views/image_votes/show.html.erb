@@ -21,7 +21,7 @@
   <div class="flex-1 flex items-stretch p-4 min-h-0">
     <div id="voting-interface" class="w-full flex flex-col min-h-0">
       <% if @pair %>
-        <%= render "comparison", candidate_a: @candidate_a, candidate_b: @candidate_b %>
+        <%= render ComparisonViewComponent.new(candidate_a: @candidate_a, candidate_b: @candidate_b, run: @run) %>
       <% else %>
         <%= render "complete" %>
       <% end %>

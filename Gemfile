@@ -77,3 +77,6 @@ gem "sidekiq", "~> 7.0"
 gem "turbo-rails"
 gem "stimulus-rails"
 gem "importmap-rails"
+
+# ViewComponent for reusable UI components
+gem "view_component"

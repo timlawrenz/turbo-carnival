@@ -19,6 +19,26 @@ class GalleryController < ApplicationController
       .order(elo_score: :desc)
       .limit(50)
   end
+  
+  def approve_step
+    @step = @run.pipeline.pipeline_steps.find(params[:step_id])
+    top_k = params[:top_k_count].to_i
+    
+    # Validation: K must be at least 1
+    if top_k < 1
+      redirect_to run_gallery_path(@run, step: @step.order), alert: "K must be at least 1"
+      return
+    end
+    
+    # Approve the step
+    @run.approve_step!(@step, top_k: top_k)
+    
+    redirect_to run_gallery_path(@run, step: @step.order), 
+                notice: "Step #{@step.order} approved! Top #{top_k} candidates will advance."
+  rescue => e
+    redirect_to run_gallery_path(@run, step: @step.order), 
+                alert: "Failed to approve: #{e.message}"
+  end
 
   def reject
     candidate = ImageCandidate.find(params[:id])

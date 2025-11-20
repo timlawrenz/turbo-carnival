@@ -46,13 +46,6 @@ class ImageCandidate < ApplicationRecord
     (k_factor * (actual_score - expected_score)).round
   end
 
-  def parent_with_sibling
-    return nil unless parent
-
-    sibling = parent.children.active.where.not(id: id).first
-    { parent: parent, sibling: sibling }
-  end
-
   def self.unvoted_pairs(pipeline_step)
     candidates = where(pipeline_step: pipeline_step, status: "active")
                   .order(:vote_count, :id)

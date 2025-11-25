@@ -32,8 +32,10 @@
                 <% top_3.each_with_index do |winner, index| %>
                   <div class="bg-gray-700 rounded-lg overflow-hidden">
                     <div class="relative">
-                      <div class="absolute top-2 right-2 bg-yellow-500 text-gray-900 px-2 py-1 rounded-full font-bold text-xs">
-                        <% if index == 0 %>🥇<% elsif index == 1 %>🥈<% else %>🥉<% end %> #<%= index + 1 %>
+                      <div class="absolute top-2 right-2">
+                        <%= render ::Base::BadgeComponent.new(variant: :warning, size: :sm) do %>
+                          <% if index == 0 %>🥇<% elsif index == 1 %>🥈<% else %>🥉<% end %> #<%= index + 1 %>
+                        <% end %>
                       </div>
                       <div class="aspect-square bg-gray-600 flex items-center justify-center">
                         <% if winner.image_path.present? %>

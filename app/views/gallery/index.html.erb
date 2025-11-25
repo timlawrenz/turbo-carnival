@@ -169,10 +169,12 @@
               const badge = card.querySelector('[data-advancement-badge]');
               if (rank <= parseInt(k)) {
                 badge.textContent = '✅ Will advance';
-                badge.className = 'absolute top-2 left-2 px-3 py-1 bg-green-600 bg-opacity-90 rounded-full text-xs font-bold text-white';
+                badge.className = 'absolute top-2 left-2';
+                badge.innerHTML = '<span class="inline-flex items-center justify-center font-medium transition-colors px-2 py-0.5 text-xs rounded-md bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">✅ Will advance</span>';
               } else {
                 badge.textContent = '⏸️ Will not advance';
-                badge.className = 'absolute top-2 left-2 px-3 py-1 bg-gray-600 bg-opacity-90 rounded-full text-xs font-bold text-gray-300';
+                badge.className = 'absolute top-2 left-2';
+                badge.innerHTML = '<span class="inline-flex items-center justify-center font-medium transition-colors px-2 py-0.5 text-xs rounded-md bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">⏸️ Will not advance</span>';
               }
             });
           }
@@ -225,19 +227,25 @@
                 
                 <!-- Advancement Badge -->
                 <% if prs&.approved? || !prs&.approved? %>
-                  <div data-advancement-badge class="absolute top-2 left-2 px-3 py-1 <%= will_advance ? 'bg-green-600' : 'bg-gray-600' %> bg-opacity-90 rounded-full text-xs font-bold <%= will_advance ? 'text-white' : 'text-gray-300' %>">
-                    <%= will_advance ? '✅ Will advance' : '⏸️ Will not advance' %>
+                  <div data-advancement-badge class="absolute top-2 left-2">
+                    <%= render ::Base::BadgeComponent.new(variant: will_advance ? :success : :default, size: :sm) do %>
+                      <%= will_advance ? '✅ Will advance' : '⏸️ Will not advance' %>
+                    <% end %>
                   </div>
                 <% end %>
                 
                 <!-- ELO Badge -->
-                <div class="absolute top-2 right-2 px-3 py-1 bg-black bg-opacity-75 rounded-full">
-                  <span class="text-sm font-bold text-yellow-400">⭐ <%= candidate.elo_score %></span>
+                <div class="absolute top-2 right-2">
+                  <%= render ::Base::BadgeComponent.new(variant: :default, size: :sm, class: "bg-black bg-opacity-75") do %>
+                    <span class="text-yellow-400">⭐ <%= candidate.elo_score %></span>
+                  <% end %>
                 </div>
                 
                 <!-- Rank Badge -->
-                <div class="absolute bottom-2 left-2 px-3 py-1 bg-purple-600 bg-opacity-90 rounded-full">
-                  <span class="text-xs font-bold text-white">Rank #<%= rank %></span>
+                <div class="absolute bottom-2 left-2">
+                  <%= render ::Base::BadgeComponent.new(variant: :primary, size: :sm, class: "bg-purple-600") do %>
+                    Rank #<%= rank %>
+                  <% end %>
                 </div>
               </div>
 

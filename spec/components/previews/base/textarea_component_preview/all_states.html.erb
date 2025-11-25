@@ -1,0 +1,94 @@
+<div class="space-y-8 p-6 bg-gray-900">
+  <div>
+    <h3 class="text-lg font-semibold text-white mb-4">Default</h3>
+    <%= render Base::TextareaComponent.new(
+      name: "example1",
+      label: "Default Textarea",
+      placeholder: "Enter text..."
+    ) %>
+  </div>
+
+  <div>
+    <h3 class="text-lg font-semibold text-white mb-4">With Value</h3>
+    <%= render Base::TextareaComponent.new(
+      name: "example2",
+      label: "With Value",
+      value: "This is some sample text that has been entered into the textarea field."
+    ) %>
+  </div>
+
+  <div>
+    <h3 class="text-lg font-semibold text-white mb-4">Required</h3>
+    <%= render Base::TextareaComponent.new(
+      name: "example3",
+      label: "Required Field",
+      placeholder: "Must be filled",
+      required: true,
+      rows: 3
+    ) %>
+  </div>
+
+  <div>
+    <h3 class="text-lg font-semibold text-white mb-4">With Error</h3>
+    <%= render Base::TextareaComponent.new(
+      name: "example4",
+      label: "Post Content",
+      value: "Too short",
+      error: "Content must be at least 50 characters"
+    ) %>
+  </div>
+
+  <div>
+    <h3 class="text-lg font-semibold text-white mb-4">With Hint</h3>
+    <%= render Base::TextareaComponent.new(
+      name: "example5",
+      label: "Biography",
+      placeholder: "Tell us about yourself...",
+      hint: "Maximum 500 characters. You can use Markdown formatting.",
+      rows: 5
+    ) %>
+  </div>
+
+  <div>
+    <h3 class="text-lg font-semibold text-white mb-4">Disabled</h3>
+    <%= render Base::TextareaComponent.new(
+      name: "example6",
+      label: "Disabled Field",
+      value: "This content cannot be edited at this time. Please contact support if you need to make changes.",
+      disabled: true,
+      rows: 3
+    ) %>
+  </div>
+
+  <div class="grid grid-cols-3 gap-4">
+    <div>
+      <h3 class="text-lg font-semibold text-white mb-4">Small (3 rows)</h3>
+      <%= render Base::TextareaComponent.new(
+        name: "small",
+        label: "Comment",
+        placeholder: "Add a comment...",
+        rows: 3
+      ) %>
+    </div>
+
+    <div>
+      <h3 class="text-lg font-semibold text-white mb-4">Medium (5 rows)</h3>
+      <%= render Base::TextareaComponent.new(
+        name: "medium",
+        label: "Description",
+        placeholder: "Enter description...",
+        rows: 5
+      ) %>
+    </div>
+
+    <div>
+      <h3 class="text-lg font-semibold text-white mb-4">Large (8 rows)</h3>
+      <%= render Base::TextareaComponent.new(
+        name: "large",
+        label: "Article",
+        placeholder: "Write your article...",
+        rows: 8
+      ) %>
+    </div>
+  </div>
+</div>

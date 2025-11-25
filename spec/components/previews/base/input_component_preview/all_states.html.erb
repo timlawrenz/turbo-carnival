@@ -1,0 +1,101 @@
+<div class="space-y-8 p-6 bg-gray-900">
+  <div>
+    <h3 class="text-lg font-semibold text-white mb-4">Default</h3>
+    <%= render Base::InputComponent.new(
+      name: "example1",
+      label: "Default Input",
+      placeholder: "Enter text..."
+    ) %>
+  </div>
+
+  <div>
+    <h3 class="text-lg font-semibold text-white mb-4">With Value</h3>
+    <%= render Base::InputComponent.new(
+      name: "example2",
+      label: "With Value",
+      value: "Sample text"
+    ) %>
+  </div>
+
+  <div>
+    <h3 class="text-lg font-semibold text-white mb-4">Required</h3>
+    <%= render Base::InputComponent.new(
+      name: "example3",
+      label: "Required Field",
+      placeholder: "Must be filled",
+      required: true
+    ) %>
+  </div>
+
+  <div>
+    <h3 class="text-lg font-semibold text-white mb-4">With Error</h3>
+    <%= render Base::InputComponent.new(
+      name: "example4",
+      label: "Email Address",
+      value: "invalid",
+      error: "Please enter a valid email address"
+    ) %>
+  </div>
+
+  <div>
+    <h3 class="text-lg font-semibold text-white mb-4">With Hint</h3>
+    <%= render Base::InputComponent.new(
+      name: "example5",
+      label: "Username",
+      placeholder: "johndoe",
+      hint: "3-20 characters, letters and numbers only"
+    ) %>
+  </div>
+
+  <div>
+    <h3 class="text-lg font-semibold text-white mb-4">Disabled</h3>
+    <%= render Base::InputComponent.new(
+      name: "example6",
+      label: "Disabled Field",
+      value: "Cannot edit this",
+      disabled: true
+    ) %>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4">
+    <div>
+      <h3 class="text-lg font-semibold text-white mb-4">Email</h3>
+      <%= render Base::InputComponent.new(
+        name: "email",
+        type: :email,
+        label: "Email",
+        placeholder: "you@example.com"
+      ) %>
+    </div>
+
+    <div>
+      <h3 class="text-lg font-semibold text-white mb-4">Password</h3>
+      <%= render Base::InputComponent.new(
+        name: "password",
+        type: :password,
+        label: "Password",
+        placeholder: "••••••••"
+      ) %>
+    </div>
+
+    <div>
+      <h3 class="text-lg font-semibold text-white mb-4">Number</h3>
+      <%= render Base::InputComponent.new(
+        name: "age",
+        type: :number,
+        label: "Age",
+        placeholder: "25"
+      ) %>
+    </div>
+
+    <div>
+      <h3 class="text-lg font-semibold text-white mb-4">Search</h3>
+      <%= render Base::InputComponent.new(
+        name: "query",
+        type: :search,
+        label: "Search",
+        placeholder: "Search..."
+      ) %>
+    </div>
+  </div>
+</div>

@@ -60,26 +60,26 @@ module Base
     end
 
     def card_classes
-      base = "bg-[--color-surface-50] dark:bg-[--color-surface-900] rounded-[--radius-lg] overflow-hidden"
+      base = "bg-gray-800 rounded-lg overflow-hidden"
       
       variant_classes = case @variant
       when :default
-        "border border-[--color-surface-200] dark:border-[--color-surface-800]"
+        "border border-gray-700"
       when :elevated
-        "shadow-[--shadow-md] border border-[--color-surface-200] dark:border-[--color-surface-800]"
+        "shadow-lg border border-gray-700"
       when :outlined
-        "border-2 border-[--color-surface-300] dark:border-[--color-surface-700]"
+        "border-2 border-gray-600"
       when :interactive
-        "border border-[--color-surface-200] dark:border-[--color-surface-800] shadow-[--shadow-sm] hover:shadow-[--shadow-md] transition-shadow cursor-pointer"
+        "border border-gray-700 shadow-sm hover:shadow-lg transition-shadow cursor-pointer"
       else
-        "border border-[--color-surface-200] dark:border-[--color-surface-800]"
+        "border border-gray-700"
       end
 
       [base, variant_classes, @custom_classes].join(" ").strip
     end
 
     def header_classes
-      "px-6 py-4 border-b border-[--color-surface-200] dark:border-[--color-surface-800] bg-[--color-surface-100] dark:bg-[--color-surface-950]"
+      "px-6 py-4 border-b border-gray-700 bg-gray-800"
     end
 
     def body_classes
@@ -87,7 +87,7 @@ module Base
     end
 
     def footer_classes
-      "px-6 py-4 border-t border-[--color-surface-200] dark:border-[--color-surface-800] bg-[--color-surface-100] dark:bg-[--color-surface-950]"
+      "px-6 py-4 border-t border-gray-700 bg-gray-800"
     end
   end
 end

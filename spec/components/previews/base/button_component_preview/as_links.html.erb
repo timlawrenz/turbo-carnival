@@ -1,0 +1,11 @@
+<div class="p-8 space-y-4">
+  <div class="flex flex-wrap gap-4">
+    <%= render Base::ButtonComponent.new(variant: :primary, href: "#") do %>
+      Primary Link
+    <% end %>
+    
+    <%= render Base::ButtonComponent.new(variant: :outline, href: "#") do %>
+      Outline Link
+    <% end %>
+  </div>
+</div>

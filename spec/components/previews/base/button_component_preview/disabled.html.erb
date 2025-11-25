@@ -1,0 +1,15 @@
+<div class="p-8 space-y-4">
+  <div class="flex flex-wrap gap-4">
+    <%= render Base::ButtonComponent.new(variant: :primary, disabled: true) do %>
+      Primary Disabled
+    <% end %>
+    
+    <%= render Base::ButtonComponent.new(variant: :secondary, disabled: true) do %>
+      Secondary Disabled
+    <% end %>
+    
+    <%= render Base::ButtonComponent.new(variant: :outline, disabled: true) do %>
+      Outline Disabled
+    <% end %>
+  </div>
+</div>

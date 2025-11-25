@@ -1,0 +1,29 @@
+<div class="p-8 bg-gray-100 dark:bg-gray-800">
+  <%= render Base::CardComponent.new(variant: :elevated, class: "max-w-md") do |c| %>
+    <% c.with_header do %>
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Card Title</h3>
+      <p class="text-sm text-gray-600 dark:text-gray-400">Subtitle or description</p>
+    <% end %>
+    
+    <% c.with_body do %>
+      <p class="text-gray-700 dark:text-gray-300 mb-4">
+        This is the main content area of the card. You can put any content here,
+        including text, images, or other components.
+      </p>
+      <p class="text-sm text-gray-600 dark:text-gray-400">
+        Additional details or metadata can go here.
+      </p>
+    <% end %>
+    
+    <% c.with_footer do %>
+      <div class="flex justify-end gap-2">
+        <%= render Base::ButtonComponent.new(variant: :ghost) do %>
+          Cancel
+        <% end %>
+        <%= render Base::ButtonComponent.new(variant: :primary) do %>
+          Save Changes
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

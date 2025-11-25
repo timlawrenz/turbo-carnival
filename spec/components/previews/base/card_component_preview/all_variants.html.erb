@@ -1,0 +1,37 @@
+<div class="p-8 space-y-6 bg-gray-100 dark:bg-gray-800">
+  <div class="space-y-2">
+    <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Default</h3>
+    <%= render Base::CardComponent.new(variant: :default) do |c| %>
+      <% c.with_body do %>
+        <p class="text-gray-700 dark:text-gray-300">Default card with border</p>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="space-y-2">
+    <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Elevated</h3>
+    <%= render Base::CardComponent.new(variant: :elevated) do |c| %>
+      <% c.with_body do %>
+        <p class="text-gray-700 dark:text-gray-300">Elevated card with shadow</p>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="space-y-2">
+    <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Outlined</h3>
+    <%= render Base::CardComponent.new(variant: :outlined) do |c| %>
+      <% c.with_body do %>
+        <p class="text-gray-700 dark:text-gray-300">Outlined card with thicker border</p>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="space-y-2">
+    <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Interactive (hover me)</h3>
+    <%= render Base::CardComponent.new(variant: :interactive, href: "#") do |c| %>
+      <% c.with_body do %>
+        <p class="text-gray-700 dark:text-gray-300">Interactive card with hover effect</p>
+      <% end %>
+    <% end %>
+  </div>
+</div>

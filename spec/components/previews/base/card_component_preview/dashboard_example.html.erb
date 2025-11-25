@@ -1,0 +1,61 @@
+<div class="p-8 bg-gray-100 dark:bg-gray-800">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-6xl">
+    <!-- Gap Analysis Card -->
+    <%= render Base::CardComponent.new(variant: :elevated) do |c| %>
+      <% c.with_header do %>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Content Strategy</h3>
+      <% end %>
+      <% c.with_body do %>
+        <div class="space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Thanksgiving 2024</span>
+            <span class="text-xs text-amber-600 dark:text-amber-400 font-semibold">⚠️ GAP: -2</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Holiday Season</span>
+            <span class="text-xs text-green-600 dark:text-green-400">✓ OK</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Winter Fashion</span>
+            <span class="text-xs text-amber-600 dark:text-amber-400 font-semibold">⚠️ GAP: -1</span>
+          </div>
+        </div>
+      <% end %>
+      <% c.with_footer do %>
+        <%= render Base::ButtonComponent.new(variant: :primary, class: "w-full") do %>
+          Generate Content
+        <% end %>
+      <% end %>
+    <% end %>
+
+    <!-- Active Pipelines Card -->
+    <%= render Base::CardComponent.new(variant: :elevated) do |c| %>
+      <% c.with_header do %>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Active Pipelines</h3>
+      <% end %>
+      <% c.with_body do %>
+        <div class="space-y-3">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-sm font-medium text-gray-900 dark:text-white">Winter Shoot</p>
+              <p class="text-xs text-gray-600 dark:text-gray-400">Step 2/4 • Voting</p>
+            </div>
+            <span class="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded">In Progress</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-sm font-medium text-gray-900 dark:text-white">Holiday Party</p>
+              <p class="text-xs text-gray-600 dark:text-gray-400">Step 4/4 • Final</p>
+            </div>
+            <span class="text-xs px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded">Complete</span>
+          </div>
+        </div>
+      <% end %>
+      <% c.with_footer do %>
+        <%= render Base::ButtonComponent.new(variant: :outline, class: "w-full") do %>
+          View All Runs
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+</div>

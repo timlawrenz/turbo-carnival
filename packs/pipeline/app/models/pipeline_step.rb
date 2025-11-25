@@ -1,5 +1,5 @@
 class PipelineStep < ApplicationRecord
-  belongs_to :pipeline
+  belongs_to :pipeline, touch: true
   has_many :image_candidates, dependent: :destroy
   has_many :comfyui_jobs, dependent: :destroy
   has_many :pipeline_run_steps, dependent: :destroy

@@ -1,3 +1,5 @@
-<%= turbo_frame_tag "run_#{run.id}", class: "contents" do %>
-  <%= render partial: 'runs/run_card_content', locals: { run: run } %>
+<% cache run do %>
+  <%= turbo_frame_tag "run_#{run.id}", class: "contents" do %>
+    <%= render partial: 'runs/run_card_content', locals: { run: run } %>
+  <% end %>
 <% end %>

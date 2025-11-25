@@ -80,3 +80,9 @@ gem "importmap-rails"
 
 # ViewComponent for reusable UI components
 gem "view_component"
+
+# Tailwind CSS for styling
+gem "tailwindcss-rails"
+
+# Lookbook for component development and documentation
+gem "lookbook", group: :development

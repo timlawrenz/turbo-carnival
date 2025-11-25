@@ -128,7 +128,7 @@
       },
       "lora_2": {
         "on": true,
-        "lora": "breast-size2.safetensors",
+        "lora": "flux/breast-size2.safetensors",
         "strength": 0.3
       },
       "lora_3": {
@@ -203,7 +203,7 @@
       },
       "lora_2": {
         "on": true,
-        "lora": "breast-size2.safetensors",
+        "lora": "flux/breast-size2.safetensors",
         "strength": 0.05
       },
       "lora_3": {
@@ -321,12 +321,12 @@
         "107",
         3
       ],
-      "steps": 60,
+      "steps": 50,
       "cfg": 1.5,
       "sampler_name": "euler",
       "scheduler": "beta",
-      "start_at_step": 30,
-      "end_at_step": 60,
+      "start_at_step": 20,
+      "end_at_step": 52,
       "return_with_leftover_noise": "disable",
       "model": [
         "98",
@@ -357,12 +357,12 @@
         "107",
         3
       ],
-      "steps": 60,
+      "steps": 50,
       "cfg": 5.5,
       "sampler_name": "euler",
       "scheduler": "beta",
       "start_at_step": 0,
-      "end_at_step": 30,
+      "end_at_step": 20,
       "return_with_leftover_noise": "enable",
       "model": [
         "99",

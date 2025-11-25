@@ -8,6 +8,11 @@ Rails.application.routes.draw do
   # Mount importmap for JavaScript modules
   mount Importmap::Engine, at: "/importmap"
 
+  # Mount Lookbook in development for component previews
+  if Rails.env.development?
+    mount Lookbook::Engine, at: "/lookbook"
+  end
+
   # Runs dashboard (main entry point)
   resources :runs, only: [:index, :show, :new, :create] do
     member do

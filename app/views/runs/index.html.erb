@@ -7,8 +7,12 @@
         📋 Pipeline Runs
       </h1>
       <div class="flex gap-4">
-        <%= link_to "➕ New Run", new_run_path, class: "px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors" %>
-        <%= link_to "🏆 Winners", winners_path, class: "px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors" %>
+        <%= render Base::ButtonComponent.new(variant: :primary, href: new_run_path) do %>
+          ➕ New Run
+        <% end %>
+        <%= render Base::ButtonComponent.new(variant: :secondary, href: winners_path) do %>
+          🏆 Winners
+        <% end %>
       </div>
     </div>
 

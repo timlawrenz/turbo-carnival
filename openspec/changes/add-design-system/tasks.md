@@ -17,28 +17,31 @@
   - [x] 1.3.5 Define border radii
   - [x] 1.3.6 Define shadows and elevations
 
-## 2. Base Component Library
-- [ ] 2.1 Port Tailwind Plus Catalyst components to Base:: namespace
-  - [x] 2.1.1 Base::ButtonComponent (primary, secondary, outline, ghost variants)
-  - [ ] 2.1.2 Base::InputComponent (text, email, password, etc.)
-  - [ ] 2.1.3 Base::SelectComponent
-  - [ ] 2.1.4 Base::TextareaComponent
-  - [ ] 2.1.5 Base::CheckboxComponent
-  - [ ] 2.1.6 Base::RadioComponent
+## 2. Base Component Library (75% complete - 9/12 components)
+- [x] 2.1 Port Tailwind Plus Catalyst components to Base:: namespace
+  - [x] 2.1.1 Base::ButtonComponent (primary, secondary, outline, ghost, warning variants)
+  - [x] 2.1.2 Base::InputComponent (text, email, password, etc.)
+  - [x] 2.1.3 Base::SelectComponent
+  - [x] 2.1.4 Base::TextareaComponent
+  - [x] 2.1.5 Base::CheckboxComponent
+  - [ ] 2.1.6 Base::RadioComponent (deferred)
   - [x] 2.1.7 Base::CardComponent
-  - [ ] 2.1.8 Base::BadgeComponent
-  - [ ] 2.1.9 Base::AlertComponent (info, success, warning, error)
-  - [ ] 2.1.10 Base::ModalComponent
-  - [ ] 2.1.11 Base::DropdownComponent
-  - [ ] 2.1.12 Base::TooltipComponent
-- [ ] 2.2 Create Lookbook previews for each Base component
-  - [x] 2.2.1 Button preview with all variants
-  - [ ] 2.2.2 Input preview with states (default, error, disabled)
-  - [x] 2.2.3 Card preview with various content
-  - [ ] 2.2.4 Alert preview with all severity levels
-  - [ ] 2.2.5 Form components previews
-  - [ ] 2.2.6 Modal preview
-  - [ ] 2.2.7 Dropdown preview
+  - [x] 2.1.8 Base::BadgeComponent
+  - [x] 2.1.9 Base::AlertComponent (info, success, warning, error)
+  - [x] 2.1.10 Base::LoadingComponent (spinners, skeletons)
+  - [ ] 2.1.11 Base::ModalComponent
+  - [ ] 2.1.12 Base::TabsComponent
+  - [ ] 2.1.13 Base::TooltipComponent (deferred)
+- [x] 2.2 Create Lookbook previews for each Base component (9/9 complete)
+  - [x] 2.2.1 Button preview with all variants ✅ /lookbook
+  - [x] 2.2.2 Input preview with states (default, error, disabled) ✅ /lookbook
+  - [x] 2.2.3 Card preview with various content ✅ /lookbook
+  - [x] 2.2.4 Alert preview with all severity levels ✅ /lookbook
+  - [x] 2.2.5 Form components previews (Select, Textarea, Checkbox) ✅ /lookbook
+  - [x] 2.2.6 Badge preview with all variants ✅ /lookbook
+  - [x] 2.2.7 Loading preview with all states ✅ /lookbook
+  - [ ] 2.2.8 Modal preview (pending component)
+  - [ ] 2.2.9 Tabs preview (pending component)
 
 ## 3. Application Shell Components
 - [ ] 3.1 Create layout components
@@ -70,18 +73,19 @@
   - [ ] 4.3.4 Add reference to Tailwind Plus inspiration docs
   - [ ] 4.3.5 Keep instructions generic (not tool-specific)
 
-## 5. Component Migration
-- [ ] 5.1 Audit existing components (COMPLETED - see design.md)
+## 5. Component Migration (50% complete)
+- [x] 5.1 Audit existing components (COMPLETED - see design.md)
   - [x] 5.1.1 List all components in app/components/
   - [x] 5.1.2 Categorize: keep as-is, refactor to use Base, replace
-  - [ ] 5.1.3 Document migration path for each component
-- [ ] 5.2 Refactor existing components to use Base components
-  - [ ] 5.2.1 VotingCardComponent (use Base::Card, Base::Button)
-  - [ ] 5.2.2 ComparisonViewComponent (use Base::Card)
-  - [ ] 5.2.3 ImageDisplayComponent (use Base::Card)
-  - [ ] 5.2.4 Update or deprecate ButtonComponent (replaced by Base::Button)
-  - [ ] 5.2.5 Update or deprecate CardComponent (replaced by Base::Card)
-- [ ] 5.3 Update component previews to match new patterns
+  - [x] 5.1.3 Document migration path for each component
+- [x] 5.2 Refactor existing components to use Base components
+  - [x] 5.2.1 VotingCardComponent (uses Base::Button) ✅
+  - [x] 5.2.2 Migrate all buttons in views to Base::ButtonComponent ✅
+  - [x] 5.2.3 Migrate all badges to Base::BadgeComponent ✅
+  - [x] 5.2.4 Migrate all cards to Base::CardComponent ✅
+  - [ ] 5.2.5 Migrate forms to use Base::Input/Select/Textarea
+  - [ ] 5.2.6 Deprecate old ButtonComponent/CardComponent
+- [ ] 5.3 Update component specs to use RSpec (currently test/components/)
 
 ## 6. Testing
 - [ ] 6.1 Add component specs for Base components

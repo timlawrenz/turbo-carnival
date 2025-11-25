@@ -16,7 +16,7 @@
         method: :post, 
         data: { voting_target: "leftKill" },
         class: "inline-block" do %>
-      <%= render Base::ButtonComponent.new(variant: :danger) do %>
+      <%= render ::Base::ButtonComponent.new(variant: :danger) do %>
         Kill Left Image
       <% end %>
     <% end %>
@@ -24,7 +24,7 @@
         method: :post, 
         data: { voting_target: "rightKill" },
         class: "inline-block" do %>
-      <%= render Base::ButtonComponent.new(variant: :danger) do %>
+      <%= render ::Base::ButtonComponent.new(variant: :danger) do %>
         Kill Right Image
       <% end %>
     <% end %>

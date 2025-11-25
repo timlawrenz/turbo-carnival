@@ -1,16 +1,16 @@
-<%= render Base::CardComponent.new(variant: :elevated, class: "max-w-2xl mx-auto text-center") do |c| %>
+<%= render ::Base::CardComponent.new(variant: :elevated, class: "max-w-2xl mx-auto text-center") do |c| %>
   <% c.with_body do %>
     <div class="py-8">
       <h2 class="text-2xl font-bold text-white mb-4">🎉 All Done!</h2>
       <p class="text-gray-400 mb-6">All images in this run have been reviewed. Great work!</p>
       <div class="flex gap-4 justify-center flex-wrap">
-        <%= render Base::ButtonComponent.new(variant: :secondary, href: run_gallery_path(@run)) do %>
+        <%= render ::Base::ButtonComponent.new(variant: :secondary, href: run_gallery_path(@run)) do %>
           🖼️ Browse Gallery
         <% end %>
-        <%= render Base::ButtonComponent.new(variant: :secondary, href: winners_run_path(@run)) do %>
+        <%= render ::Base::ButtonComponent.new(variant: :secondary, href: winners_run_path(@run)) do %>
           🏆 View Winners
         <% end %>
-        <%= render Base::ButtonComponent.new(variant: :primary, href: runs_path) do %>
+        <%= render ::Base::ButtonComponent.new(variant: :primary, href: runs_path) do %>
           📋 All Runs
         <% end %>
       </div>

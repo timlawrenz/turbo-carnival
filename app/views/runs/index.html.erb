@@ -7,10 +7,10 @@
         📋 Pipeline Runs
       </h1>
       <div class="flex gap-4">
-        <%= render Base::ButtonComponent.new(variant: :primary, href: new_run_path) do %>
+        <%= render ::Base::ButtonComponent.new(variant: :primary, href: new_run_path) do %>
           ➕ New Run
         <% end %>
-        <%= render Base::ButtonComponent.new(variant: :secondary, href: winners_path) do %>
+        <%= render ::Base::ButtonComponent.new(variant: :secondary, href: winners_path) do %>
           🏆 Winners
         <% end %>
       </div>

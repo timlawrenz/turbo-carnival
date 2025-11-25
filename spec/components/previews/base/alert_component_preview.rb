@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
-module Base
-  # @label Alert
-  class AlertComponentPreview < Lookbook::Preview
+# @label Base/Alert
+class Base::AlertComponentPreview < ViewComponent::Preview
     # Success alert
     # ---------------
     # Success message alert
@@ -62,6 +61,5 @@ module Base
     # Shows all alert variants
     def all_variants
       render_with_template(locals: {})
-    end
   end
 end

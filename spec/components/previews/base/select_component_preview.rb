@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
-module Base
-  # @label Select
-  class SelectComponentPreview < Lookbook::Preview
+# @label Base/Select
+class Base::SelectComponentPreview < ViewComponent::Preview
     # Basic select
     # ---------------
     # Simple select without label
@@ -118,6 +117,5 @@ module Base
     # Shows all select states
     def all_states
       render_with_template(locals: {})
-    end
   end
 end

@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
-module Base
-  # @label Textarea
-  class TextareaComponentPreview < Lookbook::Preview
+# @label Base/Textarea
+class Base::TextareaComponentPreview < ViewComponent::Preview
     # Basic textarea
     # ---------------
     # Simple textarea without label
@@ -94,6 +93,5 @@ module Base
     # Shows all textarea states
     def all_states
       render_with_template(locals: {})
-    end
   end
 end

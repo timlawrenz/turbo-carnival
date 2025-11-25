@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
-module Base
-  # @label Input
-  class InputComponentPreview < Lookbook::Preview
+# @label Base/Input
+class Base::InputComponentPreview < ViewComponent::Preview
     # Basic text input
     # ---------------
     # Simple text input without label
@@ -92,6 +91,5 @@ module Base
     # Shows all input states side by side
     def all_states
       render_with_template(locals: {})
-    end
   end
 end

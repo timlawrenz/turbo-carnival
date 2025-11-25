@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
-module Base
-  # @label Badge
-  class BadgeComponentPreview < Lookbook::Preview
+# @label Base/Badge  
+class Base::BadgeComponentPreview < ViewComponent::Preview
     # Default badge
     # ---------------
     # Basic badge with default styling
@@ -103,6 +102,5 @@ module Base
     # Real-world status examples
     def status_examples
       render_with_template(locals: {})
-    end
   end
 end

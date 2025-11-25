@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
-module Base
-  # @label Loading
-  class LoadingComponentPreview < Lookbook::Preview
+# @label Base/Loading
+class Base::LoadingComponentPreview < ViewComponent::Preview
     # Small spinner
     # ---------------
     # Small loading spinner
@@ -69,6 +68,5 @@ module Base
     # Shows all spinner sizes and variants
     def all_sizes
       render_with_template(locals: {})
-    end
   end
 end

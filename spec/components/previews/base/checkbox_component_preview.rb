@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
-module Base
-  # @label Checkbox
-  class CheckboxComponentPreview < Lookbook::Preview
+# @label Base/Checkbox
+class Base::CheckboxComponentPreview < ViewComponent::Preview
     # Basic checkbox
     # ---------------
     # Simple unchecked checkbox
@@ -75,6 +74,5 @@ module Base
     # Group of related checkboxes
     def all_states
       render_with_template(locals: {})
-    end
   end
 end

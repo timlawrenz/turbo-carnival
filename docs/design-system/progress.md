@@ -3,7 +3,7 @@
 **Started:** 2025-11-25  
 **Status:** In Progress
 
-## Overall Progress: ~20%
+## Overall Progress: ~30%
 
 ### Phase 1: Foundation Setup ✅ 100% Complete
 
@@ -19,27 +19,44 @@
 - `app/assets/tailwind/design-tokens.css` - Design tokens (@theme)
 - `config/routes.rb` - Lookbook mounted in development
 
-### Phase 2: Base Component Library 🚧 16% Complete (2/12 critical)
+### Phase 2: Base Component Library 🚧 25% Complete (3/12 critical)
 
 **Completed Components:**
 
-#### ✅ Base::ButtonComponent
-- **Variants:** primary, secondary, outline, ghost, danger
-- **Features:** Button/link rendering, disabled states, focus styles
+#### ✅ Base::ButtonComponent (100% adopted)
+- **Variants:** primary, secondary, outline, ghost, danger, warning (6 total)
+- **Features:** Button/link rendering, disabled states, focus styles, data attributes
 - **Preview:** `/lookbook` - Base/Button
+- **Migration:** ✅ 100% - All 8 view files migrated (~14 buttons)
 - **Files:**
   - `app/components/base/button_component.rb`
   - `app/components/base/button_component.html.erb`
   - `spec/components/previews/base/button_component_preview.rb`
 
-#### ✅ Base::CardComponent  
-- **Variants:** default, elevated, outlined, interactive
+#### ✅ Base::CardComponent (partially adopted)
+- **Variants:** default, elevated, outlined, interactive (4 total)
 - **Features:** Header/Body/Footer slots, clickable cards, dark mode
 - **Preview:** `/lookbook` - Base/Card
+- **Migration:** ⏳ Partial - 1 view file uses it
 - **Files:**
   - `app/components/base/card_component.rb`
   - `app/components/base/card_component.html.erb`
   - `spec/components/previews/base/card_component_preview.rb`
+
+#### ✅ Base::BadgeComponent (100% adopted)
+- **Variants:** default, primary, success, warning, danger, info, outline (7 total)
+- **Sizes:** sm, md, lg (3 total)
+- **Features:** Status indicators, counts, tags, dark mode
+- **Preview:** `/lookbook` - Base/Badge
+- **Migration:** ✅ 100% - All badges migrated across 4 view files
+  - runs/_run_card_content.html.erb (status badges)
+  - gallery/index.html.erb (advancement, ELO, rank badges + JS updates)
+  - winners/index.html.erb (rank badges)
+  - winners/show.html.erb (rank badges)
+- **Files:**
+  - `app/components/base/badge_component.rb`
+  - `app/components/base/badge_component.html.erb`
+  - `spec/components/previews/base/badge_component_preview.rb`
 
 **Next Up (Critical for Merge):**
 - [ ] Base::BadgeComponent - Status indicators, counts, tags

@@ -23,12 +23,14 @@ module Base
     # @param href [String, nil] if provided, renders as <a> tag instead of <button>
     # @param type [String] the button type attribute (button, submit, reset)
     # @param disabled [Boolean] whether the button is disabled
+    # @param data [Hash] data attributes for Turbo/Stimulus
     # @param class [String] additional CSS classes to merge
-    def initialize(variant: :primary, href: nil, type: "button", disabled: false, class: "")
+    def initialize(variant: :primary, href: nil, type: "button", disabled: false, data: {}, class: "")
       @variant = variant
       @href = href
       @type = type
       @disabled = disabled
+      @data = data
       @custom_classes = binding.local_variable_get(:class)
     end
 
@@ -41,7 +43,8 @@ module Base
     def tag_options
       options = {
         class: button_classes,
-        disabled: (@disabled if tag_name == :button)
+        disabled: (@disabled if tag_name == :button),
+        data: @data
       }.compact
 
       if @href

@@ -3,7 +3,7 @@
 **Started:** 2025-11-25  
 **Status:** In Progress
 
-## Overall Progress: ~30%
+## Overall Progress: ~40%
 
 ### Phase 1: Foundation Setup ✅ 100% Complete
 
@@ -19,7 +19,7 @@
 - `app/assets/tailwind/design-tokens.css` - Design tokens (@theme)
 - `config/routes.rb` - Lookbook mounted in development
 
-### Phase 2: Base Component Library 🚧 25% Complete (3/12 critical)
+### Phase 2: Base Component Library 🚧 50% Complete (6/12 critical)
 
 **Completed Components:**
 
@@ -62,8 +62,38 @@
   - `app/components/base/badge_component.html.erb`
   - `spec/components/previews/base/badge_component_preview.rb`
 
+#### ✅ Base::InputComponent (ready for use)
+- **Types:** text, email, password, number, tel, url, search (7 total)
+- **States:** default, required, disabled, error (4 total)
+- **Features:** Label, error message, hint text, auto-generated IDs, validation styling
+- **Preview:** `/lookbook` - Base/Input
+- **Migration:** ⏳ Not yet migrated - Ready for use in new forms
+- **Files:**
+  - `app/components/base/input_component.rb`
+  - `app/components/base/input_component.html.erb`
+  - `spec/components/previews/base/input_component_preview.rb`
+
+#### ✅ Base::TextareaComponent (ready for use)
+- **Features:** Multi-line input, configurable rows, label, error, hint
+- **States:** default, required, disabled, error (4 total)
+- **Preview:** `/lookbook` - Base/Textarea
+- **Migration:** ⏳ Not yet migrated - Ready for use in new forms
+- **Files:**
+  - `app/components/base/textarea_component.rb`
+  - `app/components/base/textarea_component.html.erb`
+  - `spec/components/previews/base/textarea_component_preview.rb`
+
+#### ✅ Base::AlertComponent (ready for use)
+- **Variants:** success, info, warning, danger (4 total)
+- **Features:** Optional title, dismissible, icon indicators, accessible
+- **Preview:** `/lookbook` - Base/Alert
+- **Migration:** ⏳ Not yet migrated - Ready for flash messages
+- **Files:**
+  - `app/components/base/alert_component.rb`
+  - `app/components/base/alert_component.html.erb`
+  - `spec/components/previews/base/alert_component_preview.rb`
+
 **Next Up (Critical for Merge):**
-- [ ] Base::BadgeComponent - Status indicators, counts, tags
 - [ ] Base::AlertComponent - Notifications, gap warnings, errors
 - [ ] Base::InputComponent - Form inputs
 - [ ] Base::TextareaComponent - Multi-line inputs

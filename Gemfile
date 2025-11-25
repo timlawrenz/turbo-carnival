@@ -71,7 +71,7 @@ gem "faraday", "~> 2.9"
 gem "faraday-retry", "~> 2.2"
 
 # Background jobs
-gem "sidekiq", "~> 7.0"
+gem "sidekiq", "~> 8.0"
 
 # Hotwire for SPA-like features
 gem "turbo-rails"

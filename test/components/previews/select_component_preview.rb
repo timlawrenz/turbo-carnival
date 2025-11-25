@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-# @label Base/Select
-class Base::SelectComponentPreview < ViewComponent::Preview
+# @label Select
+class SelectComponentPreview < ViewComponent::Preview
     # Basic select
     # ---------------
     # Simple select without label

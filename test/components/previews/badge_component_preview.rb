@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-# @label Base/Badge  
-class Base::BadgeComponentPreview < ViewComponent::Preview
+# @label Badge  
+class BadgeComponentPreview < ViewComponent::Preview
     # Default badge
     # ---------------
     # Basic badge with default styling

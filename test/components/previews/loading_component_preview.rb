@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-# @label Base/Loading
-class Base::LoadingComponentPreview < ViewComponent::Preview
+# @label Loading
+class LoadingComponentPreview < ViewComponent::Preview
     # Small spinner
     # ---------------
     # Small loading spinner

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-# @label Base/Card
-class Base::CardComponentPreview < ViewComponent::Preview
+# @label Card
+class CardComponentPreview < ViewComponent::Preview
   # @label Default
   def default
     render Base::CardComponent.new do |c|

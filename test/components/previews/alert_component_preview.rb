@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-# @label Base/Alert
-class Base::AlertComponentPreview < ViewComponent::Preview
+# @label Alert
+class AlertComponentPreview < ViewComponent::Preview
     # Success alert
     # ---------------
     # Success message alert

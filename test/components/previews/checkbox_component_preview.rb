@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-# @label Base/Checkbox
-class Base::CheckboxComponentPreview < ViewComponent::Preview
+# @label Checkbox
+class CheckboxComponentPreview < ViewComponent::Preview
     # Basic checkbox
     # ---------------
     # Simple unchecked checkbox

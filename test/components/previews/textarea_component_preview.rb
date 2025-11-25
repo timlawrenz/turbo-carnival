@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-# @label Base/Textarea
-class Base::TextareaComponentPreview < ViewComponent::Preview
+# @label Textarea
+class TextareaComponentPreview < ViewComponent::Preview
     # Basic textarea
     # ---------------
     # Simple textarea without label

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-# @label Base/Input
-class Base::InputComponentPreview < ViewComponent::Preview
+# @label Input
+class InputComponentPreview < ViewComponent::Preview
     # Basic text input
     # ---------------
     # Simple text input without label

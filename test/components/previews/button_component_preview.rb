@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-# @label Base/Button
-class Base::ButtonComponentPreview < ViewComponent::Preview
+# @label Button
+class ButtonComponentPreview < ViewComponent::Preview
   # @label Default (Primary)
   def default
     render Base::ButtonComponent.new do

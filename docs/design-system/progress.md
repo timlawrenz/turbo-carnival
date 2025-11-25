@@ -3,7 +3,7 @@
 **Started:** 2025-11-25  
 **Status:** In Progress
 
-## Overall Progress: ~40%
+## Overall Progress: ~50%
 
 ### Phase 1: Foundation Setup ✅ 100% Complete
 
@@ -19,7 +19,7 @@
 - `app/assets/tailwind/design-tokens.css` - Design tokens (@theme)
 - `config/routes.rb` - Lookbook mounted in development
 
-### Phase 2: Base Component Library 🚧 50% Complete (6/12 critical)
+### Phase 2: Base Component Library 🚧 75% Complete (9/12 critical)
 
 **Completed Components:**
 
@@ -93,11 +93,41 @@
   - `app/components/base/alert_component.html.erb`
   - `spec/components/previews/base/alert_component_preview.rb`
 
-**Next Up (Critical for Merge):**
-- [ ] Base::AlertComponent - Notifications, gap warnings, errors
-- [ ] Base::InputComponent - Form inputs
-- [ ] Base::TextareaComponent - Multi-line inputs
-- [ ] Base::SelectComponent - Dropdowns
+#### ✅ Base::SelectComponent (ready for use)
+- **Features:** Dropdown/select menus, multiple selection support
+- **States:** default, required, disabled, error (4 total)
+- **Preview:** `/lookbook` - Base/Select
+- **Migration:** ⏳ Not yet migrated - Ready for use in forms
+- **Files:**
+  - `app/components/base/select_component.rb`
+  - `app/components/base/select_component.html.erb`
+  - `spec/components/previews/base/select_component_preview.rb`
+
+#### ✅ Base::CheckboxComponent (ready for use)
+- **Features:** Single checkbox with label and hint
+- **States:** checked, unchecked, disabled
+- **Preview:** `/lookbook` - Base/Checkbox
+- **Migration:** ⏳ Not yet migrated - Ready for use in forms
+- **Files:**
+  - `app/components/base/checkbox_component.rb`
+  - `app/components/base/checkbox_component.html.erb`
+  - `spec/components/previews/base/checkbox_component_preview.rb`
+
+#### ✅ Base::LoadingComponent (ready for use)
+- **Sizes:** sm, md, lg (3 total)
+- **Variants:** default (stacked), inline (horizontal)
+- **Features:** Optional text, centered option, accessible, animated
+- **Preview:** `/lookbook` - Base/Loading
+- **Migration:** ⏳ Not yet migrated - Ready for loading states
+- **Files:**
+  - `app/components/base/loading_component.rb`
+  - `app/components/base/loading_component.html.erb`
+  - `spec/components/previews/base/loading_component_preview.rb`
+
+**Next Up (Remaining 3/12):**
+- [ ] Base::RadioComponent - Radio button groups
+- [ ] Base::ToggleComponent - Toggle switches
+- [ ] Base::AvatarComponent - User avatars/icons
 
 ### Phase 3: Application Shell Components 📋 Not Started
 

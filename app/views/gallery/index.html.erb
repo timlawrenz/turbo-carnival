@@ -23,7 +23,9 @@
           </div>
         </div>
         <div class="flex gap-4">
-          <%= link_to "🏆 Winners", winners_path, class: "px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors" %>
+          <%= render ::Base::ButtonComponent.new(variant: :secondary, href: winners_path) do %>
+            🏆 Winners
+          <% end %>
         </div>
       </div>
 

@@ -148,16 +148,24 @@
 
     <!-- Actions -->
     <div class="flex gap-3">
-      <%= link_to "📊 Details", run_path(run), class: "px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors", data: { turbo_frame: "_top" } %>
+      <%= render ::Base::ButtonComponent.new(variant: :primary, href: run_path(run), data: { turbo_frame: "_top" }) do %>
+        📊 Details
+      <% end %>
       <% if has_votes %>
-        <%= link_to "🗳️ Vote", run_vote_path(run), class: "px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors", data: { turbo_frame: "_top" } %>
+        <%= render ::Base::ButtonComponent.new(variant: :secondary, href: run_vote_path(run), data: { turbo_frame: "_top" }) do %>
+          🗳️ Vote
+        <% end %>
       <% else %>
         <span class="px-4 py-2 bg-gray-700 text-gray-500 rounded-lg cursor-not-allowed" title="No unvoted pairs available">
           🗳️ Vote
         </span>
       <% end %>
-      <%= link_to "🖼️ Gallery", run_gallery_path(run, step: gallery_step), class: "px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors", data: { turbo_frame: "_top" } %>
-      <%= link_to "🏆 Winners", winners_run_path(run), class: "px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors", data: { turbo_frame: "_top" } %>
+      <%= render ::Base::ButtonComponent.new(variant: :secondary, href: run_gallery_path(run, step: gallery_step), data: { turbo_frame: "_top" }) do %>
+        🖼️ Gallery
+      <% end %>
+      <%= render ::Base::ButtonComponent.new(variant: :secondary, href: winners_run_path(run), data: { turbo_frame: "_top" }) do %>
+        🏆 Winners
+      <% end %>
       
       <% if run.status != 'completed' %>
         <%= button_to "✅ Mark Complete", complete_run_path(run), 

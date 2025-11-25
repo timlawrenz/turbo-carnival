@@ -163,7 +163,7 @@
       <%= render ::Base::ButtonComponent.new(variant: :secondary, href: run_gallery_path(run, step: gallery_step), data: { turbo_frame: "_top" }) do %>
         🖼️ Gallery
       <% end %>
-      <%= render ::Base::ButtonComponent.new(variant: :secondary, href: winners_run_path(run), data: { turbo_frame: "_top" }) do %>
+      <%= render ::Base::ButtonComponent.new(variant: :warning, href: winners_run_path(run), data: { turbo_frame: "_top" }) do %>
         🏆 Winners
       <% end %>
       

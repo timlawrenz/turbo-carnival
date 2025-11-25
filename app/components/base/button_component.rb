@@ -70,6 +70,8 @@ module Base
         "bg-transparent text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-gray-700"
       when :danger
         "bg-red-600 text-white hover:bg-red-700 focus-visible:outline-red-600 dark:bg-red-500 dark:hover:bg-red-600"
+      when :warning
+        "bg-yellow-600 text-white hover:bg-yellow-700 focus-visible:outline-yellow-600 dark:bg-yellow-500 dark:hover:bg-yellow-600"
       else
         # Default to primary
         "bg-blue-600 text-white hover:bg-blue-700 focus-visible:outline-blue-600 dark:bg-blue-500 dark:hover:bg-blue-600"

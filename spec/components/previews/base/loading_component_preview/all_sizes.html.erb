@@ -1,0 +1,86 @@
+<div class="space-y-12 p-6 bg-gray-900">
+  <div>
+    <h3 class="text-lg font-semibold text-white mb-4">Small</h3>
+    <div class="bg-gray-800 p-8 rounded-lg">
+      <%= render Base::LoadingComponent.new(size: :sm) %>
+    </div>
+  </div>
+
+  <div>
+    <h3 class="text-lg font-semibold text-white mb-4">Medium (Default)</h3>
+    <div class="bg-gray-800 p-8 rounded-lg">
+      <%= render Base::LoadingComponent.new(size: :md) %>
+    </div>
+  </div>
+
+  <div>
+    <h3 class="text-lg font-semibold text-white mb-4">Large</h3>
+    <div class="bg-gray-800 p-8 rounded-lg">
+      <%= render Base::LoadingComponent.new(size: :lg) %>
+    </div>
+  </div>
+
+  <div>
+    <h3 class="text-lg font-semibold text-white mb-4">With Text</h3>
+    <div class="bg-gray-800 p-8 rounded-lg">
+      <%= render Base::LoadingComponent.new(
+        size: :md,
+        text: "Loading candidates..."
+      ) %>
+    </div>
+  </div>
+
+  <div>
+    <h3 class="text-lg font-semibold text-white mb-4">Large with Text</h3>
+    <div class="bg-gray-800 p-8 rounded-lg">
+      <%= render Base::LoadingComponent.new(
+        size: :lg,
+        text: "Processing images, please wait..."
+      ) %>
+    </div>
+  </div>
+
+  <div>
+    <h3 class="text-lg font-semibold text-white mb-4">Centered (Full Height)</h3>
+    <div class="bg-gray-800 rounded-lg">
+      <%= render Base::LoadingComponent.new(
+        size: :lg,
+        text: "Loading content...",
+        centered: true
+      ) %>
+    </div>
+  </div>
+
+  <div>
+    <h3 class="text-lg font-semibold text-white mb-4">Inline Variant</h3>
+    <div class="bg-gray-800 p-8 rounded-lg">
+      <p class="text-white mb-4">
+        Your changes are being saved
+        <%= render Base::LoadingComponent.new(size: :sm, variant: :inline, text: "Saving...") %>
+      </p>
+      <p class="text-white">
+        <%= render Base::LoadingComponent.new(size: :sm, variant: :inline) do %>
+          Processing your request, this may take a few moments...
+        <% end %>
+      </p>
+    </div>
+  </div>
+
+  <div>
+    <h3 class="text-lg font-semibold text-white mb-4">In Button Context</h3>
+    <div class="bg-gray-800 p-8 rounded-lg flex gap-4">
+      <button class="px-6 py-3 bg-blue-600 text-white rounded-lg flex items-center gap-2" disabled>
+        <%= render Base::LoadingComponent.new(size: :sm, variant: :inline) %>
+        Processing...
+      </button>
+      
+      <button class="px-6 py-3 bg-green-600 text-white rounded-lg flex items-center gap-2" disabled>
+        <svg class="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Saving
+      </button>
+    </div>
+  </div>
+</div>

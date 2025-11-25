@@ -1,0 +1,64 @@
+<div class="p-8 space-y-6 bg-gray-100 dark:bg-gray-800">
+  <div class="space-y-2">
+    <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Default</h3>
+    <div class="flex gap-2">
+      <%= render ::Base::BadgeComponent.new(variant: :default) do %>
+        Default Badge
+      <% end %>
+    </div>
+  </div>
+
+  <div class="space-y-2">
+    <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Primary</h3>
+    <div class="flex gap-2">
+      <%= render ::Base::BadgeComponent.new(variant: :primary) do %>
+        Primary
+      <% end %>
+    </div>
+  </div>
+
+  <div class="space-y-2">
+    <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Success</h3>
+    <div class="flex gap-2">
+      <%= render ::Base::BadgeComponent.new(variant: :success) do %>
+        Success
+      <% end %>
+    </div>
+  </div>
+
+  <div class="space-y-2">
+    <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Warning</h3>
+    <div class="flex gap-2">
+      <%= render ::Base::BadgeComponent.new(variant: :warning) do %>
+        Warning
+      <% end %>
+    </div>
+  </div>
+
+  <div class="space-y-2">
+    <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Danger</h3>
+    <div class="flex gap-2">
+      <%= render ::Base::BadgeComponent.new(variant: :danger) do %>
+        Danger
+      <% end %>
+    </div>
+  </div>
+
+  <div class="space-y-2">
+    <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Info</h3>
+    <div class="flex gap-2">
+      <%= render ::Base::BadgeComponent.new(variant: :info) do %>
+        Info
+      <% end %>
+    </div>
+  </div>
+
+  <div class="space-y-2">
+    <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Outline</h3>
+    <div class="flex gap-2">
+      <%= render ::Base::BadgeComponent.new(variant: :outline) do %>
+        Outline
+      <% end %>
+    </div>
+  </div>
+</div>

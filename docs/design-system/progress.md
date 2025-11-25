@@ -33,11 +33,15 @@
   - `app/components/base/button_component.html.erb`
   - `spec/components/previews/base/button_component_preview.rb`
 
-#### ✅ Base::CardComponent (partially adopted)
+#### ✅ Base::CardComponent (100% adopted)
 - **Variants:** default, elevated, outlined, interactive (4 total)
 - **Features:** Header/Body/Footer slots, clickable cards, dark mode
 - **Preview:** `/lookbook` - Base/Card
-- **Migration:** ⏳ Partial - 1 view file uses it
+- **Migration:** ✅ 100% - All major cards migrated across 4 view files
+  - runs/_run_card_content.html.erb (run cards with header/body)
+  - image_votes/_complete.html.erb (completion card)
+  - winners/index.html.erb (winner preview cards)
+  - winners/show.html.erb (winner detail cards)
 - **Files:**
   - `app/components/base/card_component.rb`
   - `app/components/base/card_component.html.erb`

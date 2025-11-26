@@ -43,11 +43,19 @@
   - [x] 2.2.9 Tabs preview (default, with icons, many tabs) ✅ /lookbook
   - [x] 2.2.10 Tooltip preview (all positions, with buttons, with icons) ✅ /lookbook
 
-## 3. Application Shell Components
-- [ ] 3.1 Create layout components
-  - [ ] 3.1.1 Layout::SidebarComponent (collapsible, responsive)
-  - [ ] 3.1.2 Layout::HeaderComponent (with user menu, notifications)
-  - [ ] 3.1.3 Layout::NavigationComponent (main nav links)
+## 3. Application Shell Components (PHASE 3 IN PROGRESS) 🚧
+- [x] 3.1 Create layout components
+  - [x] 3.1.1 Base::NavbarComponent (top navigation, logo, items, actions)
+  - [x] 3.1.2 Base::SidebarComponent (sections, items with icons, header)
+  - [x] 3.1.3 Base::LayoutComponent (wrapper combining navbar + sidebar + main)
+- [x] 3.2 Create Lookbook previews for layout components
+  - [x] 3.2.1 Navbar preview ✅ /lookbook
+  - [x] 3.2.2 Sidebar preview ✅ /lookbook
+  - [x] 3.2.3 Layout preview (full layout, without sidebar, full width) ✅ /lookbook
+- [x] 3.3 Apply layout to application
+  - [x] 3.3.1 Update app/views/layouts/application.html.erb
+  - [x] 3.3.2 Add navigation with logo, main routes, and actions
+  - [ ] 3.3.3 Test all existing pages render correctly
   - [ ] 3.1.4 Layout::FooterComponent
 - [ ] 3.2 Create Lookbook previews for layout components
 - [ ] 3.3 Update application.html.erb to use new layout components

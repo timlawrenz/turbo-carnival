@@ -12,6 +12,35 @@
   </head>
 
   <body>
-    <%= yield %>
+    <%= render(Base::LayoutComponent.new) do |layout| %>
+      <% layout.with_navbar do %>
+        <%= render(Base::NavbarComponent.new) do |navbar| %>
+          <% navbar.with_logo do %>
+            <%= link_to root_path, class: "flex items-center gap-2" do %>
+              <span class="text-2xl">🎨</span>
+              <span class="text-xl font-bold text-white">TurboCarnival</span>
+            <% end %>
+          <% end %>
+          
+          <% navbar.with_item(href: runs_path, active: current_page?(runs_path)) do %>
+            📋 Runs
+          <% end %>
+          
+          <% navbar.with_item(href: winners_path, active: current_page?(winners_path)) do %>
+            🏆 Winners
+          <% end %>
+          
+          <% navbar.with_actions do %>
+            <%= render(Base::ButtonComponent.new(variant: :primary, size: :sm, href: new_run_path)) do %>
+              + New Run
+            <% end %>
+          <% end %>
+        <% end %>
+      <% end %>
+      
+      <% layout.with_main do %>
+        <%= yield %>
+      <% end %>
+    <% end %>
   </body>
 </html>

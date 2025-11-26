@@ -28,4 +28,9 @@ class ButtonComponentPreview < ViewComponent::Preview
   def as_links
     render_with_template
   end
+
+  # @label Different Sizes
+  def sizes
+    render_with_template
+  end
 end

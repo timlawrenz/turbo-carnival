@@ -41,10 +41,12 @@ module Base
     # @param variant [Symbol] the card style variant
     # @param href [String, nil] if provided, wraps card in link (for interactive variant)
     # @param class [String] additional CSS classes to merge
-    def initialize(variant: :default, href: nil, class: "")
+    # @param html_options [Hash] additional HTML attributes (data, aria, etc.)
+    def initialize(variant: :default, href: nil, class: "", **html_options)
       @variant = variant
       @href = href
       @custom_classes = binding.local_variable_get(:class)
+      @html_options = html_options
     end
 
     private
@@ -56,7 +58,7 @@ module Base
     def wrapper_options
       options = { class: card_classes }
       options[:href] = @href if @href && @variant == :interactive
-      options
+      options.merge(@html_options)
     end
 
     def card_classes

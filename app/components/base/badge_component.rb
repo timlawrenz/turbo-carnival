@@ -22,10 +22,12 @@ module Base
     # @param variant [Symbol] the badge style variant
     # @param size [Symbol] the badge size
     # @param class [String] additional CSS classes to merge
-    def initialize(variant: :default, size: :md, class: "")
+    # @param html_options [Hash] additional HTML attributes (data, aria, etc.)
+    def initialize(variant: :default, size: :md, class: "", **html_options)
       @variant = variant
       @size = size
       @custom_classes = binding.local_variable_get(:class)
+      @html_options = html_options
     end
 
     private

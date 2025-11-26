@@ -20,13 +20,15 @@
 module Base
   class ButtonComponent < ApplicationComponent
     # @param variant [Symbol] the button style variant
+    # @param size [Symbol] the button size (:sm, :md, :lg)
     # @param href [String, nil] if provided, renders as <a> tag instead of <button>
     # @param type [String] the button type attribute (button, submit, reset)
     # @param disabled [Boolean] whether the button is disabled
     # @param data [Hash] data attributes for Turbo/Stimulus
     # @param class [String] additional CSS classes to merge
-    def initialize(variant: :primary, href: nil, type: "button", disabled: false, data: {}, class: "")
+    def initialize(variant: :primary, size: :md, href: nil, type: "button", disabled: false, data: {}, class: "")
       @variant = variant
+      @size = size
       @href = href
       @type = type
       @disabled = disabled
@@ -57,7 +59,18 @@ module Base
     end
 
     def button_classes
-      base = "inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+      base = "inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+      
+      size_classes = case @size
+      when :sm
+        "px-3 py-1.5 text-xs"
+      when :md
+        "px-4 py-2 text-sm"
+      when :lg
+        "px-6 py-3 text-base"
+      else
+        "px-4 py-2 text-sm"
+      end
       
       variant_classes = case @variant
       when :primary
@@ -77,7 +90,7 @@ module Base
         "bg-blue-600 text-white hover:bg-blue-700 focus-visible:outline-blue-600 dark:bg-blue-500 dark:hover:bg-blue-600"
       end
 
-      [base, variant_classes, @custom_classes].join(" ").strip
+      [base, size_classes, variant_classes, @custom_classes].join(" ").strip
     end
   end
 end

@@ -8,6 +8,7 @@ module Clustering
 
     belongs_to :persona
     belongs_to :cluster, class_name: 'Clustering::Cluster', optional: true, counter_cache: true
+    belongs_to :image_candidate, class_name: 'ImageCandidate', optional: true
 
     validates :path, presence: true, uniqueness: true
     validates :persona, presence: true

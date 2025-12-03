@@ -26,8 +26,8 @@ Rails.application.configure do
   # Change to :null_store to avoid any caching.
   config.cache_store = :memory_store
 
-  # Store uploaded files on Backblaze B2 (see config/storage.yml for options).
-  config.active_storage.service = :b2
+  # Store uploaded files locally in development (see config/storage.yml for options).
+  config.active_storage.service = :local
 
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = false

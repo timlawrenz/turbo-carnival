@@ -3,6 +3,7 @@ class ImageCandidate < ApplicationRecord
   belongs_to :pipeline_run, optional: true, touch: true
   belongs_to :parent, class_name: "ImageCandidate", optional: true, counter_cache: :child_count
   has_many :children, class_name: "ImageCandidate", foreign_key: :parent_id, dependent: :nullify
+  has_one :photo, class_name: "Clustering::Photo", dependent: :destroy
 
   validates :elo_score, numericality: { only_integer: true }
   validates :status, inclusion: { in: %w[active rejected] }
@@ -44,11 +45,19 @@ class ImageCandidate < ApplicationRecord
       
       # Mark this one
       update!(winner: true, winner_at: Time.current)
+      
+      # Create Photo record if run belongs to a cluster
+      create_photo_record if pipeline_run&.cluster_id.present?
     end
   end
   
   def unmark_as_winner!
-    update!(winner: false, winner_at: nil)
+    transaction do
+      update!(winner: false, winner_at: nil)
+      
+      # Remove the Photo record if it exists
+      remove_photo_record if pipeline_run&.cluster_id.present?
+    end
   end
   
   def broadcast_run_update
@@ -60,6 +69,47 @@ class ImageCandidate < ApplicationRecord
     expected_score = 1.0 / (1.0 + 10.0**((opponent.elo_score - elo_score) / 400.0))
     actual_score = won ? 1.0 : 0.0
     (k_factor * (actual_score - expected_score)).round
+  end
+
+  private
+
+  def create_photo_record
+    return unless image_path.present?
+    return if photo.present? # Already has a photo record
+
+    cluster = Clustering::Cluster.find(pipeline_run.cluster_id)
+    
+    created_photo = Clustering::Photo.create!(
+      persona: cluster.persona,
+      cluster: cluster,
+      path: image_path,
+      image_candidate: self
+    )
+    
+    # Attach the image file to ActiveStorage
+    if File.exist?(image_path)
+      created_photo.image.attach(
+        io: File.open(image_path),
+        filename: File.basename(image_path),
+        content_type: 'image/png'
+      )
+    end
+    
+    created_photo
+  rescue => e
+    Rails.logger.error "Failed to create Photo record: #{e.message}"
+    raise
+  end
+
+  def photo_record_exists?
+    photo.present?
+  end
+
+  def remove_photo_record
+    photo&.destroy
+  rescue => e
+    Rails.logger.error "Failed to remove Photo record: #{e.message}"
+    raise
   end
 
   def self.unvoted_pairs(pipeline_step)

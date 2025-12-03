@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_03_171013) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_03_172557) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -91,6 +91,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_03_171013) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "prompt"
+    t.bigint "persona_id"
+    t.index ["persona_id"], name: "index_pipeline_runs_on_persona_id"
     t.index ["pipeline_id"], name: "index_pipeline_runs_on_pipeline_id"
     t.index ["status"], name: "index_pipeline_runs_on_status"
     t.index ["variables"], name: "index_pipeline_runs_on_variables", using: :gin
@@ -137,6 +139,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_03_171013) do
   add_foreign_key "image_candidates", "pipeline_steps"
   add_foreign_key "pipeline_run_steps", "pipeline_runs"
   add_foreign_key "pipeline_run_steps", "pipeline_steps"
+  add_foreign_key "pipeline_runs", "personas"
   add_foreign_key "pipeline_runs", "pipelines"
   add_foreign_key "pipeline_steps", "pipelines"
   add_foreign_key "votes", "image_candidates", column: "loser_id"

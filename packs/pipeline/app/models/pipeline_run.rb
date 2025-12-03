@@ -2,6 +2,7 @@ class PipelineRun < ApplicationRecord
   include Turbo::Broadcastable
 
   belongs_to :pipeline, touch: true
+  belongs_to :persona, optional: true
   has_many :image_candidates, dependent: :destroy
   has_many :pipeline_run_steps, dependent: :destroy
 

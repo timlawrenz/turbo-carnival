@@ -80,3 +80,34 @@ This is **Week 2, Day 1-3** of the integration roadmap, but we're prioritizing i
 - Focuses on workflow completion, not feature completeness
 - Photo management is Week 3 (Active Storage, imports, etc)
 - This unblocks scheduling implementation (Week 4)
+
+## Update: Photo Model Integration
+
+**Clarification added:** The Photo model is essential for the clustering workflow and will be included in this implementation.
+
+### Two-Tier Image Architecture
+
+**ImageCandidate (local, temporary):**
+- Raw generation output from ComfyUI
+- Stored as local file path
+- Used for voting and selection
+- Not publicly accessible
+
+**Photo (ActiveStorage, permanent):**
+- Curated content ready for posting
+- Uploaded to cloud storage (Backblaze B2)
+- Public HTTPS URLs for Instagram API
+- Belongs to cluster
+- Tracks posted status
+
+### Auto-linking Flow
+
+When a pipeline run completes:
+1. Find winning ImageCandidate (winner: true)
+2. Create Photo from winner
+3. Upload to ActiveStorage: `Photo.image.attach(io: File.open(winner.image_path))`
+4. Link Photo to cluster
+5. Photo is now Instagram-ready
+
+This matches fluffy-train's existing architecture.
+

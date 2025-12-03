@@ -109,3 +109,31 @@
 - Focus on ImageCandidates as content for now
 - Keep it simple - complete workflow > feature completeness
 - Total: ~18 hours (2-3 days)
+
+## 16. Photo Model (4 hours) - NEW SECTION
+- [ ] 16.1 Create photos migration (cluster_id, persona_id, path)
+- [ ] 16.2 Add has_one_attached :image to Photo
+- [ ] 16.3 Create Photo model with validations
+- [ ] 16.4 Add belongs_to :cluster, :persona
+- [ ] 16.5 Add scopes (unposted, in_cluster)
+- [ ] 16.6 Add posted? method
+- [ ] 16.7 Update Cluster (has_many :photos)
+- [ ] 16.8 Update Persona (has_many :photos)
+
+## 17. Photo Creation Service (2 hours) - NEW SECTION
+- [ ] 17.1 Create CreatePhotoFromCandidate service
+- [ ] 17.2 Validate winner and image_path exist
+- [ ] 17.3 Create Photo record
+- [ ] 17.4 Attach image from winner.image_path
+- [ ] 17.5 Handle file not found errors
+- [ ] 17.6 Handle upload errors
+- [ ] 17.7 Log successful creation
+- [ ] 17.8 Test with sample data
+
+## 18. Update Auto-linking (1 hour) - MODIFIED
+- [ ] 18.1 Update LinkWinnerToCluster service
+- [ ] 18.2 Call CreatePhotoFromCandidate
+- [ ] 18.3 Increment cluster.photos_count
+- [ ] 18.4 Log Photo creation
+- [ ] 18.5 Handle errors gracefully
+

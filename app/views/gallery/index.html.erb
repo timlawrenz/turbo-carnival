@@ -179,6 +179,7 @@
   <% end %>
 
   <!-- Stats -->
+  <div class="max-w-4xl mx-auto">
   <%= render ::Base::CardComponent.new(variant: :default, class: "mb-8") do |c| %>
     <% c.with_body do %>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
@@ -207,8 +208,10 @@
     </div>
     <% end %>
   <% end %>
+  </div>
 
   <!-- Candidates Grid -->
+  <div class="max-w-6xl mx-auto">
   <% if @candidates.any? %>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
       <% @candidates.each_with_index do |candidate, idx| %>
@@ -217,7 +220,7 @@
         <% will_advance = rank <= k_value %>
         
         <%= render ::Base::CardComponent.new(variant: :default, class: "overflow-hidden", data: { candidate_rank: rank }) do |c| %>
-          <% c.with_body(class: "p-0") do %>
+          <% c.with_body(class: "!p-0") do %>
           <!-- Image -->
           <div class="aspect-square bg-gray-700 relative">
             <%= image_tag candidate_image_path(candidate), 
@@ -250,7 +253,7 @@
           </div>
 
           <!-- Info -->
-          <div class="p-4">
+          <div class="px-6 py-4">
             <div class="flex justify-between items-start mb-3">
               <div class="text-sm text-gray-400">
                 <div>ID: <%= candidate.id %></div>
@@ -282,4 +285,5 @@
   <p class="text-xl">No active candidates at this step</p>
     </div>
   <% end %>
+  </div>
 <% end %>

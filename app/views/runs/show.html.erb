@@ -1,16 +1,5 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title><%= @run.name || "Run ##{@run.id}" %> - Tree View</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <%= csrf_meta_tags %>
-    <%= csp_meta_tag %>
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-  </head>
-
-  <body class="bg-gray-900 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
-      <!-- Header -->
+<div class="container mx-auto px-4 py-8">
+  <!-- Header -->
       <div class="mb-8">
         <div class="flex justify-between items-start mb-4">
           <div>
@@ -112,6 +101,4 @@
         <% end %>
         <% end %>
       <% end %>
-    </div>
-  </body>
-</html>
+</div>

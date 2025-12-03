@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_20_014438) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_03_171013) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -59,6 +59,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_20_014438) do
     t.index ["status", "child_count"], name: "index_image_candidates_on_status_and_child_count"
     t.index ["vote_count"], name: "index_image_candidates_on_vote_count"
     t.index ["winner"], name: "index_image_candidates_on_winner"
+  end
+
+  create_table "personas", force: :cascade do |t|
+    t.string "name"
+    t.jsonb "caption_config"
+    t.jsonb "hashtag_strategy"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "pipeline_run_steps", force: :cascade do |t|

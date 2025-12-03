@@ -13,6 +13,9 @@ Rails.application.routes.draw do
     mount Lookbook::Engine, at: "/lookbook"
   end
 
+  # Personas
+  resources :personas
+  
   # Runs dashboard (main entry point)
   resources :runs, only: [:index, :show, :new, :create] do
     member do

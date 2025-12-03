@@ -6,7 +6,17 @@ class RunsController < ApplicationController
 
   def new
     @pipelines = Pipeline.order(:name)
+    @personas = Persona.order(:name)
     @run = PipelineRun.new
+    
+    # Pre-select persona/cluster if coming from cluster page
+    if params[:cluster_id].present?
+      cluster = Clustering::Cluster.find(params[:cluster_id])
+      @run.cluster = cluster
+      @run.persona = cluster.persona
+    elsif params[:persona_id].present?
+      @run.persona = Persona.find(params[:persona_id])
+    end
   end
 
   def create
@@ -15,6 +25,8 @@ class RunsController < ApplicationController
       name: run_params[:name],
       prompt: run_params[:prompt],
       target_folder: run_params[:target_folder],
+      persona_id: run_params[:persona_id],
+      cluster_id: run_params[:cluster_id],
       variables: parse_variables(run_params[:variables])
     )
 
@@ -22,6 +34,7 @@ class RunsController < ApplicationController
       redirect_to run_path(result.run), notice: "Run '#{result.run.name}' created successfully"
     else
       @pipelines = Pipeline.order(:name)
+      @personas = Persona.order(:name)
       @run = PipelineRun.new(run_params.except(:variables))
       @variables_json = run_params[:variables]
       flash.now[:alert] = result.full_error_message || "Failed to create run"
@@ -119,7 +132,7 @@ class RunsController < ApplicationController
   private
 
   def run_params
-    params.require(:pipeline_run).permit(:pipeline_id, :name, :prompt, :target_folder, :variables)
+    params.require(:pipeline_run).permit(:pipeline_id, :name, :prompt, :target_folder, :persona_id, :cluster_id, :variables)
   end
 
   def parse_variables(variables_string)

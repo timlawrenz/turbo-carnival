@@ -42,6 +42,28 @@
             <% end %>
           </div>
 
+          <!-- Persona Selection -->
+          <div>
+            <%= f.label :persona_id, "Persona (Optional)", class: "block text-sm font-medium text-gray-300 mb-2" %>
+            <%= f.select :persona_id, 
+                options_for_select(@personas.map { |p| [p.name.titleize, p.id] }, @run.persona_id),
+                { prompt: "Select a persona...", include_blank: true },
+                class: "w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+                data: { persona_select: true } %>
+            <p class="mt-1 text-xs text-gray-400">Associate this run with a persona</p>
+          </div>
+
+          <!-- Cluster Selection -->
+          <div id="cluster-selection" <%= 'style=display:none' unless @run.persona_id.present? %>>
+            <%= f.label :cluster_id, "Cluster (Optional)", class: "block text-sm font-medium text-gray-300 mb-2" %>
+            <%= f.select :cluster_id, 
+                @run.persona_id.present? ? options_for_select(Clustering::Cluster.where(persona_id: @run.persona_id).order(:name).map { |c| [c.name, c.id] }, @run.cluster_id) : [],
+                { prompt: "Select a cluster...", include_blank: true },
+                class: "w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+                data: { cluster_select: true } %>
+            <p class="mt-1 text-xs text-gray-400">Associate this run with a content cluster</p>
+          </div>
+
           <!-- Run Name -->
           <div>
             <%= f.label :name, "Run Name", class: "block text-sm font-medium text-gray-300 mb-2" %>

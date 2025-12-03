@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_03_181511) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_03_192501) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -93,6 +93,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_03_181511) do
     t.jsonb "hashtag_strategy"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "photos", force: :cascade do |t|
+    t.bigint "persona_id", null: false
+    t.bigint "cluster_id"
+    t.string "path", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["cluster_id"], name: "index_photos_on_cluster_id"
+    t.index ["path"], name: "index_photos_on_path", unique: true
+    t.index ["persona_id"], name: "index_photos_on_persona_id"
   end
 
   create_table "pillar_cluster_assignments", force: :cascade do |t|
@@ -178,6 +189,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_03_181511) do
   add_foreign_key "image_candidates", "image_candidates", column: "parent_id"
   add_foreign_key "image_candidates", "pipeline_runs"
   add_foreign_key "image_candidates", "pipeline_steps"
+  add_foreign_key "photos", "clusters"
+  add_foreign_key "photos", "personas"
   add_foreign_key "pillar_cluster_assignments", "clusters", on_delete: :cascade
   add_foreign_key "pillar_cluster_assignments", "content_pillars", column: "pillar_id", on_delete: :cascade
   add_foreign_key "pipeline_run_steps", "pipeline_runs"

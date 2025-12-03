@@ -6,6 +6,7 @@ module Clustering
 
     belongs_to :persona
     has_many :pipeline_runs, class_name: 'PipelineRun', foreign_key: :cluster_id, dependent: :nullify
+    has_many :photos, class_name: 'Clustering::Photo', foreign_key: :cluster_id, dependent: :nullify
     has_many :pillar_cluster_assignments, foreign_key: :cluster_id, dependent: :destroy
     has_many :pillars, through: :pillar_cluster_assignments, source: :pillar, class_name: 'ContentPillar'
 

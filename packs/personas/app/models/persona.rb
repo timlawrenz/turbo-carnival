@@ -3,6 +3,7 @@
 class Persona < ApplicationRecord
   has_many :content_pillars, dependent: :restrict_with_error
   has_many :clusters, class_name: 'Clustering::Cluster', dependent: :restrict_with_error
+  has_many :photos, class_name: 'Clustering::Photo', dependent: :restrict_with_error
   
   validates :name, presence: true, uniqueness: true
 

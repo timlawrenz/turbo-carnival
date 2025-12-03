@@ -45,6 +45,9 @@
           <div>
             <span class="text-white font-semibold">ID <%= candidate.id %></span>
             <span class="text-gray-400 text-sm ml-2"><%= candidate.pipeline_step.name %></span>
+            <% if candidate.winner? %>
+              <span class="ml-2 px-2 py-1 bg-yellow-500 text-black text-xs font-bold rounded">✓ WINNER</span>
+            <% end %>
           </div>
           <div class="<%= elo_color %> font-bold text-lg">
             ⭐ <%= candidate.elo_score %>
@@ -73,6 +76,22 @@
               <%= candidate.failure_count %>
             </span>
           </div>
+        </div>
+        
+        <!-- Winner Selection Actions -->
+        <div class="mt-3">
+          <% if candidate.winner? %>
+            <%= button_to "Unselect Winner", 
+                unselect_winner_image_candidate_path(candidate),
+                method: :delete,
+                class: "text-sm px-3 py-1 bg-gray-600 hover:bg-gray-500 text-white rounded transition-colors",
+                form: { data: { turbo_confirm: "Are you sure you want to unselect this winner?" } } %>
+          <% else %>
+            <%= button_to "Pick Winner",
+                select_winner_image_candidate_path(candidate),
+                method: :post,
+                class: "text-sm px-3 py-1 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold rounded transition-colors" %>
+          <% end %>
         </div>
         
         <% if candidate.parent %>

@@ -34,6 +34,22 @@ class ImageCandidate < ApplicationRecord
   end
 
   scope :active, -> { where(status: "active") }
+  scope :winners, -> { where(winner: true) }
+  scope :not_winners, -> { where(winner: false) }
+  
+  def mark_as_winner!
+    transaction do
+      # Unmark other candidates in the same run
+      pipeline_run.image_candidates.where.not(id: id).update_all(winner: false, winner_at: nil)
+      
+      # Mark this one
+      update!(winner: true, winner_at: Time.current)
+    end
+  end
+  
+  def unmark_as_winner!
+    update!(winner: false, winner_at: nil)
+  end
   
   def broadcast_run_update
     pipeline_run&.broadcast_refresh

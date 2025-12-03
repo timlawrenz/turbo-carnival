@@ -38,6 +38,14 @@ Rails.application.routes.draw do
                                                   # POST /runs/14/steps/2/approve
   end
   
+  # Image candidate winner selection (global, works from any context)
+  resources :image_candidates, only: [] do
+    member do
+      post :select_winner
+      delete :unselect_winner
+    end
+  end
+  
   # Legacy routes (redirect to first active run)
   get "vote" => "redirects#vote"
   get "gallery" => "redirects#gallery"

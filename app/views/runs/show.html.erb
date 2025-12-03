@@ -12,9 +12,9 @@
               <% if @run.cluster %>
                 <%= link_to @run.persona.name, persona_path(@run.persona), class: "hover:text-indigo-400" %>
                 <span>/</span>
-                <%= link_to @run.cluster.content_pillar.name, persona_content_pillar_path(@run.persona, @run.cluster.content_pillar), class: "hover:text-indigo-400" %>
+                <%= link_to @run.cluster.content_pillar.name, persona_pillar_path(@run.persona, @run.cluster.content_pillar), class: "hover:text-indigo-400" %>
                 <span>/</span>
-                <%= link_to @run.cluster.name, persona_content_pillar_cluster_path(@run.persona, @run.cluster.content_pillar, @run.cluster), class: "hover:text-indigo-400" %>
+                <%= link_to @run.cluster.name, persona_pillar_cluster_path(@run.persona, @run.cluster.content_pillar, @run.cluster), class: "hover:text-indigo-400" %>
               <% elsif @run.persona %>
                 <%= link_to @run.persona.name, persona_path(@run.persona), class: "hover:text-indigo-400" %>
               <% end %>
@@ -22,7 +22,7 @@
             
             <div class="flex gap-2">
               <% if @run.cluster %>
-                <%= render ::Base::ButtonComponent.new(variant: :ghost, size: :sm, href: persona_content_pillar_cluster_path(@run.persona, @run.cluster.content_pillar, @run.cluster)) do %>
+                <%= render ::Base::ButtonComponent.new(variant: :ghost, size: :sm, href: persona_pillar_cluster_path(@run.persona, @run.cluster.content_pillar, @run.cluster)) do %>
                   ← Back to cluster
                 <% end %>
               <% elsif @run.persona %>

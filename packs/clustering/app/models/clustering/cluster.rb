@@ -9,6 +9,7 @@ module Clustering
     has_many :photos, class_name: 'Clustering::Photo', foreign_key: :cluster_id, dependent: :nullify
     has_many :pillar_cluster_assignments, foreign_key: :cluster_id, dependent: :destroy
     has_many :pillars, through: :pillar_cluster_assignments, source: :pillar, class_name: 'ContentPillar'
+    alias_method :runs, :pipeline_runs
 
     attribute :status, :integer, default: 0
 

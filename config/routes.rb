@@ -49,5 +49,17 @@ Rails.application.routes.draw do
   get "images/:id" => "images#show", as: :candidate_image
 
   # Defines the root path route ("/")
-  root "runs#index"
+  root "personas#index"
+  
+  # Personas navigation
+  resources :personas, only: [:index, :show, :new, :create] do
+    # Nested pillars
+    resources :pillars, only: [:show], controller: 'content_pillars' do
+      # Nested clusters under pillars
+      resources :clusters, only: [:show, :new, :create], controller: 'clustering/clusters'
+    end
+    
+    # Direct cluster access (for convenience)
+    resources :clusters, only: [:index], controller: 'clustering/clusters'
+  end
 end

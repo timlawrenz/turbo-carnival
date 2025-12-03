@@ -1,0 +1,93 @@
+<div class="container mx-auto px-4 py-8">
+  <!-- Back button -->
+  <div class="mb-4">
+    <% if @pillar %>
+      <%= link_to persona_pillar_path(@persona, @pillar), class: "text-blue-600 hover:text-blue-800" do %>
+        ← Back to <%= @pillar.name %>
+      <% end %>
+    <% else %>
+      <%= link_to persona_path(@persona), class: "text-blue-600 hover:text-blue-800" do %>
+        ← Back to <%= @persona.name.titleize %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <h1 class="text-3xl font-bold mb-2"><%= @cluster.name %></h1>
+  <div class="text-gray-600 mb-4">
+    <% if @pillar %>
+      <span class="inline-block bg-gray-200 rounded px-3 py-1"><%= @pillar.name %></span>
+    <% end %>
+    <span class="ml-2">Status: <%= @cluster.status %></span>
+  </div>
+  
+  <% if @cluster.ai_prompt.present? %>
+    <div class="bg-gray-50 border rounded-lg p-4 mb-8">
+      <h3 class="font-semibold mb-2">AI Prompt</h3>
+      <p class="text-gray-700"><%= @cluster.ai_prompt %></p>
+    </div>
+  <% end %>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-2 gap-4 mb-8">
+    <div class="border rounded-lg p-4">
+      <div class="text-2xl font-bold"><%= @photos.count %></div>
+      <div class="text-gray-600">Photos</div>
+    </div>
+    <div class="border rounded-lg p-4">
+      <div class="text-2xl font-bold"><%= @runs.count %></div>
+      <div class="text-gray-600">Runs</div>
+    </div>
+  </div>
+
+  <!-- Photos -->
+  <% if @photos.any? %>
+    <h2 class="text-2xl font-semibold mb-4">Photos</h2>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+      <% @photos.each do |photo| %>
+        <div class="border rounded-lg overflow-hidden">
+          <% if photo.image.attached? %>
+            <%= image_tag photo.image, class: "w-full h-48 object-cover" %>
+          <% else %>
+            <div class="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-500">
+              No image
+            </div>
+          <% end %>
+          <div class="p-2 text-xs text-gray-600">
+            <%= photo.created_at.strftime('%b %d') %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- Runs -->
+  <h2 class="text-2xl font-semibold mb-4">Pipeline Runs</h2>
+  <% if @runs.any? %>
+    <div class="space-y-3">
+      <% @runs.each do |run| %>
+        <div class="border rounded-lg p-4 hover:bg-gray-50 transition">
+          <%= link_to run_path(run), class: "flex justify-between items-center" do %>
+            <div>
+              <h3 class="font-semibold">Run #<%= run.id %></h3>
+              <div class="text-sm text-gray-600 mt-1">
+                <span class="inline-block bg-gray-200 rounded px-2 py-1"><%= run.status %></span>
+                <span class="ml-2"><%= pluralize(run.image_candidates.count, 'candidate') %></span>
+                <% if run.image_candidates.where(winner: true).any? %>
+                  <span class="ml-2 text-green-600">✓ Winner selected</span>
+                <% end %>
+              </div>
+            </div>
+            <div class="text-gray-500">
+              <%= run.created_at.strftime('%b %d, %Y') %> →
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="border rounded-lg p-8 text-center text-gray-500">
+      <p>No runs yet.</p>
+      <p class="text-sm mt-2">Create a pipeline run for this cluster to generate content.</p>
+    </div>
+  <% end %>
+</div>

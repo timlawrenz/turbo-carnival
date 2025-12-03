@@ -1,0 +1,51 @@
+<div class="container mx-auto px-4 py-8">
+  <!-- Back button -->
+  <div class="mb-4">
+    <%= link_to persona_path(@persona), class: "text-blue-600 hover:text-blue-800" do %>
+      ← Back to <%= @persona.name.titleize %>
+    <% end %>
+  </div>
+
+  <h1 class="text-3xl font-bold mb-2"><%= @pillar.name %></h1>
+  <% if @pillar.description.present? %>
+    <p class="text-gray-600 mb-8"><%= @pillar.description %></p>
+  <% end %>
+
+  <!-- Create cluster button -->
+  <div class="mb-6">
+    <%= link_to "New Cluster", new_persona_pillar_cluster_path(@persona, @pillar), class: "inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" %>
+  </div>
+
+  <!-- Clusters -->
+  <h2 class="text-2xl font-semibold mb-4">Clusters</h2>
+  <% if @clusters.any? %>
+    <div class="space-y-4">
+      <% @clusters.each do |cluster| %>
+        <div class="border rounded-lg p-6 hover:shadow-lg transition">
+          <%= link_to persona_pillar_cluster_path(@persona, @pillar, cluster), class: "block" do %>
+            <h3 class="text-xl font-semibold mb-2"><%= cluster.name %></h3>
+            <div class="grid grid-cols-3 gap-4 text-sm text-gray-600">
+              <div>
+                <span class="font-medium"><%= cluster.photos.count %></span> photos
+              </div>
+              <div>
+                <span class="font-medium"><%= cluster.pipeline_runs.count %></span> runs
+              </div>
+              <div class="text-right">
+                <span class="inline-block bg-gray-200 rounded px-2 py-1"><%= cluster.status %></span>
+              </div>
+            </div>
+            <% if cluster.ai_prompt.present? %>
+              <p class="text-gray-500 text-sm mt-2 truncate"><%= cluster.ai_prompt %></p>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="border rounded-lg p-8 text-center text-gray-500">
+      <p>No clusters yet.</p>
+      <p class="text-sm mt-2">Create your first cluster to start organizing content.</p>
+    </div>
+  <% end %>
+</div>

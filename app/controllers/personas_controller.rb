@@ -8,6 +8,10 @@ class PersonasController < ApplicationController
   end
 
   def show
+    @pillars = @persona.content_pillars.order(:name)
+    @clusters = @persona.clusters.includes(:pillars).order(created_at: :desc).limit(5)
+    @total_photos = @persona.photos.count
+    @total_clusters = @persona.clusters.count
   end
 
   def new

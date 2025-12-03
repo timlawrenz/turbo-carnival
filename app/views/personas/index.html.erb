@@ -1,28 +1,18 @@
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-  <div class="mb-8 flex justify-between items-center">
-    <h1 class="text-3xl font-bold text-white">Personas</h1>
-    <%= link_to "New Persona", new_persona_path, 
-        class: "px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors" %>
-  </div>
-
-  <% if @personas.any? %>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <% @personas.each do |persona| %>
-        <%= link_to persona_path(persona), class: "block" do %>
-          <div class="bg-gray-800 rounded-lg p-6 hover:bg-gray-750 transition-colors border border-gray-700">
-            <h2 class="text-xl font-semibold text-white mb-2"><%= persona.name %></h2>
-            <p class="text-gray-400 text-sm">
-              Created <%= time_ago_in_words(persona.created_at) %> ago
-            </p>
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-6">Personas</h1>
+  
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <% @personas.each do |persona| %>
+      <div class="border rounded-lg p-6 hover:shadow-lg transition-shadow">
+        <%= link_to persona, class: "block" do %>
+          <h2 class="text-2xl font-semibold mb-2"><%= persona.name.titleize %></h2>
+          <div class="text-gray-600 space-y-1">
+            <p><%= pluralize(persona.content_pillars.count, 'pillar') %></p>
+            <p><%= pluralize(persona.clusters.count, 'cluster') %></p>
+            <p><%= pluralize(persona.photos.count, 'photo') %></p>
           </div>
         <% end %>
-      <% end %>
-    </div>
-  <% else %>
-    <div class="bg-gray-800 rounded-lg p-12 text-center border border-gray-700">
-      <p class="text-gray-400 mb-4">No personas yet. Create your first one to get started!</p>
-      <%= link_to "Create First Persona", new_persona_path,
-          class: "inline-block px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors" %>
-    </div>
-  <% end %>
+      </div>
+    <% end %>
+  </div>
 </div>

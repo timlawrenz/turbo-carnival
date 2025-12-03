@@ -6,17 +6,33 @@
             <h1 class="text-3xl font-bold text-white mb-2">
               🌳 <%= @run.name || "Run ##{@run.id}" %>
             </h1>
-            <% if @run.persona %>
-              <div class="flex items-center gap-2 text-gray-400 text-sm mb-2">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-                </svg>
+            
+            <!-- Breadcrumb Navigation -->
+            <div class="flex items-center gap-2 text-gray-400 text-sm mb-2">
+              <% if @run.cluster %>
                 <%= link_to @run.persona.name, persona_path(@run.persona), class: "hover:text-indigo-400" %>
-              </div>
-            <% end %>
+                <span>/</span>
+                <%= link_to @run.cluster.content_pillar.name, persona_content_pillar_path(@run.persona, @run.cluster.content_pillar), class: "hover:text-indigo-400" %>
+                <span>/</span>
+                <%= link_to @run.cluster.name, persona_content_pillar_cluster_path(@run.persona, @run.cluster.content_pillar, @run.cluster), class: "hover:text-indigo-400" %>
+              <% elsif @run.persona %>
+                <%= link_to @run.persona.name, persona_path(@run.persona), class: "hover:text-indigo-400" %>
+              <% end %>
+            </div>
+            
             <div class="flex gap-2">
-              <%= render ::Base::ButtonComponent.new(variant: :ghost, size: :sm, href: runs_path) do %>
-                ← Back to runs
+              <% if @run.cluster %>
+                <%= render ::Base::ButtonComponent.new(variant: :ghost, size: :sm, href: persona_content_pillar_cluster_path(@run.persona, @run.cluster.content_pillar, @run.cluster)) do %>
+                  ← Back to cluster
+                <% end %>
+              <% elsif @run.persona %>
+                <%= render ::Base::ButtonComponent.new(variant: :ghost, size: :sm, href: persona_path(@run.persona)) do %>
+                  ← Back to persona
+                <% end %>
+              <% else %>
+                <%= render ::Base::ButtonComponent.new(variant: :ghost, size: :sm, href: runs_path) do %>
+                  ← Back to runs
+                <% end %>
               <% end %>
               <%= render ::Base::ButtonComponent.new(variant: :ghost, size: :sm, href: run_vote_path(@run)) do %>
                 Vote

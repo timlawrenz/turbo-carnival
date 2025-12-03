@@ -35,5 +35,11 @@ module Clustering
     def pillar_names
       pillars.pluck(:name)
     end
+
+    # Convenience method for breadcrumb navigation
+    # Returns primary pillar if set, otherwise first pillar
+    def content_pillar
+      primary_pillar || pillars.first
+    end
   end
 end

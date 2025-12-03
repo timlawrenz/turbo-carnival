@@ -26,7 +26,8 @@ namespace :personas do
     
     begin
       # Create a dedicated connection
-      fluffy_conn = ActiveRecord::Base.establish_connection(fluffy_config).connection
+      ActiveRecord::Base.establish_connection(fluffy_config)
+      fluffy_conn = ActiveRecord::Base.connection
       
       # Query Sarah's persona data
       persona_result = fluffy_conn.execute(<<-SQL)
@@ -53,7 +54,7 @@ namespace :personas do
         puts "✅ Updated Sarah's persona data"
       end
       
-      # Query content pillars
+      # Query content pillars with their IDs (we'll need them for clusters)
       result = fluffy_conn.execute(<<-SQL)
         SELECT 
           cp.id, cp.name, cp.description, cp.weight, cp.active,
@@ -63,6 +64,21 @@ namespace :personas do
         JOIN personas p ON cp.persona_id = p.id
         WHERE LOWER(p.name) = 'sarah'
         ORDER BY cp.priority DESC, cp.weight DESC
+      SQL
+      
+      # Query clusters for Sarah via the join table (pillar_cluster_assignments)
+      # Get each cluster with its PRIMARY pillar assignment
+      clusters_result = fluffy_conn.execute(<<-SQL)
+        SELECT DISTINCT ON (c.id)
+          c.id, c.name, c.status, c.ai_prompt, c.created_at,
+          pca.pillar_id as content_pillar_id,
+          cp.name as pillar_name
+        FROM clusters c
+        JOIN pillar_cluster_assignments pca ON c.id = pca.cluster_id
+        JOIN content_pillars cp ON pca.pillar_id = cp.id
+        JOIN personas p ON c.persona_id = p.id
+        WHERE LOWER(p.name) = 'sarah'
+        ORDER BY c.id, pca.primary DESC, pca.created_at ASC
       SQL
       
       # Restore turbo-carnival connection
@@ -87,13 +103,19 @@ namespace :personas do
       
       imported_count = 0
       skipped_count = 0
+      clusters_imported = 0
+      clusters_skipped = 0
+      
+      # Map fluffy-train pillar IDs to turbo-carnival pillar IDs
+      pillar_id_map = {}
       
       result.each do |row|
         # Check if pillar already exists
         existing = sarah.content_pillars.find_by(name: row['name'])
         if existing
-          puts "⏭️  Skipping '#{row['name']}' (already exists)"
+          puts "⏭️  Skipping pillar '#{row['name']}' (already exists)"
           skipped_count += 1
+          pillar_id_map[row['id']] = existing.id
           next
         end
         
@@ -110,17 +132,55 @@ namespace :personas do
           priority: row['priority'] || 3
         )
         
-        puts "✅ Imported: #{pillar.name} (#{pillar.weight}%, priority: #{pillar.priority})"
+        pillar_id_map[row['id']] = pillar.id
+        puts "✅ Imported pillar: #{pillar.name} (#{pillar.weight}%, priority: #{pillar.priority})"
         imported_count += 1
+      end
+      
+      # Now import clusters
+      puts "\n📦 Importing clusters..."
+      clusters_result.each do |cluster_row|
+        fluffy_pillar_id = cluster_row['content_pillar_id']
+        tc_pillar_id = pillar_id_map[fluffy_pillar_id]
+        
+        unless tc_pillar_id
+          puts "⚠️  Cluster '#{cluster_row['name']}' references unknown pillar ID #{fluffy_pillar_id}"
+          next
+        end
+        
+        tc_pillar = sarah.content_pillars.find(tc_pillar_id)
+        
+        # Check if cluster already exists
+        existing_cluster = tc_pillar.content_clusters.find_by(name: cluster_row['name'])
+        if existing_cluster
+          puts "⏭️  Skipping cluster '#{cluster_row['name']}' (already exists)"
+          clusters_skipped += 1
+          next
+        end
+        
+        # Create cluster
+        cluster = tc_pillar.content_clusters.create!(
+          name: cluster_row['name'],
+          status: cluster_row['status'] || 'draft',
+          ai_prompt: cluster_row['ai_prompt'],
+          persona: sarah
+        )
+        
+        puts "  ✅ Imported cluster: #{cluster.name} → #{tc_pillar.name}"
+        clusters_imported += 1
       end
       
       puts ""
       puts "=" * 60
       puts "Import Summary:"
       puts "  Imported pillars: #{imported_count}"
-      puts "  Skipped: #{skipped_count}"
-      puts "  Total in fluffy-train: #{result.count}"
-      puts "  Total in turbo-carnival: #{sarah.content_pillars.count}"
+      puts "  Skipped pillars: #{skipped_count}"
+      puts "  Imported clusters: #{clusters_imported}"
+      puts "  Skipped clusters: #{clusters_skipped}"
+      puts "  Total pillars in fluffy-train: #{result.count}"
+      puts "  Total pillars in turbo-carnival: #{sarah.content_pillars.count}"
+      puts "  Total clusters in fluffy-train: #{clusters_result.count}"
+      puts "  Total clusters in turbo-carnival: #{ContentCluster.where(persona: sarah).count}"
       puts "  Total weight: #{sarah.content_pillars.active.sum(:weight)}%"
       puts "=" * 60
       

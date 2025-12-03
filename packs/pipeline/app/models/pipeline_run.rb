@@ -12,6 +12,7 @@ class PipelineRun < ApplicationRecord
 
   after_create :create_pipeline_run_steps
   after_update_commit :broadcast_run_update
+  after_update :link_winner_to_cluster_if_completed, if: :saved_change_to_status?
 
   def step_approved?(step)
     pipeline_run_steps.find_by(pipeline_step: step)&.approved? || false
@@ -53,5 +54,15 @@ class PipelineRun < ApplicationRecord
         top_k_count: JobOrchestrationConfig.max_children_per_node
       )
     end
+  end
+
+  def link_winner_to_cluster_if_completed
+    return unless status == 'completed'
+    return unless cluster_id.present?
+
+    Clustering::LinkWinnerToCluster.call(self)
+  rescue StandardError => e
+    Rails.logger.error("Failed to auto-link winner for run #{id}: #{e.message}")
+    # Don't fail the run completion, just log the error
   end
 end

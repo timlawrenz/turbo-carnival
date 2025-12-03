@@ -103,26 +103,8 @@
         <% end %>
       <% end %>
 
-      <!-- Tree Visualization -->
-      <%= render ::Base::CardComponent.new(variant: :default) do |c| %>
-        <% c.with_body do %>
-        <h2 class="text-xl font-bold text-white mb-4">Candidate Tree</h2>
-        
-        <% if @root_candidates.any? %>
-          <div class="space-y-4">
-            <% @root_candidates.each do |root| %>
-              <%= render partial: 'tree_node', locals: { 
-                candidate: root, 
-                depth: 0, 
-                pipeline: @pipeline,
-                run: @run,
-                max_depth: @steps.size - 1
-              } %>
-            <% end %>
-          </div>
-        <% else %>
-          <p class="text-gray-400 text-center py-8">No candidates in this run yet</p>
-        <% end %>
-        <% end %>
-      <% end %>
+      <!-- Quick Actions -->
+      <div class="text-center">
+        <p class="text-gray-400 mb-4">Use the navigation above to vote, view gallery, or see the winners!</p>
+      </div>
 </div>

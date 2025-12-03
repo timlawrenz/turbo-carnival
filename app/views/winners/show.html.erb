@@ -44,11 +44,21 @@
                 <h3 class="text-white font-semibold text-lg mb-2">
                   <%= winner.pipeline_step.name %>
                 </h3>
-                <div class="text-gray-400 text-sm space-y-1">
+                <div class="text-gray-400 text-sm space-y-1 mb-4">
                   <p>ID: <%= winner.id %></p>
                   <p class="text-yellow-500 font-bold text-lg">ELO: <%= winner.elo_score %></p>
                   <p>Votes: <%= winner.vote_count %></p>
                   <p>Children: <%= winner.child_count %></p>
+                </div>
+
+                <%= button_to pick_winner_run_path(@run, candidate_id: winner.id), 
+                    method: :post,
+                    class: "w-full px-4 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl",
+                    data: { turbo_confirm: "Pick this as the winning candidate?" } do %>
+                  🏆 Pick as Winner
+                <% end %>
+
+                <div class="text-gray-400 text-sm space-y-1 mt-4">
                   <% if winner.image_path.present? %>
                     <div class="mt-3 pt-3 border-t border-gray-700">
                       <div class="flex items-start gap-2">
@@ -87,6 +97,7 @@
                       </div>
                     </div>
                   <% end %>
+                </div>
                 </div>
               </div>
             <% end %>

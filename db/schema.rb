@@ -10,13 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_03_192501) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_03_203354) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "clusters", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "persona_id", null: false
+    t.string "name", null: false
+    t.text "ai_prompt"
+    t.string "status", default: "active", null: false
+    t.index ["persona_id", "name"], name: "index_clusters_on_persona_id_and_name", unique: true
+    t.index ["persona_id"], name: "index_clusters_on_persona_id"
   end
 
   create_table "comfyui_jobs", force: :cascade do |t|
@@ -181,6 +187,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_03_192501) do
     t.index ["winner_id"], name: "index_votes_on_winner_id"
   end
 
+  add_foreign_key "clusters", "personas"
   add_foreign_key "comfyui_jobs", "image_candidates"
   add_foreign_key "comfyui_jobs", "image_candidates", column: "parent_candidate_id"
   add_foreign_key "comfyui_jobs", "pipeline_runs"

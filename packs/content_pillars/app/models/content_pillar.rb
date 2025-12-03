@@ -3,6 +3,7 @@
 class ContentPillar < ApplicationRecord
   belongs_to :persona
   has_many :pillar_cluster_assignments, foreign_key: :pillar_id, dependent: :destroy
+  has_many :clusters, through: :pillar_cluster_assignments, class_name: 'Clustering::Cluster'
 
   validates :name, presence: true, uniqueness: { scope: :persona_id }
   validates :weight, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }

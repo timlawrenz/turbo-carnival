@@ -3,6 +3,7 @@ class PipelineRun < ApplicationRecord
 
   belongs_to :pipeline, touch: true
   belongs_to :persona, optional: true
+  belongs_to :cluster, class_name: 'Clustering::Cluster', optional: true
   has_many :image_candidates, dependent: :destroy
   has_many :pipeline_run_steps, dependent: :destroy
 

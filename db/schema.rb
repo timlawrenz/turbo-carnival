@@ -10,9 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_03_174448) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_03_181511) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "clusters", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "comfyui_jobs", force: :cascade do |t|
     t.bigint "image_candidate_id"
@@ -97,6 +102,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_03_174448) do
     t.text "notes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["cluster_id"], name: "index_pillar_cluster_assignments_on_cluster_id"
     t.index ["pillar_id", "cluster_id"], name: "index_pillar_cluster_unique", unique: true
     t.index ["pillar_id"], name: "index_pillar_cluster_assignments_on_pillar_id"
   end
@@ -124,6 +130,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_03_174448) do
     t.datetime "updated_at", null: false
     t.string "prompt"
     t.bigint "persona_id"
+    t.bigint "cluster_id"
+    t.index ["cluster_id"], name: "index_pipeline_runs_on_cluster_id"
     t.index ["persona_id"], name: "index_pipeline_runs_on_persona_id"
     t.index ["pipeline_id"], name: "index_pipeline_runs_on_pipeline_id"
     t.index ["status"], name: "index_pipeline_runs_on_status"
@@ -170,9 +178,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_03_174448) do
   add_foreign_key "image_candidates", "image_candidates", column: "parent_id"
   add_foreign_key "image_candidates", "pipeline_runs"
   add_foreign_key "image_candidates", "pipeline_steps"
+  add_foreign_key "pillar_cluster_assignments", "clusters", on_delete: :cascade
   add_foreign_key "pillar_cluster_assignments", "content_pillars", column: "pillar_id", on_delete: :cascade
   add_foreign_key "pipeline_run_steps", "pipeline_runs"
   add_foreign_key "pipeline_run_steps", "pipeline_steps"
+  add_foreign_key "pipeline_runs", "clusters"
   add_foreign_key "pipeline_runs", "personas"
   add_foreign_key "pipeline_runs", "pipelines"
   add_foreign_key "pipeline_steps", "pipelines"

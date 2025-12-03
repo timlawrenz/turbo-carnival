@@ -1,16 +1,15 @@
-class CreatePillarClusterAssignments < ActiveRecord::Migration[8.0]
+class CreateClusters < ActiveRecord::Migration[8.0]
   def change
-    create_table :pillar_cluster_assignments do |t|
-      t.references :pillar, null: false, foreign_key: { to_table: :content_pillars, on_delete: :cascade }
-      # Cluster FK will be added in Week 2 when clustering pack is integrated
-      t.bigint :cluster_id
-      t.boolean :primary, default: false, null: false
-      t.text :notes
+    create_table :clusters do |t|
+      t.references :persona, null: false, foreign_key: true, index: true
+      t.string :name, null: false
+      t.integer :status, default: 0, null: false
+      t.text :ai_prompt
+      t.integer :photos_count, default: 0
 
       t.timestamps
     end
 
-    add_index :pillar_cluster_assignments, [:pillar_id, :cluster_id], unique: true, name: 'index_pillar_cluster_unique'
-    # Note: Foreign key to clusters will be added in Week 2
+    add_index :clusters, [:persona_id, :name], unique: true
   end
 end

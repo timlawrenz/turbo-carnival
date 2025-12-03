@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_03_172557) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_03_174448) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -36,6 +36,27 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_03_172557) do
     t.index ["pipeline_run_id"], name: "index_comfyui_jobs_on_pipeline_run_id"
     t.index ["pipeline_step_id"], name: "index_comfyui_jobs_on_pipeline_step_id"
     t.index ["status"], name: "index_comfyui_jobs_on_status"
+  end
+
+  create_table "content_pillars", force: :cascade do |t|
+    t.bigint "persona_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.decimal "weight", precision: 5, scale: 2, default: "0.0", null: false
+    t.boolean "active", default: true, null: false
+    t.date "start_date"
+    t.date "end_date"
+    t.jsonb "guidelines", default: {}
+    t.integer "target_posts_per_week"
+    t.integer "priority", default: 3, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active"], name: "index_content_pillars_on_active"
+    t.index ["persona_id", "name"], name: "index_content_pillars_on_persona_id_and_name", unique: true
+    t.index ["persona_id"], name: "index_content_pillars_on_persona_id"
+    t.check_constraint "end_date IS NULL OR start_date IS NULL OR end_date > start_date", name: "date_range_check"
+    t.check_constraint "priority >= 1 AND priority <= 5", name: "priority_range_check"
+    t.check_constraint "weight >= 0::numeric AND weight <= 100::numeric", name: "weight_range_check"
   end
 
   create_table "image_candidates", force: :cascade do |t|
@@ -67,6 +88,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_03_172557) do
     t.jsonb "hashtag_strategy"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "pillar_cluster_assignments", force: :cascade do |t|
+    t.bigint "pillar_id", null: false
+    t.bigint "cluster_id"
+    t.boolean "primary", default: false, null: false
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["pillar_id", "cluster_id"], name: "index_pillar_cluster_unique", unique: true
+    t.index ["pillar_id"], name: "index_pillar_cluster_assignments_on_pillar_id"
   end
 
   create_table "pipeline_run_steps", force: :cascade do |t|
@@ -134,9 +166,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_03_172557) do
   add_foreign_key "comfyui_jobs", "image_candidates", column: "parent_candidate_id"
   add_foreign_key "comfyui_jobs", "pipeline_runs"
   add_foreign_key "comfyui_jobs", "pipeline_steps"
+  add_foreign_key "content_pillars", "personas"
   add_foreign_key "image_candidates", "image_candidates", column: "parent_id"
   add_foreign_key "image_candidates", "pipeline_runs"
   add_foreign_key "image_candidates", "pipeline_steps"
+  add_foreign_key "pillar_cluster_assignments", "content_pillars", column: "pillar_id", on_delete: :cascade
   add_foreign_key "pipeline_run_steps", "pipeline_runs"
   add_foreign_key "pipeline_run_steps", "pipeline_steps"
   add_foreign_key "pipeline_runs", "personas"

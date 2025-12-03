@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Persona < ApplicationRecord
+  has_many :content_pillars, dependent: :restrict_with_error
+  
   validates :name, presence: true, uniqueness: true
 
   def caption_config

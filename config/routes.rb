@@ -61,6 +61,9 @@ Rails.application.routes.draw do
   
   # Personas navigation
   resources :personas, only: [:index, :show, :new, :create] do
+    # Gap analyses
+    resources :gap_analyses, only: [:index, :show, :create]
+    
     # Nested pillars
     resources :pillars, only: [:show], controller: 'content_pillars' do
       # Nested clusters under pillars
@@ -69,5 +72,14 @@ Rails.application.routes.draw do
     
     # Direct cluster access (for convenience)
     resources :clusters, only: [:index], controller: 'clustering/clusters'
+  end
+  
+  # Content suggestions
+  resources :content_suggestions, only: [] do
+    member do
+      post :use
+      post :reject
+      post :create_cluster
+    end
   end
 end

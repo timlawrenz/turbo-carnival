@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_03_225920) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_03_235034) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -97,6 +97,30 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_03_225920) do
     t.check_constraint "end_date IS NULL OR start_date IS NULL OR end_date > start_date", name: "date_range_check"
     t.check_constraint "priority >= 1 AND priority <= 5", name: "priority_range_check"
     t.check_constraint "weight >= 0::numeric AND weight <= 100::numeric", name: "weight_range_check"
+  end
+
+  create_table "content_suggestions", force: :cascade do |t|
+    t.bigint "gap_analysis_id", null: false
+    t.bigint "content_pillar_id", null: false
+    t.string "title"
+    t.text "description"
+    t.jsonb "prompt_data"
+    t.string "status", default: "pending"
+    t.datetime "used_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["content_pillar_id"], name: "index_content_suggestions_on_content_pillar_id"
+    t.index ["gap_analysis_id"], name: "index_content_suggestions_on_gap_analysis_id"
+  end
+
+  create_table "gap_analyses", force: :cascade do |t|
+    t.bigint "persona_id", null: false
+    t.datetime "analyzed_at"
+    t.jsonb "coverage_data"
+    t.jsonb "recommendations"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["persona_id"], name: "index_gap_analyses_on_persona_id"
   end
 
   create_table "image_candidates", force: :cascade do |t|
@@ -226,6 +250,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_03_225920) do
   add_foreign_key "comfyui_jobs", "pipeline_runs"
   add_foreign_key "comfyui_jobs", "pipeline_steps"
   add_foreign_key "content_pillars", "personas"
+  add_foreign_key "content_suggestions", "content_pillars"
+  add_foreign_key "content_suggestions", "gap_analyses"
+  add_foreign_key "gap_analyses", "personas"
   add_foreign_key "image_candidates", "image_candidates", column: "parent_id"
   add_foreign_key "image_candidates", "pipeline_runs"
   add_foreign_key "image_candidates", "pipeline_steps"

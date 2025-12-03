@@ -3,16 +3,18 @@
   
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     <% @personas.each do |persona| %>
-      <div class="border rounded-lg p-6 hover:shadow-lg transition-shadow">
-        <%= link_to persona, class: "block" do %>
-          <h2 class="text-2xl font-semibold mb-2"><%= persona.name.titleize %></h2>
-          <div class="text-gray-600 space-y-1">
-            <p><%= pluralize(persona.content_pillars.count, 'pillar') %></p>
-            <p><%= pluralize(persona.clusters.count, 'cluster') %></p>
-            <p><%= pluralize(persona.photos.count, 'photo') %></p>
-          </div>
+      <%= render CardComponent.new(classes: "hover:shadow-lg transition-shadow") do |c| %>
+        <% c.with_body do %>
+          <%= link_to persona, class: "block" do %>
+            <h2 class="text-2xl font-semibold mb-2"><%= persona.name.titleize %></h2>
+            <div class="text-gray-400 space-y-1">
+              <p><%= pluralize(persona.content_pillars.count, 'pillar') %></p>
+              <p><%= pluralize(persona.clusters.count, 'cluster') %></p>
+              <p><%= pluralize(persona.photos.count, 'photo') %></p>
+            </div>
+          <% end %>
         <% end %>
-      </div>
+      <% end %>
     <% end %>
   </div>
 </div>

@@ -21,31 +21,37 @@
   <% if @clusters.any? %>
     <div class="space-y-4">
       <% @clusters.each do |cluster| %>
-        <div class="border rounded-lg p-6 hover:shadow-lg transition">
-          <%= link_to persona_pillar_cluster_path(@persona, @pillar, cluster), class: "block" do %>
-            <h3 class="text-xl font-semibold mb-2"><%= cluster.name %></h3>
-            <div class="grid grid-cols-3 gap-4 text-sm text-gray-600">
-              <div>
-                <span class="font-medium"><%= cluster.photos.count %></span> photos
+        <%= render CardComponent.new(classes: "hover:shadow-lg transition") do |c| %>
+          <% c.with_body do %>
+            <%= link_to persona_pillar_cluster_path(@persona, @pillar, cluster), class: "block" do %>
+              <h3 class="text-xl font-semibold mb-2"><%= cluster.name %></h3>
+              <div class="grid grid-cols-3 gap-4 text-sm text-gray-400">
+                <div>
+                  <span class="font-medium"><%= cluster.photos.count %></span> photos
+                </div>
+                <div>
+                  <span class="font-medium"><%= cluster.pipeline_runs.count %></span> runs
+                </div>
+                <div class="text-right">
+                  <span class="inline-block bg-gray-700 rounded px-2 py-1"><%= cluster.status %></span>
+                </div>
               </div>
-              <div>
-                <span class="font-medium"><%= cluster.pipeline_runs.count %></span> runs
-              </div>
-              <div class="text-right">
-                <span class="inline-block bg-gray-200 rounded px-2 py-1"><%= cluster.status %></span>
-              </div>
-            </div>
-            <% if cluster.ai_prompt.present? %>
-              <p class="text-gray-500 text-sm mt-2 truncate"><%= cluster.ai_prompt %></p>
+              <% if cluster.ai_prompt.present? %>
+                <p class="text-gray-400 text-sm mt-2 truncate"><%= cluster.ai_prompt %></p>
+              <% end %>
             <% end %>
           <% end %>
-        </div>
+        <% end %>
       <% end %>
     </div>
   <% else %>
-    <div class="border rounded-lg p-8 text-center text-gray-500">
-      <p>No clusters yet.</p>
-      <p class="text-sm mt-2">Create your first cluster to start organizing content.</p>
-    </div>
+    <%= render CardComponent.new do |c| %>
+      <% c.with_body do %>
+        <div class="text-center text-gray-400">
+          <p>No clusters yet.</p>
+          <p class="text-sm mt-2">Create your first cluster to start organizing content.</p>
+        </div>
+      <% end %>
+    <% end %>
   <% end %>
 </div>

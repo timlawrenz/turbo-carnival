@@ -40,13 +40,14 @@ module NavigationHelper
       pillar = context[:parent]
       persona = pillar.persona
       [
-        { label: "← #{pillar.name}", path: content_pillar_path(pillar), icon: :arrow_left }
+        { label: "← #{pillar.name}", path: persona_pillar_path(persona, pillar), icon: :arrow_left }
       ]
     when :run
       cluster = context[:parent]
       pillar = cluster.pillar
+      persona = pillar.persona
       [
-        { label: "← #{cluster.name}", path: cluster_path(cluster), icon: :arrow_left }
+        { label: "← #{cluster.name}", path: persona_pillar_cluster_path(persona, pillar, cluster), icon: :arrow_left }
       ]
     else
       []
@@ -152,7 +153,7 @@ module NavigationHelper
     persona.content_pillars.map do |pillar|
       {
         label: pillar.name,
-        path: content_pillar_path(pillar),
+        path: persona_pillar_path(persona, pillar),
         current: pillar.id == params[:id]&.to_i
       }
     end
@@ -164,7 +165,7 @@ module NavigationHelper
     pillar.clusters.map do |cluster|
       {
         label: cluster.name,
-        path: cluster_path(cluster),
+        path: persona_pillar_cluster_path(pillar.persona, pillar, cluster),
         current: cluster.id == params[:id]&.to_i
       }
     end

@@ -60,7 +60,6 @@ Rails.application.routes.draw do
   get "images/:id" => "images#show", as: :candidate_image
 
   # Defines the root path route ("/")
-  root "personas#index"
   
   # Personas navigation
   resources :personas, only: [:index, :show, :new, :create] do

@@ -1,6 +1,6 @@
 <div class="container mx-auto px-4 py-8">
   <h1 class="text-3xl font-bold mb-2"><%= @persona.name.titleize %></h1>
-  <p class="text-gray-600 mb-8">Persona Dashboard</p>
+  <p class="text-zinc-600 mb-8">Persona Dashboard</p>
   
   <!-- Actions -->
   <div class="mb-8">
@@ -13,19 +13,19 @@
     <%= render CardComponent.new do |c| %>
       <% c.with_body do %>
         <div class="text-2xl font-bold"><%= @pillars.count %></div>
-        <div class="text-gray-400">Pillars</div>
+        <div class="text-zinc-400">Pillars</div>
       <% end %>
     <% end %>
     <%= render CardComponent.new do |c| %>
       <% c.with_body do %>
         <div class="text-2xl font-bold"><%= @total_clusters %></div>
-        <div class="text-gray-400">Clusters</div>
+        <div class="text-zinc-400">Clusters</div>
       <% end %>
     <% end %>
     <%= render CardComponent.new do |c| %>
       <% c.with_body do %>
         <div class="text-2xl font-bold"><%= @total_photos %></div>
-        <div class="text-gray-400">Photos</div>
+        <div class="text-zinc-400">Photos</div>
       <% end %>
     <% end %>
   </div>
@@ -34,16 +34,16 @@
   <h2 class="text-2xl font-semibold mb-4">Content Pillars</h2>
   <div class="space-y-3">
     <% @pillars.each do |pillar| %>
-      <%= render CardComponent.new(classes: "hover:bg-gray-700 transition") do |c| %>
+      <%= render CardComponent.new(classes: "hover:bg-zinc-700 transition") do |c| %>
         <% c.with_body do %>
           <%= link_to persona_pillar_path(@persona, pillar), class: "flex justify-between items-center" do %>
             <div>
               <h3 class="font-semibold text-lg"><%= pillar.name %></h3>
               <% if pillar.description.present? %>
-                <p class="text-gray-400 text-sm"><%= pillar.description %></p>
+                <p class="text-zinc-400 text-sm"><%= pillar.description %></p>
               <% end %>
             </div>
-            <div class="text-gray-400">
+            <div class="text-zinc-400">
               <%= pluralize(pillar.clusters.count, 'cluster') %> →
             </div>
           <% end %>
@@ -57,14 +57,14 @@
     <h2 class="text-2xl font-semibold mt-8 mb-4">Recent Clusters</h2>
     <div class="space-y-3">
       <% @clusters.each do |cluster| %>
-        <%= render CardComponent.new(classes: "hover:bg-gray-700 transition") do |c| %>
+        <%= render CardComponent.new(classes: "hover:bg-zinc-700 transition") do |c| %>
           <% c.with_body do %>
             <% pillar = cluster.pillars.first %>
             <%= link_to (pillar ? persona_pillar_cluster_path(@persona, pillar, cluster) : persona_clusters_path(@persona)), class: "block" do %>
               <h3 class="font-semibold"><%= cluster.name %></h3>
-              <div class="text-sm text-gray-400 mt-1">
+              <div class="text-sm text-zinc-400 mt-1">
                 <% if pillar %>
-                  <span class="inline-block bg-gray-700 rounded px-2 py-1"><%= pillar.name %></span>
+                  <span class="inline-block bg-zinc-700 rounded px-2 py-1"><%= pillar.name %></span>
                 <% end %>
                 <span class="ml-2"><%= pluralize(cluster.photos.count, 'photo') %></span>
                 <span class="ml-2">·</span>

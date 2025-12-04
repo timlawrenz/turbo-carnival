@@ -8,7 +8,7 @@
             </h1>
             
             <!-- Breadcrumb Navigation -->
-            <div class="flex items-center gap-2 text-gray-400 text-sm mb-2">
+            <div class="flex items-center gap-2 text-zinc-400 text-sm mb-2">
               <% if @run.cluster %>
                 <%= link_to @run.persona.name, persona_path(@run.persona), class: "hover:text-indigo-400" %>
                 <span>/</span>
@@ -49,7 +49,7 @@
             <div class="text-4xl font-bold <%= @completion_percentage == 100 ? 'text-green-400' : 'text-yellow-400' %>">
               <%= @completion_percentage %>%
             </div>
-            <div class="text-sm text-gray-400">Complete</div>
+            <div class="text-sm text-zinc-400">Complete</div>
           </div>
         </div>
 
@@ -58,25 +58,25 @@
           <%= render ::Base::CardComponent.new(variant: :default) do |c| %>
             <% c.with_body(class: "text-center") do %>
               <div class="text-2xl font-bold text-green-400"><%= @total_candidates %></div>
-              <div class="text-xs text-gray-400">Active Candidates</div>
+              <div class="text-xs text-zinc-400">Active Candidates</div>
             <% end %>
           <% end %>
           <%= render ::Base::CardComponent.new(variant: :default) do |c| %>
             <% c.with_body(class: "text-center") do %>
               <div class="text-2xl font-bold text-red-400"><%= @total_rejected %></div>
-              <div class="text-xs text-gray-400">Rejected</div>
+              <div class="text-xs text-zinc-400">Rejected</div>
             <% end %>
           <% end %>
           <%= render ::Base::CardComponent.new(variant: :default) do |c| %>
             <% c.with_body(class: "text-center") do %>
               <div class="text-2xl font-bold text-purple-400"><%= @total_votes %></div>
-              <div class="text-xs text-gray-400">Votes Cast</div>
+              <div class="text-xs text-zinc-400">Votes Cast</div>
             <% end %>
           <% end %>
           <%= render ::Base::CardComponent.new(variant: :default) do |c| %>
             <% c.with_body(class: "text-center") do %>
               <div class="text-2xl font-bold text-blue-400"><%= @steps.size %></div>
-              <div class="text-xs text-gray-400">Pipeline Steps</div>
+              <div class="text-xs text-zinc-400">Pipeline Steps</div>
             <% end %>
           <% end %>
         </div>
@@ -91,12 +91,12 @@
             <% percentage = stat[:target] > 0 ? (stat[:active_count].to_f / stat[:target] * 100) : 0 %>
             <% width = [percentage, 100].min %>
             <div class="flex-1">
-              <div class="text-xs text-gray-400 mb-1"><%= stat[:step].name %></div>
-              <div class="h-3 bg-gray-700 rounded-full overflow-hidden">
+              <div class="text-xs text-zinc-400 mb-1"><%= stat[:step].name %></div>
+              <div class="h-3 bg-zinc-700 rounded-full overflow-hidden">
                 <div class="h-full <%= stat[:complete] ? 'bg-green-500' : 'bg-yellow-500' %>" 
                      style="width: <%= width %>%"></div>
               </div>
-              <div class="text-xs text-gray-500 mt-1"><%= stat[:active_count] %>/<%= stat[:target] %></div>
+              <div class="text-xs text-zinc-500 mt-1"><%= stat[:active_count] %>/<%= stat[:target] %></div>
             </div>
           <% end %>
         </div>
@@ -105,6 +105,6 @@
 
       <!-- Quick Actions -->
       <div class="text-center">
-        <p class="text-gray-400 mb-4">Use the navigation above to vote, view gallery, or see the winners!</p>
+        <p class="text-zinc-400 mb-4">Use the navigation above to vote, view gallery, or see the winners!</p>
       </div>
 </div>

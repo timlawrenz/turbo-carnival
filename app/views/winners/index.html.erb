@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gray-900 p-8">
+<div class="min-h-screen bg-zinc-900 p-8">
   <div class="max-w-7xl mx-auto">
     <div class="flex justify-between items-center mb-8">
       <h1 class="text-4xl font-bold text-white">🏆 Winners by Run</h1>
@@ -21,7 +21,7 @@
             display_name = run.name || "Run ##{run.id}"
           %>
           
-          <div class="bg-gray-800 rounded-lg p-6">
+          <div class="bg-zinc-800 rounded-lg p-6">
             <div class="flex justify-between items-center mb-4">
               <h2 class="text-2xl font-bold text-white"><%= display_name %></h2>
               <%= link_to "View all →", winners_run_path(run), class: "text-yellow-400 hover:text-yellow-300" %>
@@ -38,30 +38,30 @@
                             <% if index == 0 %>🥇<% elsif index == 1 %>🥈<% else %>🥉<% end %> #<%= index + 1 %>
                           <% end %>
                         </div>
-                        <div class="aspect-square bg-gray-600 flex items-center justify-center">
+                        <div class="aspect-square bg-zinc-600 flex items-center justify-center">
                           <% if winner.image_path.present? %>
                             <%= image_tag candidate_image_path(winner), class: "w-full h-full object-contain" %>
                           <% else %>
-                            <span class="text-gray-400">No image</span>
+                            <span class="text-zinc-400">No image</span>
                           <% end %>
                         </div>
                       </div>
                       <div class="p-3">
                         <div class="text-yellow-400 font-bold text-lg">⭐ <%= winner.elo_score %></div>
-                        <div class="text-xs text-gray-400">ID: <%= winner.id %></div>
+                        <div class="text-xs text-zinc-400">ID: <%= winner.id %></div>
                       </div>
                     <% end %>
                   <% end %>
                 <% end %>
               </div>
             <% else %>
-              <p class="text-gray-400">No candidates yet</p>
+              <p class="text-zinc-400">No candidates yet</p>
             <% end %>
           </div>
         <% end %>
       </div>
     <% else %>
-      <div class="text-center text-gray-400 py-12">
+      <div class="text-center text-zinc-400 py-12">
         <p class="text-xl">No runs found</p>
       </div>
     <% end %>

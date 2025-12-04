@@ -71,10 +71,10 @@
                 <%= run.status.titleize %>
               <% end %>
             <% end %>
-            <span class="text-gray-400">
+            <span class="text-zinc-400">
               Pipeline: <%= pipeline.name %>
             </span>
-            <span class="text-gray-400">
+            <span class="text-zinc-400">
               Created: <%= run.created_at.strftime('%b %d, %Y') %>
             </span>
           </div>
@@ -84,7 +84,7 @@
           <div class="text-4xl font-bold <%= completion_pct == 100 ? 'text-green-400' : 'text-yellow-400' %>">
             <%= completion_pct %>%
           </div>
-          <div class="text-sm text-gray-400">Complete</div>
+          <div class="text-sm text-zinc-400">Complete</div>
         </div>
       </div>
     <% end %>
@@ -114,21 +114,21 @@
               bar_color = "bg-yellow-500"
             elsif !stat[:approved] && stat[:active_count] > 0
               status_icon = "⏸️"
-              bar_color = "bg-gray-500"
+              bar_color = "bg-zinc-500"
             else
               status_icon = "🔒"
-              bar_color = "bg-gray-600"
+              bar_color = "bg-zinc-600"
             end
           %>
           <div class="flex-1">
-            <div class="text-xs text-gray-400 mb-1">
+            <div class="text-xs text-zinc-400 mb-1">
               <%= status_icon %> <%= stat[:name] %>
             </div>
-            <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+            <div class="h-2 bg-zinc-700 rounded-full overflow-hidden">
               <div class="h-full <%= bar_color %>" 
                    style="width: <%= width %>%"></div>
             </div>
-            <div class="text-xs text-gray-500 mt-1">
+            <div class="text-xs text-zinc-500 mt-1">
               <% if stat[:target] > 0 %>
                 <%= stat[:active_count] %>/<%= stat[:target] %>
               <% elsif !stat[:approved] && stat[:active_count] > 0 %>
@@ -158,7 +158,7 @@
           🗳️ Vote
         <% end %>
       <% else %>
-        <span class="px-4 py-2 bg-gray-700 text-gray-500 rounded-lg cursor-not-allowed" title="No unvoted pairs available">
+        <span class="px-4 py-2 bg-zinc-700 text-zinc-500 rounded-lg cursor-not-allowed" title="No unvoted pairs available">
           🗳️ Vote
         </span>
       <% end %>

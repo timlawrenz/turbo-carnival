@@ -7,7 +7,7 @@
         <% c.with_body do %>
           <%= link_to persona, class: "block" do %>
             <h2 class="text-2xl font-semibold mb-2"><%= persona.name.titleize %></h2>
-            <div class="text-gray-400 space-y-1">
+            <div class="text-zinc-400 space-y-1">
               <p><%= pluralize(persona.content_pillars.count, 'pillar') %></p>
               <p><%= pluralize(persona.clusters.count, 'cluster') %></p>
               <p><%= pluralize(persona.photos.count, 'photo') %></p>

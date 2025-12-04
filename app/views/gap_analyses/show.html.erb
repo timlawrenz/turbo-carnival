@@ -4,7 +4,7 @@
   </div>
 
   <h1 class="text-3xl font-bold mb-2">Gap Analysis Results</h1>
-  <p class="text-gray-400 mb-8">Analyzed <%= time_ago_in_words(@gap_analysis.analyzed_at) %> ago</p>
+  <p class="text-zinc-400 mb-8">Analyzed <%= time_ago_in_words(@gap_analysis.analyzed_at) %> ago</p>
 
   <!-- Coverage Summary -->
   <h2 class="text-2xl font-semibold mb-4">Coverage Summary</h2>
@@ -16,7 +16,7 @@
           <div class="text-3xl font-bold mb-2 <%= pillar_data['coverage_score'] < 30 ? 'text-red-400' : pillar_data['coverage_score'] < 60 ? 'text-yellow-400' : 'text-green-400' %>">
             <%= pillar_data['coverage_score'].round %>%
           </div>
-          <div class="text-sm text-gray-400">
+          <div class="text-sm text-zinc-400">
             <%= pluralize(pillar_data['total_photos'], 'photo') %> across <%= pluralize(pillar_data['total_clusters'], 'cluster') %>
           </div>
         <% end %>
@@ -26,7 +26,7 @@
 
   <!-- Content Suggestions -->
   <h2 class="text-2xl font-semibold mb-4">AI Content Suggestions</h2>
-  <p class="text-gray-400 mb-6">Found <%= pluralize(@content_suggestions.count, 'suggestion') %> to fill content gaps</p>
+  <p class="text-zinc-400 mb-6">Found <%= pluralize(@content_suggestions.count, 'suggestion') %> to fill content gaps</p>
 
   <div class="space-y-4">
     <% @content_suggestions.group_by(&:content_pillar).each do |pillar, suggestions| %>
@@ -39,15 +39,15 @@
                 <div class="flex justify-between items-start">
                   <div class="flex-1">
                     <h4 class="font-semibold text-lg mb-2"><%= suggestion.title %></h4>
-                    <p class="text-gray-300 mb-3"><%= suggestion.description %></p>
+                    <p class="text-zinc-300 mb-3"><%= suggestion.description %></p>
                     
-                    <div class="text-sm text-gray-400 mb-3">
+                    <div class="text-sm text-zinc-400 mb-3">
                       <strong>Reason:</strong> <%= suggestion.prompt_data['reason'] %>
                     </div>
                     
                     <% if suggestion.prompt_data['existing_prompts']&.any? %>
-                      <details class="text-sm text-gray-500 mb-3">
-                        <summary class="cursor-pointer hover:text-gray-400">View existing prompts to avoid</summary>
+                      <details class="text-sm text-zinc-500 mb-3">
+                        <summary class="cursor-pointer hover:text-zinc-400">View existing prompts to avoid</summary>
                         <ul class="mt-2 ml-4 list-disc">
                           <% suggestion.prompt_data['existing_prompts'].first(5).each do |prompt| %>
                             <li><%= prompt %></li>
@@ -56,8 +56,8 @@
                       </details>
                     <% end %>
                     
-                    <div class="bg-gray-800 p-3 rounded text-sm font-mono">
-                      <strong class="text-gray-400">Suggested Prompt:</strong><br>
+                    <div class="bg-zinc-800 p-3 rounded text-sm font-mono">
+                      <strong class="text-zinc-400">Suggested Prompt:</strong><br>
                       <%= suggestion.prompt_data['prompt'] %>
                     </div>
                   </div>
@@ -72,9 +72,9 @@
                                     class: "bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded whitespace-nowrap" %>
                       <%= button_to "Reject", reject_content_suggestion_path(suggestion), 
                                     method: :post, 
-                                    class: "bg-gray-600 hover:bg-gray-700 text-white text-sm px-4 py-2 rounded whitespace-nowrap" %>
+                                    class: "bg-zinc-600 hover:bg-zinc-700 text-white text-sm px-4 py-2 rounded whitespace-nowrap" %>
                     <% else %>
-                      <span class="text-sm px-4 py-2 rounded <%= suggestion.status == 'used' ? 'bg-green-700 text-green-100' : 'bg-gray-700 text-gray-300' %>">
+                      <span class="text-sm px-4 py-2 rounded <%= suggestion.status == 'used' ? 'bg-green-700 text-green-100' : 'bg-zinc-700 text-zinc-300' %>">
                         <%= suggestion.status.titleize %>
                       </span>
                     <% end %>

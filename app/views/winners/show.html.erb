@@ -1,13 +1,13 @@
-<div class="min-h-screen bg-gray-900 p-8">
+<div class="min-h-screen bg-zinc-900 p-8">
   <div class="max-w-7xl mx-auto">
     <div class="flex justify-between items-center mb-8">
       <div>
         <h1 class="text-4xl font-bold text-white">🏆 Top 3 Winners</h1>
-        <p class="text-gray-400 mt-2">
+        <p class="text-zinc-400 mt-2">
           Run: <%= @run.name || "Run ##{@run.id}" %>
         </p>
         <% if @step %>
-          <p class="text-gray-400">From <%= @step.name %> (Step <%= @step.order %>) - Ordered by ELO</p>
+          <p class="text-zinc-400">From <%= @step.name %> (Step <%= @step.order %>) - Ordered by ELO</p>
         <% end %>
       </div>
       <div class="flex gap-4">
@@ -31,11 +31,11 @@
                     <% if index == 0 %>🥇<% elsif index == 1 %>🥈<% else %>🥉<% end %> #<%= index + 1 %>
                   <% end %>
                 </div>
-                <div class="aspect-square bg-gray-700 flex items-center justify-center">
+                <div class="aspect-square bg-zinc-700 flex items-center justify-center">
                   <% if winner.image_path.present? %>
                     <%= image_tag candidate_image_path(winner), class: "w-full h-full object-contain", alt: "Winner #{index + 1}" %>
                   <% else %>
-                    <span class="text-gray-500">No image</span>
+                    <span class="text-zinc-500">No image</span>
                   <% end %>
                 </div>
               </div>
@@ -44,7 +44,7 @@
                 <h3 class="text-white font-semibold text-lg mb-2">
                   <%= winner.pipeline_step.name %>
                 </h3>
-                <div class="text-gray-400 text-sm space-y-1 mb-4">
+                <div class="text-zinc-400 text-sm space-y-1 mb-4">
                   <p>ID: <%= winner.id %></p>
                   <p class="text-yellow-500 font-bold text-lg">ELO: <%= winner.elo_score %></p>
                   <p>Votes: <%= winner.vote_count %></p>
@@ -58,13 +58,13 @@
                   🏆 Pick as Winner
                 <% end %>
 
-                <div class="text-gray-400 text-sm space-y-1 mt-4">
+                <div class="text-zinc-400 text-sm space-y-1 mt-4">
                   <% if winner.image_path.present? %>
-                    <div class="mt-3 pt-3 border-t border-gray-700">
+                    <div class="mt-3 pt-3 border-t border-zinc-700">
                       <div class="flex items-start gap-2">
                         <div class="flex-1 min-w-0">
-                          <p class="text-xs text-gray-500 mb-1">Path:</p>
-                          <p class="text-xs text-gray-300 truncate" style="direction: rtl; text-align: left;" title="<%= winner.image_path %>">
+                          <p class="text-xs text-zinc-500 mb-1">Path:</p>
+                          <p class="text-xs text-zinc-300 truncate" style="direction: rtl; text-align: left;" title="<%= winner.image_path %>">
                             <%= winner.image_path %>
                           </p>
                         </div>
@@ -90,7 +90,7 @@
                               setTimeout(() => this.textContent='📋', 1000);
                             }
                           "
-                          class="flex-shrink-0 px-2 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded text-xs transition-colors"
+                          class="flex-shrink-0 px-2 py-1 bg-zinc-700 hover:bg-zinc-600 text-white rounded text-xs transition-colors"
                           title="Copy full path">
                           📋
                         </button>
@@ -106,8 +106,8 @@
       </div>
     <% else %>
       <div class="text-center py-20">
-        <p class="text-gray-400 text-xl">No candidates yet in the final step.</p>
-        <p class="text-gray-500 mt-2">Start voting to evolve images through the pipeline!</p>
+        <p class="text-zinc-400 text-xl">No candidates yet in the final step.</p>
+        <p class="text-zinc-500 mt-2">Start voting to evolve images through the pipeline!</p>
         <%= render ::Base::ButtonComponent.new(variant: :primary, href: vote_path) do %>
           Start Voting →
         <% end %>

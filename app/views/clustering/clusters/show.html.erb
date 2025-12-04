@@ -13,9 +13,9 @@
   </div>
 
   <h1 class="text-3xl font-bold mb-2"><%= @cluster.name %></h1>
-  <div class="text-gray-400 mb-4">
+  <div class="text-zinc-400 mb-4">
     <% if @pillar %>
-      <span class="inline-block bg-gray-700 rounded px-3 py-1"><%= @pillar.name %></span>
+      <span class="inline-block bg-zinc-700 rounded px-3 py-1"><%= @pillar.name %></span>
     <% end %>
     <span class="ml-2">Status: <%= @cluster.status %></span>
   </div>
@@ -24,7 +24,7 @@
     <%= render CardComponent.new(classes: "mb-8") do |c| %>
       <% c.with_body do %>
         <h3 class="font-semibold mb-2">AI Prompt</h3>
-        <p class="text-gray-300"><%= @cluster.ai_prompt %></p>
+        <p class="text-zinc-300"><%= @cluster.ai_prompt %></p>
       <% end %>
     <% end %>
   <% end %>
@@ -34,13 +34,13 @@
     <%= render CardComponent.new do |c| %>
       <% c.with_body do %>
         <div class="text-2xl font-bold"><%= @photos.count %></div>
-        <div class="text-gray-400">Photos</div>
+        <div class="text-zinc-400">Photos</div>
       <% end %>
     <% end %>
     <%= render CardComponent.new do |c| %>
       <% c.with_body do %>
         <div class="text-2xl font-bold"><%= @runs.count %></div>
-        <div class="text-gray-400">Runs</div>
+        <div class="text-zinc-400">Runs</div>
       <% end %>
     <% end %>
   </div>
@@ -54,11 +54,11 @@
           <% if photo.image.attached? %>
             <%= image_tag photo.image, class: "w-full h-48 object-cover" %>
           <% else %>
-            <div class="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-500">
+            <div class="w-full h-48 bg-zinc-200 flex items-center justify-center text-zinc-500">
               No image
             </div>
           <% end %>
-          <div class="p-2 text-xs text-gray-600">
+          <div class="p-2 text-xs text-zinc-600">
             <%= photo.created_at.strftime('%b %d') %>
           </div>
         </div>
@@ -71,20 +71,20 @@
   <% if @runs.any? %>
     <div class="space-y-3">
       <% @runs.each do |run| %>
-        <%= render CardComponent.new(classes: "hover:bg-gray-700 transition") do |c| %>
+        <%= render CardComponent.new(classes: "hover:bg-zinc-700 transition") do |c| %>
           <% c.with_body do %>
             <%= link_to run_path(run), class: "flex justify-between items-center" do %>
               <div>
                 <h3 class="font-semibold">Run #<%= run.id %></h3>
-                <div class="text-sm text-gray-400 mt-1">
-                  <span class="inline-block bg-gray-700 rounded px-2 py-1"><%= run.status %></span>
+                <div class="text-sm text-zinc-400 mt-1">
+                  <span class="inline-block bg-zinc-700 rounded px-2 py-1"><%= run.status %></span>
                   <span class="ml-2"><%= pluralize(run.image_candidates.count, 'candidate') %></span>
                   <% if run.image_candidates.where(winner: true).any? %>
                     <span class="ml-2 text-green-600">✓ Winner selected</span>
                   <% end %>
                 </div>
               </div>
-              <div class="text-gray-400">
+              <div class="text-zinc-400">
                 <%= run.created_at.strftime('%b %d, %Y') %> →
               </div>
             <% end %>
@@ -95,7 +95,7 @@
   <% else %>
     <%= render CardComponent.new do |c| %>
       <% c.with_body do %>
-        <div class="text-center text-gray-400">
+        <div class="text-center text-zinc-400">
           <p>No runs yet.</p>
           <p class="text-sm mt-2">Create a pipeline run for this cluster to generate content.</p>
         </div>

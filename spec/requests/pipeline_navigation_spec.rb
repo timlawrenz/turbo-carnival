@@ -7,7 +7,8 @@ RSpec.describe "Pipeline Happy Path", type: :request do
     let!(:persona) { create(:persona, name: "Test Persona") }
     let!(:pillar) { create(:content_pillar, persona: persona, name: "Test Pillar") }
     let!(:cluster) { create(:clustering_cluster, pillar: pillar, name: "Test Cluster") }
-    let!(:run) { create(:pipeline_run, cluster: cluster, status: "pending") }
+    let!(:pipeline) { create(:pipeline, name: "Test Pipeline") }
+    let!(:run) { create(:pipeline_run, pipeline: pipeline, cluster: cluster, status: "pending") }
 
     context "Dashboard" do
       it "shows dashboard with personas" do
@@ -74,20 +75,20 @@ RSpec.describe "Pipeline Happy Path", type: :request do
 
     context "Cluster navigation" do
       it "shows cluster detail page" do
-        get persona_pillar_cluster_path(persona, pillar, cluster)
+        get clustering_cluster_path(cluster)
         
         expect(response).to have_http_status(:success)
         expect(response.body).to include("Test Cluster")
       end
 
       it "shows recent runs in sidebar" do
-        get persona_pillar_cluster_path(persona, pillar, cluster)
+        get clustering_cluster_path(cluster)
         
         expect(response.body).to include("Recent Runs")
       end
 
       it "shows back to pillar link in sidebar" do
-        get persona_pillar_cluster_path(persona, pillar, cluster)
+        get clustering_cluster_path(cluster)
         
         expect(response.body).to include("← Test Pillar")
       end
@@ -179,7 +180,8 @@ RSpec.describe "Pipeline Happy Path", type: :request do
     end
 
     it "shows recent runs when viewing cluster" do
-      create(:pipeline_run, cluster: cluster, status: "completed")
+      pipeline = create(:pipeline)
+      create(:pipeline_run, pipeline: pipeline, cluster: cluster, status: "completed")
       
       get persona_pillar_cluster_path(persona, pillar, cluster)
       

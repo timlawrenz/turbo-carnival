@@ -66,6 +66,10 @@ Rails.application.routes.draw do
     
     # Nested pillars
     resources :pillars, only: [:show], controller: 'content_pillars' do
+      member do
+        get :suggest
+      end
+      
       # Nested clusters under pillars
       resources :clusters, only: [:show, :new, :create], controller: 'clustering/clusters'
     end

@@ -146,7 +146,7 @@ class GapAnalysisService
       pillar_name: pillar.name,
       pillar_description: pillar.description,
       cluster_name: cluster.name,
-      cluster_description: cluster.description,
+      cluster_ai_prompt: cluster.ai_prompt,
       existing_prompts: existing_prompts,
       existing_prompts_count: existing_prompts.size
     }
@@ -192,7 +192,7 @@ class GapAnalysisService
       #{context[:pillar_description]}
       
       Content Cluster: #{context[:cluster_name]}
-      #{context[:cluster_description]}
+      #{context[:cluster_ai_prompt]}
       
       IMPORTANT: We already have #{context[:existing_prompts_count]} photos with these prompts:
       #{context[:existing_prompts].map { |p| "- #{p}" }.join("\n")}

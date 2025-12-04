@@ -13,6 +13,9 @@ Rails.application.routes.draw do
     mount Lookbook::Engine, at: "/lookbook"
   end
 
+  # Dashboard (main entry point)
+  root "dashboard#index"
+
   # Personas
   resources :personas
   

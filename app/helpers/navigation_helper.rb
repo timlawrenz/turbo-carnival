@@ -121,8 +121,10 @@ module NavigationHelper
 
   def cluster_context
     cluster = @cluster || Clustering::Cluster.find_by(id: params[:id])
-    if cluster && cluster.pillar
-      { level: :cluster, resource: cluster, parent: cluster.pillar }
+    if cluster
+      # Use content_pillar convenience method which returns primary or first pillar
+      pillar = cluster.content_pillar
+      { level: :cluster, resource: cluster, parent: pillar }
     else
       dashboard_context
     end
@@ -160,9 +162,10 @@ module NavigationHelper
   end
 
   def pillar_items(pillar)
-    return [] unless pillar&.clusters
+    return [] unless pillar
 
-    pillar.clusters.map do |cluster|
+    # Get clusters associated with this pillar
+    Clustering::Cluster.for_pillar(pillar).map do |cluster|
       {
         label: cluster.name,
         path: persona_pillar_cluster_path(pillar.persona, pillar, cluster),
@@ -172,7 +175,7 @@ module NavigationHelper
   end
 
   def cluster_items(cluster)
-    return [] unless cluster&.pipeline_runs
+    return [] unless cluster
 
     cluster.pipeline_runs.order(created_at: :desc).limit(20).map do |run|
       {

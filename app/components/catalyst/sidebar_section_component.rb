@@ -27,8 +27,7 @@ module Catalyst
         px-2
         text-xs/6
         font-medium
-        text-zinc-500
-        dark:text-zinc-400
+        text-zinc-400
       ].join(" ")
     end
   end

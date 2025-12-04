@@ -36,8 +36,8 @@ module Catalyst
         h-full
         min-h-0
         flex-col
-        bg-white
-        dark:bg-zinc-900
+        bg-zinc-900
+        dark:bg-zinc-950
       ].join(" ")
     end
 
@@ -46,9 +46,8 @@ module Catalyst
         flex
         flex-col
         border-b
-        border-zinc-950/5
+        border-white/10
         p-4
-        dark:border-white/5
       ].join(" ")
     end
 
@@ -67,9 +66,8 @@ module Catalyst
         flex
         flex-col
         border-t
-        border-zinc-950/5
+        border-white/10
         p-4
-        dark:border-white/5
       ].join(" ")
     end
   end

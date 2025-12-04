@@ -62,10 +62,9 @@ module Catalyst
         text-left
         text-base/6
         font-medium
-        text-zinc-950
+        text-white
         sm:py-2
         sm:text-sm/5
-        dark:text-white
       ].join(" ")
     end
 
@@ -79,15 +78,13 @@ module Catalyst
 
     def normal_classes
       %w[
-        hover:bg-zinc-950/5
-        dark:hover:bg-white/5
+        hover:bg-white/5
       ].join(" ")
     end
 
     def current_classes
       %w[
-        bg-zinc-950/5
-        dark:bg-white/5
+        bg-white/10
         font-semibold
       ].join(" ")
     end

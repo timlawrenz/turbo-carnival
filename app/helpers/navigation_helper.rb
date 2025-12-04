@@ -1,0 +1,189 @@
+# frozen_string_literal: true
+
+# Helper for building hierarchical navigation breadcrumbs
+# Supports: Dashboard -> Persona -> Pillar -> Cluster -> Run
+module NavigationHelper
+  # Returns the current navigation context based on controller/action
+  # @return [Hash] with :level, :resource, :parent keys
+  def current_navigation_context
+    case controller_name
+    when "personas"
+      persona_context
+    when "content_pillars"
+      pillar_context
+    when "clusters"
+      cluster_context
+    when "runs", "pipeline_runs"
+      run_context
+    else
+      dashboard_context
+    end
+  end
+
+  # Builds breadcrumb navigation items for sidebar
+  # @return [Array<Hash>] array of {label, path, current} hashes
+  def navigation_breadcrumbs
+    context = current_navigation_context
+    
+    case context[:level]
+    when :dashboard
+      []
+    when :persona
+      [
+        { label: "← Dashboard", path: root_path, icon: :arrow_left }
+      ]
+    when :pillar
+      [
+        { label: "← #{context[:parent].name}", path: persona_path(context[:parent]), icon: :arrow_left }
+      ]
+    when :cluster
+      pillar = context[:parent]
+      persona = pillar.persona
+      [
+        { label: "← #{pillar.name}", path: content_pillar_path(pillar), icon: :arrow_left }
+      ]
+    when :run
+      cluster = context[:parent]
+      pillar = cluster.pillar
+      [
+        { label: "← #{cluster.name}", path: cluster_path(cluster), icon: :arrow_left }
+      ]
+    else
+      []
+    end
+  end
+
+  # Returns navigation items for current context
+  # @return [Array<Hash>] array of {label, path, current} hashes
+  def navigation_items
+    context = current_navigation_context
+    
+    case context[:level]
+    when :dashboard
+      dashboard_items
+    when :persona
+      persona_items(context[:resource])
+    when :pillar
+      pillar_items(context[:resource])
+    when :cluster
+      cluster_items(context[:resource])
+    when :run
+      run_items(context[:resource])
+    else
+      []
+    end
+  end
+
+  # Returns the section heading for current context
+  def navigation_section_heading
+    context = current_navigation_context
+    
+    case context[:level]
+    when :dashboard
+      "Personas"
+    when :persona
+      "Content Pillars"
+    when :pillar
+      "Clusters"
+    when :cluster
+      "Recent Runs"
+    when :run
+      "Run Details"
+    else
+      "Navigation"
+    end
+  end
+
+  private
+
+  def dashboard_context
+    { level: :dashboard, resource: nil, parent: nil }
+  end
+
+  def persona_context
+    persona = @persona || Persona.find_by(id: params[:id])
+    if persona
+      { level: :persona, resource: persona, parent: nil }
+    else
+      dashboard_context
+    end
+  end
+
+  def pillar_context
+    pillar = @pillar || @content_pillar || ContentPillar.find_by(id: params[:id])
+    if pillar
+      { level: :pillar, resource: pillar, parent: pillar.persona }
+    else
+      dashboard_context
+    end
+  end
+
+  def cluster_context
+    cluster = @cluster || Clustering::Cluster.find_by(id: params[:id])
+    if cluster && cluster.pillar
+      { level: :cluster, resource: cluster, parent: cluster.pillar }
+    else
+      dashboard_context
+    end
+  end
+
+  def run_context
+    run = @run || PipelineRun.find_by(id: params[:id])
+    if run && run.cluster
+      { level: :run, resource: run, parent: run.cluster }
+    else
+      dashboard_context
+    end
+  end
+
+  def dashboard_items
+    Persona.all.map do |persona|
+      {
+        label: persona.name,
+        path: persona_path(persona),
+        current: false
+      }
+    end
+  end
+
+  def persona_items(persona)
+    return [] unless persona&.content_pillars
+
+    persona.content_pillars.map do |pillar|
+      {
+        label: pillar.name,
+        path: content_pillar_path(pillar),
+        current: pillar.id == params[:id]&.to_i
+      }
+    end
+  end
+
+  def pillar_items(pillar)
+    return [] unless pillar&.clusters
+
+    pillar.clusters.map do |cluster|
+      {
+        label: cluster.name,
+        path: cluster_path(cluster),
+        current: cluster.id == params[:id]&.to_i
+      }
+    end
+  end
+
+  def cluster_items(cluster)
+    return [] unless cluster&.pipeline_runs
+
+    cluster.pipeline_runs.order(created_at: :desc).limit(20).map do |run|
+      {
+        label: "Run ##{run.id} - #{run.status}",
+        path: pipeline_run_path(run),
+        current: run.id == params[:id]&.to_i
+      }
+    end
+  end
+
+  def run_items(_run)
+    # Could show run details, steps, etc.
+    []
+  end
+end

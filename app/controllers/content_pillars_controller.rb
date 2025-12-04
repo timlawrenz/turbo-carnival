@@ -2,7 +2,8 @@ class ContentPillarsController < ApplicationController
   def show
     @persona = Persona.find(params[:persona_id])
     @pillar = @persona.content_pillars.find(params[:id])
-    @clusters = @pillar.clusters.includes(:photos, :pipeline_runs).order(created_at: :desc)
+    @content_pillar = @pillar # Alias for view compatibility
+    @clusters = Clustering::Cluster.for_pillar(@pillar).includes(:photos, :pipeline_runs).order(created_at: :desc)
   end
 
   def suggest
@@ -10,7 +11,10 @@ class ContentPillarsController < ApplicationController
     @pillar = @persona.content_pillars.find(params[:id])
     
     existing_clusters = @pillar.clusters
-    existing_photos = @persona.photos.includes(:cluster).where(cluster: { content_pillar_id: @pillar.id })
+    # Get photos from clusters associated with this pillar
+    existing_photos = Clustering::Photo.joins(cluster: :pillar_cluster_assignments)
+                                       .where(pillar_cluster_assignments: { pillar_id: @pillar.id })
+                                       .where(clusters: { persona_id: @persona.id })
     
     @suggestions = GapAnalysis::AiSuggester.suggest(
       pillar: @pillar,
@@ -21,6 +25,6 @@ class ContentPillarsController < ApplicationController
     
     render :suggest
   rescue StandardError => e
-    redirect_to persona_content_pillar_path(@persona, @pillar), alert: "Error generating suggestions: #{e.message}"
+    redirect_to persona_pillar_path(@persona, @pillar), alert: "Error generating suggestions: #{e.message}"
   end
 end

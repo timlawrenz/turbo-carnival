@@ -204,3 +204,63 @@ bin/dev # Start Rails server with Tailwind watch
 **Lines Added:** ~1,200
 
 Ready to continue with Phase 2 components or start migrating existing views!
+
+---
+
+## Update: December 4, 2024 - Color Normalization
+
+### Color Standardization ✅
+Normalized all colors across the application to match Catalyst design system:
+
+**Changes Made:**
+- `indigo` → `blue` (primary buttons, links, accents)
+- `purple` → `blue` (stats, highlights)
+- `gray` → `zinc` (backgrounds, borders, text)
+- Sidebar: Always dark (`zinc-900/950`)
+- Flash messages: Kept semantic colors (green/red) with Catalyst shades
+
+**Button Standards:**
+```erb
+<!-- Primary action -->
+<button class="bg-blue-600 hover:bg-blue-700 text-white">Save</button>
+
+<!-- Danger/destructive -->
+<button class="bg-red-600 hover:bg-red-700 text-white">Delete</button>
+
+<!-- Secondary (use Catalyst component) -->
+<%= render Catalyst::ButtonComponent.new(variant: :outline) do %>Cancel<% end %>
+```
+
+**Link Standards:**
+```erb
+<!-- Primary links -->
+<a class="text-blue-400 hover:text-blue-300">Link</a>
+
+<!-- Muted links -->
+<a class="text-zinc-500 hover:text-zinc-950 dark:hover:text-white">Link</a>
+```
+
+**Focus States:**
+```erb
+<!-- All inputs -->
+focus:ring-2 focus:ring-blue-500
+```
+
+### Benefits
+- ✅ Consistent color palette across entire app
+- ✅ Professional appearance matching Catalyst demo
+- ✅ Better dark mode support (zinc vs gray)
+- ✅ Easier to maintain (one primary color: blue)
+- ✅ Meets accessibility contrast requirements
+
+### Files Updated
+21 view files normalized:
+- personas/* (forms, show pages)
+- runs/* (index, show, voting)
+- clustering/clusters/*
+- content_pillars/*
+- gallery/*
+- winners/*
+
+**Commits:** 10 total on feature branch
+**Latest:** b0d76ed (Color normalization)

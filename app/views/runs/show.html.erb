@@ -10,13 +10,13 @@
             <!-- Breadcrumb Navigation -->
             <div class="flex items-center gap-2 text-zinc-400 text-sm mb-2">
               <% if @run.cluster %>
-                <%= link_to @run.persona.name, persona_path(@run.persona), class: "hover:text-indigo-400" %>
+                <%= link_to @run.persona.name, persona_path(@run.persona), class: "hover:text-blue-400" %>
                 <span>/</span>
-                <%= link_to @run.cluster.content_pillar.name, persona_pillar_path(@run.persona, @run.cluster.content_pillar), class: "hover:text-indigo-400" %>
+                <%= link_to @run.cluster.content_pillar.name, persona_pillar_path(@run.persona, @run.cluster.content_pillar), class: "hover:text-blue-400" %>
                 <span>/</span>
-                <%= link_to @run.cluster.name, persona_pillar_cluster_path(@run.persona, @run.cluster.content_pillar, @run.cluster), class: "hover:text-indigo-400" %>
+                <%= link_to @run.cluster.name, persona_pillar_cluster_path(@run.persona, @run.cluster.content_pillar, @run.cluster), class: "hover:text-blue-400" %>
               <% elsif @run.persona %>
-                <%= link_to @run.persona.name, persona_path(@run.persona), class: "hover:text-indigo-400" %>
+                <%= link_to @run.persona.name, persona_path(@run.persona), class: "hover:text-blue-400" %>
               <% end %>
             </div>
             
@@ -69,7 +69,7 @@
           <% end %>
           <%= render ::Base::CardComponent.new(variant: :default) do |c| %>
             <% c.with_body(class: "text-center") do %>
-              <div class="text-2xl font-bold text-purple-400"><%= @total_votes %></div>
+              <div class="text-2xl font-bold text-blue-400"><%= @total_votes %></div>
               <div class="text-xs text-zinc-400">Votes Cast</div>
             <% end %>
           <% end %>

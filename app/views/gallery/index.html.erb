@@ -104,7 +104,7 @@
                       class: "flex-1",
                       id: "k-slider",
                       oninput: "document.getElementById('k-value').textContent = this.value; updateTopKPreview(this.value)" %>
-                  <span id="k-value" class="text-2xl font-bold text-purple-400 min-w-[40px] text-center">
+                  <span id="k-value" class="text-2xl font-bold text-blue-400 min-w-[40px] text-center">
                     <%= [JobOrchestrationConfig.default_top_k, @candidates.count].min %>
                   </span>
                 </div>
@@ -184,7 +184,7 @@
     <% c.with_body do %>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
       <div>
-        <div class="text-3xl font-bold text-purple-400"><%= @candidates.count %></div>
+        <div class="text-3xl font-bold text-blue-400"><%= @candidates.count %></div>
         <div class="text-sm text-zinc-400">Active Candidates</div>
       </div>
       <div>

@@ -5,19 +5,34 @@ module Base
     renders_one :header
     renders_many :sections, "SectionComponent"
 
-    def initialize(width: "w-64")
+    def initialize(width: "w-64", collapsible: true)
       @width = width
+      @collapsible = collapsible
     end
 
     private
 
     def container_classes
-      "#{@width} bg-gray-900 border-r border-gray-800 flex flex-col"
+      classes = ["bg-gray-900", "border-r", "border-gray-800", "flex", "flex-col"]
+      classes << (wrapper_classes)
+      classes.join(" ")
+    end
+
+    def wrapper_classes
+      if @collapsible
+        "hidden lg:flex #{@width}"
+      else
+        @width
+      end
     end
 
     class SectionComponent < ViewComponent::Base
       renders_one :title
       renders_many :items, "ItemComponent"
+
+      def call
+        "" # This component is used for data structuring only, rendered by parent
+      end
 
       class ItemComponent < ViewComponent::Base
         def initialize(href:, active: false, icon: nil)

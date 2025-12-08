@@ -32,6 +32,14 @@ module Base
             concat content_tag(:p, "This is the main content area.", class: "text-gray-400")
           end
         end
+        
+        layout.with_footer do
+          render(Base::FooterComponent.new) do |footer|
+            footer.with_bottom do
+              content_tag(:p, "© 2025 TurboCarnival", class: "text-center")
+            end
+          end
+        end
       end
     end
 

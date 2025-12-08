@@ -6,8 +6,9 @@ module Base
     renders_many :items, "ItemComponent"
     renders_one :actions
 
-    def initialize(fixed: true)
+    def initialize(fixed: true, mobile_menu: true)
       @fixed = fixed
+      @mobile_menu = mobile_menu
     end
 
     private

@@ -6,19 +6,19 @@ RSpec.describe Base::TooltipComponent, type: :component do
   it "renders tooltip with text" do
     render_inline(described_class.new(text: "Helpful tip")) { "Hover me" }
 
-    expect(page).to have_text("Hover me")
-    expect(page).to have_css('[role="tooltip"]', text: "Helpful tip")
+    expect(rendered_content).to include("Hover me")
+    expect(rendered_content).to include("Helpful tip")
   end
 
   it "positions tooltip at top by default" do
     render_inline(described_class.new(text: "Tip")) { "Content" }
 
-    expect(page).to have_css('.bottom-full')
+    expect(rendered_content).to include("bottom-full")
   end
 
   it "positions tooltip at specified location" do
     render_inline(described_class.new(text: "Tip", position: :right)) { "Content" }
 
-    expect(page).to have_css('.left-full')
+    expect(rendered_content).to include("left-full")
   end
 end

@@ -5,6 +5,7 @@ module Base
     renders_one :navbar
     renders_one :sidebar
     renders_one :main
+    renders_one :footer
 
     def initialize(full_width: false)
       @full_width = full_width

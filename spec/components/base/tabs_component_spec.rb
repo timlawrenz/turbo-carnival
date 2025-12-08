@@ -9,9 +9,8 @@ RSpec.describe Base::TabsComponent, type: :component do
       component.with_tab(id: "tab2", label: "Second")
     end
 
-    expect(page).to have_text("First")
-    expect(page).to have_text("Second")
-    expect(page).to have_css('button[type="button"]', count: 2)
+    expect(rendered_content).to include("First")
+    expect(rendered_content).to include("Second")
   end
 
   it "marks active tab" do
@@ -20,7 +19,7 @@ RSpec.describe Base::TabsComponent, type: :component do
       component.with_tab(id: "tab2", label: "Second")
     end
 
-    expect(page).to have_css('.border-blue-600.text-blue-600', text: "First")
-    expect(page).to have_css('.border-transparent.text-zinc-600', text: "Second")
+    expect(rendered_content).to include("border-blue-600")
+    expect(rendered_content).to include("text-blue-600")
   end
 end

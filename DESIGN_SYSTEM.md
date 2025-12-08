@@ -69,6 +69,10 @@ Components are organized under the `Base::` namespace:
 - **Base::AlertComponent** - 4 types (info, success, warning, error)
 - **Base::BadgeComponent** - 5 variants + 3 sizes
 - **Base::LoadingComponent** - 3 variants (spinner, skeleton, dots)
+- **Base::NavbarComponent** - Top navigation with logo, items, actions, mobile menu
+- **Base::SidebarComponent** - Collapsible sidebar with sections and items
+- **Base::LayoutComponent** - Full page layout wrapper (navbar + sidebar + main + footer)
+- **Base::FooterComponent** - Footer with sections and links
 
 ## Design Tokens
 

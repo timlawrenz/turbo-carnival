@@ -73,7 +73,11 @@ Rails.application.routes.draw do
       end
       
       # Nested clusters under pillars
-      resources :clusters, only: [:show, :new, :create], controller: 'clustering/clusters'
+      resources :clusters, only: [:show, :new, :create], controller: 'clustering/clusters' do
+        member do
+          post :upload_photos
+        end
+      end
     end
     
     # Direct cluster access (for convenience)

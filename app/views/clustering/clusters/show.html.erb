@@ -45,10 +45,54 @@
     <% end %>
   </div>
 
+  <!-- Upload Photos Section -->
+  <%= render CardComponent.new(classes: "mb-8") do |c| %>
+    <% c.with_body do %>
+      <h3 class="text-xl font-semibold mb-4">📤 Upload Photos</h3>
+      <form id="photo-upload-form" data-cluster-id="<%= @cluster.id %>">
+        <div class="mb-4">
+          <label class="block mb-2">
+            <span class="text-zinc-300">Select photos to upload (JPG, PNG, WEBP - Max 10MB each)</span>
+            <input 
+              type="file" 
+              name="photos[]" 
+              multiple 
+              accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+              class="mt-2 block w-full text-sm text-zinc-400
+                     file:mr-4 file:py-2 file:px-4
+                     file:rounded file:border-0
+                     file:text-sm file:font-semibold
+                     file:bg-purple-600 file:text-white
+                     hover:file:bg-purple-700
+                     cursor-pointer"
+            />
+          </label>
+        </div>
+        
+        <div id="upload-feedback" class="mb-4 hidden"></div>
+        
+        <button 
+          type="submit"
+          class="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+          id="upload-button"
+        >
+          Upload Photos
+        </button>
+        
+        <div id="upload-progress" class="mt-4 hidden">
+          <div class="w-full bg-zinc-700 rounded-full h-2">
+            <div id="progress-bar" class="bg-purple-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+          <p class="text-sm text-zinc-400 mt-2">Uploading...</p>
+        </div>
+      </form>
+    <% end %>
+  <% end %>
+
   <!-- Photos -->
   <% if @photos.any? %>
     <h2 class="text-2xl font-semibold mb-4">Photos</h2>
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+    <div id="photos-gallery" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
       <% @photos.each do |photo| %>
         <div class="border rounded-lg overflow-hidden">
           <% if photo.image.attached? %>
@@ -103,3 +147,90 @@
     <% end %>
   <% end %>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('photo-upload-form');
+    const fileInput = form.querySelector('input[type="file"]');
+    const uploadButton = document.getElementById('upload-button');
+    const uploadProgress = document.getElementById('upload-progress');
+    const progressBar = document.getElementById('progress-bar');
+    const feedbackDiv = document.getElementById('upload-feedback');
+    
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const files = fileInput.files;
+      if (files.length === 0) {
+        showFeedback('Please select at least one photo', 'error');
+        return;
+      }
+      
+      // Show progress
+      uploadButton.disabled = true;
+      uploadProgress.classList.remove('hidden');
+      feedbackDiv.classList.add('hidden');
+      progressBar.style.width = '50%';
+      
+      // Create FormData
+      const formData = new FormData();
+      for (let i = 0; i < files.length; i++) {
+        formData.append('photos[]', files[i]);
+      }
+      
+      try {
+        const clusterId = form.dataset.clusterId;
+        const personaId = window.location.pathname.split('/')[2];
+        const pillarId = window.location.pathname.split('/')[4];
+        const url = `/personas/${personaId}/pillars/${pillarId}/clusters/${clusterId}/upload_photos`;
+        
+        const response = await fetch(url, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+          }
+        });
+        
+        const result = await response.json();
+        progressBar.style.width = '100%';
+        
+        if (response.ok) {
+          showFeedback(result.message, result.failed > 0 ? 'warning' : 'success');
+          
+          if (result.errors && result.errors.length > 0) {
+            const errorList = result.errors.map(e => `${e.file}: ${e.error}`).join('<br>');
+            showFeedback(result.message + '<br><br>Errors:<br>' + errorList, 'warning');
+          }
+          
+          // Reload page to show new photos
+          if (result.success > 0) {
+            setTimeout(() => window.location.reload(), 1500);
+          }
+        } else {
+          showFeedback(result.error || 'Upload failed', 'error');
+        }
+      } catch (error) {
+        showFeedback('Network error: ' + error.message, 'error');
+      } finally {
+        uploadButton.disabled = false;
+        setTimeout(() => {
+          uploadProgress.classList.add('hidden');
+          progressBar.style.width = '0%';
+        }, 1000);
+      }
+    });
+    
+    function showFeedback(message, type) {
+      const colors = {
+        success: 'bg-green-600',
+        error: 'bg-red-600',
+        warning: 'bg-yellow-600'
+      };
+      
+      feedbackDiv.className = `p-4 rounded ${colors[type] || colors.error} text-white`;
+      feedbackDiv.innerHTML = message;
+      feedbackDiv.classList.remove('hidden');
+    }
+  });
+</script>

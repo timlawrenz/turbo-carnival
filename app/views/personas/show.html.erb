@@ -3,9 +3,11 @@
   <p class="text-zinc-600 mb-8">Persona Dashboard</p>
   
   <!-- Actions -->
-  <div class="mb-8">
+  <div class="mb-8 flex gap-4">
     <%= button_to "Run Gap Analysis", persona_gap_analyses_path(@persona), method: :post, 
                   class: "bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded" %>
+    <%= link_to "View Runs", runs_path, 
+                class: "bg-purple-600 hover:bg-purple-700 text-white font-medium px-6 py-2 rounded inline-block" %>
   </div>
   
   <!-- Stats -->

@@ -86,6 +86,7 @@ Rails.application.routes.draw do
       post :use
       post :reject
       post :create_cluster
+      post :generate_image
     end
   end
 end

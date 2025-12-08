@@ -224,6 +224,8 @@ class GapAnalysisService
   end
 
   def parse_ai_response(response)
+    return { title: "AI Suggestion", description: "No response", prompt: "Manual entry needed" } if response.nil? || response.empty?
+    
     json_match = response.match(/\{.*\}/m)
     return { title: "AI Suggestion", description: response, prompt: response } unless json_match
     

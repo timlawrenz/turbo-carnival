@@ -169,7 +169,7 @@ class GapAnalysisService
       prompt,
       system: "You are a creative content strategist helping generate unique Instagram photo concepts.",
       temperature: 0.8,
-      max_tokens: 1500
+      max_tokens: 4000  # Higher limit for Gemini 2.5 Pro (uses thoughts tokens)
     )
     
     parse_ai_response(content)

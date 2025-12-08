@@ -7,7 +7,7 @@ require 'uri'
 
 module AI
   class GeminiClient
-    DEFAULT_MODEL = 'gemini-2.0-flash'  # Use stable 2.0 model
+    DEFAULT_MODEL = 'gemini-2.5-pro'  # Using paid Pro model
     API_BASE = 'https://generativelanguage.googleapis.com/v1beta'
     
     def initialize(api_key: nil, model: DEFAULT_MODEL)

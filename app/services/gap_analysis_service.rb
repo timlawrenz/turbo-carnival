@@ -155,28 +155,33 @@ class GapAnalysisService
   end
 
   def call_openai_api(context)
-    client = OpenAI::Client.new(access_token: Rails.application.credentials.dig(:openai, :api_key))
+    require Rails.root.join('lib', 'ai', 'gemini_client')
     
+    unless ENV['GEMINI_API_KEY'].present?
+      Rails.logger.warn("Gemini API key not configured, using fallback suggestions")
+      return generate_fallback_suggestion(context)
+    end
+    
+    client = AI::GeminiClient.new
     prompt = build_ai_prompt_text(context)
     
-    response = client.chat(
-      parameters: {
-        model: "gpt-4",
-        messages: [
-          { role: "system", content: "You are a creative content strategist helping generate unique Instagram photo concepts." },
-          { role: "user", content: prompt }
-        ],
-        temperature: 0.8
-      }
+    content = client.generate(
+      prompt,
+      system: "You are a creative content strategist helping generate unique Instagram photo concepts.",
+      temperature: 0.8,
+      max_tokens: 1500
     )
     
-    content = response.dig("choices", 0, "message", "content")
     parse_ai_response(content)
   rescue => e
-    Rails.logger.error("OpenAI API error: #{e.message}")
+    Rails.logger.error("Gemini API error: #{e.message}")
+    generate_fallback_suggestion(context)
+  end
+  
+  def generate_fallback_suggestion(context)
     {
       title: "Manual suggestion needed",
-      description: "AI unavailable. Please create content for #{context[:cluster_name]}.",
+      description: "AI unavailable. Please create content for #{context[:cluster_name]} in the #{context[:pillar_name]} pillar.",
       prompt: "#{context[:cluster_name]} - #{context[:pillar_name]}"
     }
   end

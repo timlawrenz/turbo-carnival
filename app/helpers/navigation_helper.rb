@@ -180,7 +180,7 @@ module NavigationHelper
     cluster.pipeline_runs.order(created_at: :desc).limit(20).map do |run|
       {
         label: "Run ##{run.id} - #{run.status}",
-        path: pipeline_run_path(run),
+        path: run_path(run),
         current: run.id == params[:id]&.to_i
       }
     end

@@ -7,7 +7,7 @@ require 'uri'
 
 module AI
   class GeminiClient
-    DEFAULT_MODEL = 'gemini-2.5-flash'
+    DEFAULT_MODEL = 'gemini-2.0-flash'  # Use stable 2.0 model
     API_BASE = 'https://generativelanguage.googleapis.com/v1beta'
     
     def initialize(api_key: nil, model: DEFAULT_MODEL)
@@ -67,7 +67,21 @@ module AI
       
       if response.is_a?(Net::HTTPSuccess)
         body = JSON.parse(response.body)
-        body.dig('candidates', 0, 'content', 'parts', 0, 'text')
+        
+        # Log the response for debugging
+        if body.dig('candidates', 0, 'finishReason') == 'MAX_TOKENS'
+          Rails.logger.warn("Gemini hit MAX_TOKENS limit")
+        end
+        
+        # Extract text from response
+        text = body.dig('candidates', 0, 'content', 'parts', 0, 'text')
+        
+        if text.nil? || text.empty?
+          Rails.logger.error("Gemini returned empty response: #{body.to_json}")
+          nil
+        else
+          text
+        end
       else
         raise "Gemini API error: #{response.code} - #{response.body}"
       end

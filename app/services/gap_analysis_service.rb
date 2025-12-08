@@ -226,11 +226,24 @@ class GapAnalysisService
   def parse_ai_response(response)
     return { title: "AI Suggestion", description: "No response", prompt: "Manual entry needed" } if response.nil? || response.empty?
     
-    json_match = response.match(/\{.*\}/m)
+    # Remove markdown code blocks if present
+    cleaned_response = response.gsub(/```json\s*|\s*```/, '')
+    
+    # Extract JSON object
+    json_match = cleaned_response.match(/\{.*\}/m)
     return { title: "AI Suggestion", description: response, prompt: response } unless json_match
     
-    JSON.parse(json_match[0])
-  rescue JSON::ParserError
+    parsed = JSON.parse(json_match[0])
+    
+    # Ensure we have the required fields with proper keys
+    {
+      'title' => parsed['title'] || 'AI Suggestion',
+      'description' => parsed['description'] || '',
+      'prompt' => parsed['prompt'] || ''
+    }
+  rescue JSON::ParserError => e
+    Rails.logger.error("Failed to parse AI response: #{e.message}")
+    Rails.logger.error("Response was: #{response}")
     { title: "AI Suggestion", description: response, prompt: response }
   end
 end

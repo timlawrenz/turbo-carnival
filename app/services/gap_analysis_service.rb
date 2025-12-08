@@ -235,11 +235,11 @@ class GapAnalysisService
     
     parsed = JSON.parse(json_match[0])
     
-    # Ensure we have the required fields with proper keys
+    # Return with symbol keys for consistency
     {
-      'title' => parsed['title'] || 'AI Suggestion',
-      'description' => parsed['description'] || '',
-      'prompt' => parsed['prompt'] || ''
+      title: parsed['title'] || 'AI Suggestion',
+      description: parsed['description'] || '',
+      prompt: parsed['prompt'] || ''
     }
   rescue JSON::ParserError => e
     Rails.logger.error("Failed to parse AI response: #{e.message}")

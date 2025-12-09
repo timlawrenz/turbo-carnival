@@ -23,6 +23,7 @@ We need a web interface for creating Instagram posts that allows users to select
   - New pack or expansion of scheduling pack
   - Dependencies on personas (for config), clustering (for photos/clusters), content_pillars
 - External dependencies:
-  - Ollama running locally with Gemma3:27b model
+  - Ollama running on 192.168.86.137 with Gemma3:27b model
+  - **Note**: First-time model loading can take 30-60 seconds
   - Tailwind CSS for styling (already in project)
   - ViewComponent for reusable UI (already in project)

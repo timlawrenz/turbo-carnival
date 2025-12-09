@@ -50,11 +50,13 @@
 - [ ] 6.5 Redirect to posts index or photo list
 
 ## 7. Ollama Setup
-- [ ] 7.1 Document Ollama installation
-- [ ] 7.2 Document Gemma3:27b model pull
-- [ ] 7.3 Create Ollama client wrapper
+- [ ] 7.1 Document Ollama remote connection (192.168.86.137)
+- [ ] 7.2 Document Gemma3:27b model availability check
+- [ ] 7.3 Create Ollama client wrapper with remote endpoint
 - [ ] 7.4 Add error handling for Ollama unavailable
-- [ ] 7.5 Test caption generation locally
+- [ ] 7.5 Handle first-time model loading delay (30-60s)
+- [ ] 7.6 Add loading UI with appropriate timeout
+- [ ] 7.7 Test caption generation with remote Ollama
 
 ## 8. Metadata Display
 - [ ] 8.1 Show photo cluster assignment

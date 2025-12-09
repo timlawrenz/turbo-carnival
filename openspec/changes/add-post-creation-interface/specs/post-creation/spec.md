@@ -142,13 +142,14 @@ The system SHALL extract rich context from photo, persona, and cluster data for 
 - **AND** include in prompt as phrases to avoid
 
 ### Requirement: Ollama Client Integration
-The system SHALL integrate with locally-running Ollama service for AI inference.
+The system SHALL integrate with remote Ollama service running on 192.168.86.137 for AI inference.
 
 #### Scenario: Initialize Ollama client
 - **WHEN** caption generation is requested
-- **THEN** connect to Ollama API endpoint
+- **THEN** connect to Ollama API endpoint at 192.168.86.137
 - **AND** verify Gemma3:27b model is available
-- **AND** configure timeout and retry settings
+- **AND** configure timeout for model loading (60+ seconds on first call)
+- **AND** configure retry settings
 
 #### Scenario: Send generation request
 - **WHEN** sending prompt to Ollama
@@ -157,10 +158,16 @@ The system SHALL integrate with locally-running Ollama service for AI inference.
 - **AND** handle streaming or complete responses
 - **AND** parse response JSON
 
+#### Scenario: Handle first-time model loading
+- **WHEN** Ollama loads model for first time
+- **THEN** show extended loading indicator (may take 30-60 seconds)
+- **AND** set timeout to 90 seconds minimum
+- **AND** inform user about initial load delay
+
 #### Scenario: Handle generation timeout
 - **WHEN** Ollama request exceeds timeout
 - **THEN** cancel request gracefully
-- **AND** return timeout error
+- **AND** return timeout error with helpful message
 - **AND** log performance metrics
 
 ### Requirement: Post Preview and Metadata Display

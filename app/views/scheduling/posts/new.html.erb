@@ -55,15 +55,26 @@
           
           <!-- AI Suggestion Button (separate form) -->
           <div class="mb-6">
-            <%= form_with url: suggest_caption_scheduling_post_path(@photo), method: :post, data: { turbo_stream: true } do %>
+            <%= form_with url: suggest_caption_scheduling_post_path(@photo), method: :post do %>
               <%= submit_tag "✨ Get AI Suggestions", 
                             class: "w-full px-4 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors font-semibold cursor-pointer" %>
             <% end %>
           </div>
           
-          <!-- Turbo Frame for AI Suggestions -->
-          <%= turbo_frame_tag "caption_suggestion" do %>
-            <div class="hidden" id="suggestion_placeholder"></div>
+          <!-- AI Suggestion Display -->
+          <% if @suggested_caption.present? %>
+            <div class="p-4 bg-purple-900/20 border border-purple-700 rounded-lg mb-6">
+              <div class="flex items-start gap-3">
+                <div class="text-2xl">✨</div>
+                <div class="flex-1">
+                  <h3 class="font-semibold mb-2 text-purple-400">AI Generated Caption</h3>
+                  <p class="text-zinc-300 whitespace-pre-wrap mb-3"><%= @suggested_caption %></p>
+                  <div class="text-xs text-zinc-500">
+                    <%= @suggested_caption.split.size %> words, <%= @suggested_caption.length %> characters
+                  </div>
+                </div>
+              </div>
+            </div>
           <% end %>
           
           <!-- Main Post Form -->
@@ -78,6 +89,7 @@
               <% end %>
               <%= f.text_area :caption, 
                              rows: 10,
+                             value: @suggested_caption || "",
                              placeholder: "Write your caption here or use AI suggestions...",
                              class: "w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:ring-2 focus:ring-blue-500 resize-none",
                              data: { action: "input->caption#updateCount" },

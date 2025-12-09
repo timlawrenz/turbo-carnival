@@ -18,7 +18,7 @@ class Scheduling::PostsController < ApplicationController
 
   def new
     @post = Scheduling::Post.new(photo: @photo, persona: @photo.persona)
-    @suggested_caption = nil
+    @suggested_caption = params[:suggested_caption]
   end
 
   def create
@@ -45,23 +45,14 @@ class Scheduling::PostsController < ApplicationController
     generation_time = (Time.current - start_time).round(1)
 
     if result.success?
-      metadata = result.metadata.merge(
-        photo_id: @photo.id,
+      @suggested_caption = result.text
+      @suggestion_metadata = result.metadata.merge(
         generation_time: generation_time,
         word_count: result.text.split.size
       )
-      
-      render turbo_stream: turbo_stream.update(
-        'caption_suggestion',
-        partial: 'scheduling/posts/caption_suggestion',
-        locals: { caption: result.text, metadata: metadata }
-      )
+      redirect_to new_scheduling_post_path(photo_id: @photo.id, suggested_caption: @suggested_caption)
     else
-      render turbo_stream: turbo_stream.update(
-        'caption_suggestion',
-        partial: 'scheduling/posts/caption_error',
-        locals: { error: result.metadata[:error] }
-      )
+      redirect_to new_scheduling_post_path(photo_id: @photo.id), alert: "Caption generation failed: #{result.metadata[:error]}"
     end
   end
 

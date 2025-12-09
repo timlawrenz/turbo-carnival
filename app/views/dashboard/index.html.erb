@@ -1,15 +1,10 @@
 <div class="space-y-8">
   <!-- Page header -->
-  <div class="flex items-center justify-between">
-    <div>
-      <h1 class="text-2xl/8 font-semibold text-zinc-950 dark:text-white">Dashboard</h1>
-      <p class="mt-2 text-sm/6 text-zinc-500 dark:text-zinc-400">
-        Overview of your content pipeline and personas
-      </p>
-    </div>
-    <%= link_to scheduling_posts_path, class: "px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors font-semibold" do %>
-      📝 Create Post
-    <% end %>
+  <div>
+    <h1 class="text-2xl/8 font-semibold text-zinc-950 dark:text-white">Dashboard</h1>
+    <p class="mt-2 text-sm/6 text-zinc-500 dark:text-zinc-400">
+      Overview of your content pipeline and personas
+    </p>
   </div>
 
   <!-- Stats grid -->
@@ -56,26 +51,34 @@
       <% if @personas.any? %>
         <div class="divide-y divide-zinc-950/5 dark:divide-white/5">
           <% @personas.each do |persona| %>
-            <%= link_to persona_path(persona), class: "block p-6 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors" do %>
+            <div class="p-6 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
               <div class="flex items-start justify-between">
                 <div class="flex-1">
-                  <h3 class="text-base/6 font-semibold text-zinc-950 dark:text-white"><%= persona.name %></h3>
+                  <%= link_to persona_path(persona) do %>
+                    <h3 class="text-base/6 font-semibold text-zinc-950 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"><%= persona.name %></h3>
+                  <% end %>
                   <% if persona.caption_config.present? && persona.caption_config.tone.present? %>
                     <p class="mt-1 text-sm/6 text-zinc-500 dark:text-zinc-400 line-clamp-2">
                       <%= persona.caption_config.tone %> tone
                     </p>
                   <% end %>
                 </div>
-                <div class="ml-4 text-right">
-                  <div class="text-sm/6 font-medium text-zinc-950 dark:text-white">
-                    <%= persona.content_pillars.count %> pillars
+                <div class="ml-4 flex items-center gap-3">
+                  <div class="text-right">
+                    <div class="text-sm/6 font-medium text-zinc-950 dark:text-white">
+                      <%= persona.content_pillars.count %> pillars
+                    </div>
+                    <div class="text-xs/5 text-zinc-500 dark:text-zinc-400">
+                      <%= time_ago_in_words(persona.updated_at) %> ago
+                    </div>
                   </div>
-                  <div class="text-xs/5 text-zinc-500 dark:text-zinc-400">
-                    <%= time_ago_in_words(persona.updated_at) %> ago
-                  </div>
+                  <%= link_to scheduling_posts_path(persona_id: persona.id), 
+                             class: "px-3 py-1.5 text-sm font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors whitespace-nowrap" do %>
+                    📝 Create Post
+                  <% end %>
                 </div>
               </div>
-            <% end %>
+            </div>
           <% end %>
         </div>
       <% else %>

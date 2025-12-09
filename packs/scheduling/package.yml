@@ -1,4 +1,4 @@
 enforce_dependencies: true
 dependencies:
   - packs/personas
-  - packs/pipeline
+  - packs/clustering

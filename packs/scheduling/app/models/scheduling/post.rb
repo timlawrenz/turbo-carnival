@@ -4,8 +4,8 @@ module Scheduling
   class Post < ApplicationRecord
     self.table_name = 'scheduling_posts'
 
-    belongs_to :photo, class_name: 'Pipeline::Photo'
-    belongs_to :persona, class_name: 'Personas::Persona'
+    belongs_to :photo, class_name: 'Clustering::Photo'
+    belongs_to :persona, class_name: 'Persona'
     belongs_to :cluster, class_name: 'Clustering::Cluster', optional: true
 
     scope :posted, -> { where(status: 'posted') }

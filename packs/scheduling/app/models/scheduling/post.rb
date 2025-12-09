@@ -8,6 +8,8 @@ module Scheduling
     belongs_to :persona, class_name: 'Persona'
     belongs_to :cluster, class_name: 'Clustering::Cluster', optional: true
 
+    validates :cluster, presence: true, if: -> { cluster_id.present? }
+
     scope :posted, -> { where(status: 'posted') }
     scope :with_strategy, ->(strategy_name) { where(strategy_name: strategy_name) }
     scope :from_cluster, ->(cluster_id) { where(cluster_id: cluster_id) }

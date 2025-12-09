@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_03_235034) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_09_222814) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -232,6 +232,28 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_03_235034) do
     t.index ["name"], name: "index_pipelines_on_name"
   end
 
+  create_table "scheduling_posts", force: :cascade do |t|
+    t.bigint "photo_id", null: false
+    t.bigint "persona_id", null: false
+    t.text "caption"
+    t.string "status", default: "draft", null: false
+    t.string "provider_post_id"
+    t.datetime "scheduled_at"
+    t.datetime "posted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "cluster_id"
+    t.string "strategy_name"
+    t.datetime "optimal_time_calculated"
+    t.jsonb "hashtags", default: []
+    t.jsonb "caption_metadata"
+    t.index ["cluster_id"], name: "index_scheduling_posts_on_cluster_id"
+    t.index ["persona_id"], name: "index_scheduling_posts_on_persona_id"
+    t.index ["photo_id", "persona_id"], name: "index_posts_on_photo_id_and_persona_id", unique: true
+    t.index ["photo_id"], name: "index_scheduling_posts_on_photo_id"
+    t.index ["strategy_name"], name: "index_scheduling_posts_on_strategy_name"
+  end
+
   create_table "votes", force: :cascade do |t|
     t.integer "winner_id", null: false
     t.integer "loser_id", null: false
@@ -267,6 +289,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_03_235034) do
   add_foreign_key "pipeline_runs", "personas"
   add_foreign_key "pipeline_runs", "pipelines"
   add_foreign_key "pipeline_steps", "pipelines"
+  add_foreign_key "scheduling_posts", "clusters"
+  add_foreign_key "scheduling_posts", "personas"
+  add_foreign_key "scheduling_posts", "photos"
   add_foreign_key "votes", "image_candidates", column: "loser_id"
   add_foreign_key "votes", "image_candidates", column: "winner_id"
 end

@@ -16,7 +16,7 @@
           <h2 class="text-xl font-semibold mb-4">Photo Preview</h2>
           
           <% if @photo.image.attached? %>
-            <%= image_tag @photo.image.variant(resize_to_limit: [600, 600]), 
+            <%= image_tag @photo.image, 
                          class: "w-full rounded-lg mb-4" %>
           <% end %>
           

@@ -36,7 +36,7 @@
           <% c.with_body do %>
             <!-- Photo Preview -->
             <% if photo.image.attached? %>
-              <%= image_tag photo.image.variant(resize_to_limit: [400, 400]), 
+              <%= image_tag photo.image, 
                            class: "w-full h-64 object-cover rounded-t-lg mb-4" %>
             <% end %>
             

@@ -53,22 +53,23 @@
         <% c.with_body do %>
           <h2 class="text-xl font-semibold mb-4">Post Details</h2>
           
+          <!-- AI Suggestion Button (separate form) -->
+          <div class="mb-6">
+            <%= button_to "✨ Get AI Suggestions", 
+                         suggest_caption_scheduling_post_path(@photo),
+                         method: :post,
+                         class: "w-full px-4 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors font-semibold",
+                         form: { data: { turbo_frame: "caption_suggestion" } } %>
+          </div>
+          
+          <!-- Turbo Frame for AI Suggestions -->
+          <%= turbo_frame_tag "caption_suggestion" do %>
+            <div class="hidden" id="suggestion_placeholder"></div>
+          <% end %>
+          
+          <!-- Main Post Form -->
           <%= form_with model: @post, url: scheduling_posts_path, class: "space-y-6" do |f| %>
             <%= f.hidden_field :photo_id, value: @photo.id %>
-            
-            <!-- AI Suggestion Button -->
-            <div>
-              <%= button_to "✨ Get AI Suggestions", 
-                           suggest_caption_scheduling_post_path(@photo),
-                           method: :post,
-                           class: "w-full px-4 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors font-semibold",
-                           form: { data: { turbo_frame: "caption_suggestion" } } %>
-            </div>
-            
-            <!-- Turbo Frame for AI Suggestions -->
-            <%= turbo_frame_tag "caption_suggestion" do %>
-              <div class="hidden" id="suggestion_placeholder"></div>
-            <% end %>
             
             <!-- Caption Field -->
             <div>

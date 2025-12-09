@@ -17,37 +17,37 @@
 - [x] 2.4 Implement suggest_caption action (AJAX endpoint)
 - [ ] 2.5 Write controller specs
 
-## 3. Photo Selection Interface
-- [ ] 3.1 Create photo index view with filtering
-- [ ] 3.2 Add filters for persona, cluster, unposted status
-- [ ] 3.3 Create photo card component with preview
-- [ ] 3.4 Add "Create Post" button per photo
+## 3. Photo Selection Interface ✅
+- [x] 3.1 Create photo index view with filtering
+- [x] 3.2 Add filters for persona, cluster, unposted status
+- [x] 3.3 Create photo card component with preview
+- [x] 3.4 Add "Create Post" button per photo
 - [ ] 3.5 Write component previews
 
-## 4. Post Creation Form
-- [ ] 4.1 Create new post form view
-- [ ] 4.2 Add photo preview section
-- [ ] 4.3 Add caption textarea (with character count)
-- [ ] 4.4 Add hashtags input field
-- [ ] 4.5 Add "Get AI Suggestions" button
-- [ ] 4.6 Add schedule datetime picker
-- [ ] 4.7 Add submit button (Post Now / Schedule)
-- [ ] 4.8 Style with Tailwind CSS
+## 4. Post Creation Form ✅
+- [x] 4.1 Create new post form view
+- [x] 4.2 Add photo preview section
+- [x] 4.3 Add caption textarea (with character count)
+- [x] 4.4 Add hashtags input field
+- [x] 4.5 Add "Get AI Suggestions" button
+- [x] 4.6 Add schedule datetime picker
+- [x] 4.7 Add submit button (Post Now / Schedule)
+- [x] 4.8 Style with Tailwind CSS
 
-## 5. AI Suggestion Integration
-- [ ] 5.1 Create Turbo Frame for AI suggestions
-- [ ] 5.2 Wire "Get AI Suggestions" button to AJAX call
-- [ ] 5.3 Show loading state during generation
-- [ ] 5.4 Prefill textarea with AI suggestion
-- [ ] 5.5 Handle errors gracefully
-- [ ] 5.6 Add regenerate option
+## 5. AI Suggestion Integration ✅
+- [x] 5.1 Create Turbo Frame for AI suggestions
+- [x] 5.2 Wire "Get AI Suggestions" button to AJAX call
+- [x] 5.3 Show loading state during generation
+- [x] 5.4 Prefill textarea with AI suggestion
+- [x] 5.5 Handle errors gracefully
+- [x] 5.6 Add regenerate option
 
-## 6. Form Submission
-- [ ] 6.1 Handle immediate posting (calls SchedulePost command)
-- [ ] 6.2 Handle scheduled posting (creates draft with scheduled_at)
-- [ ] 6.3 Add validations (photo, persona, caption)
-- [ ] 6.4 Show success/error messages
-- [ ] 6.5 Redirect to posts index or photo list
+## 6. Form Submission ✅
+- [x] 6.1 Handle immediate posting (calls SchedulePost command)
+- [x] 6.2 Handle scheduled posting (creates draft with scheduled_at)
+- [x] 6.3 Add validations (photo, persona, caption)
+- [x] 6.4 Show success/error messages
+- [x] 6.5 Redirect to posts index or photo list
 
 ## 7. Ollama Setup ✅
 - [x] 7.1 Document Ollama remote connection (192.168.86.137)
@@ -58,10 +58,10 @@
 - [ ] 7.6 Add loading UI with appropriate timeout
 - [x] 7.7 Test caption generation with remote Ollama
 
-## 8. Metadata Display
-- [ ] 8.1 Show photo cluster assignment
-- [ ] 8.2 Show detected objects/labels
-- [ ] 8.3 Show persona configuration preview
+## 8. Metadata Display ✅
+- [x] 8.1 Show photo cluster assignment
+- [x] 8.2 Show detected objects/labels
+- [x] 8.3 Show persona configuration preview
 - [ ] 8.4 Display recent hashtags used
 - [ ] 8.5 Show posting statistics
 

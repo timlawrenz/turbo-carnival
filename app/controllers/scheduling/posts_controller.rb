@@ -59,7 +59,8 @@ class Scheduling::PostsController < ApplicationController
   private
 
   def set_photo
-    @photo = Clustering::Photo.find(params[:photo_id] || params[:id])
+    photo_id = params[:photo_id] || params[:id] || params.dig(:scheduling_post, :photo_id)
+    @photo = Clustering::Photo.find(photo_id)
   end
 
   def post_params

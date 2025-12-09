@@ -36,17 +36,25 @@ class Scheduling::PostsController < ApplicationController
   def suggest_caption
     load_caption_services
 
+    start_time = Time.current
     result = CaptionGeneration::Generator.generate(
       photo: @photo,
       persona: @photo.persona,
       cluster: @photo.cluster
     )
+    generation_time = (Time.current - start_time).round(1)
 
     if result.success?
+      metadata = result.metadata.merge(
+        photo_id: @photo.id,
+        generation_time: generation_time,
+        word_count: result.text.split.size
+      )
+      
       render turbo_stream: turbo_stream.update(
         'caption_suggestion',
         partial: 'scheduling/posts/caption_suggestion',
-        locals: { caption: result.text, metadata: result.metadata }
+        locals: { caption: result.text, metadata: metadata }
       )
     else
       render turbo_stream: turbo_stream.update(

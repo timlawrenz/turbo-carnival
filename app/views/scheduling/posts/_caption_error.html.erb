@@ -1,0 +1,22 @@
+<div class="p-4 bg-red-900/20 border border-red-700 rounded-lg mb-4">
+  <div class="flex items-start gap-3">
+    <div class="text-2xl">⚠️</div>
+    <div class="flex-1">
+      <h3 class="font-semibold mb-2 text-red-400">Caption Generation Failed</h3>
+      <p class="text-zinc-300 mb-3"><%= error %></p>
+      
+      <% if error.include?("timeout") || error.include?("connect") %>
+        <p class="text-sm text-zinc-400 mb-3">
+          The AI server may be loading the model for the first time (this can take 30-60 seconds). 
+          Please try again in a moment.
+        </p>
+      <% end %>
+      
+      <%= button_to "Try Again", 
+                   suggest_caption_scheduling_post_path(params[:id]),
+                   method: :post,
+                   class: "px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm transition-colors",
+                   form: { data: { turbo_frame: "caption_suggestion" } } %>
+    </div>
+  </div>
+</div>

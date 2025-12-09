@@ -93,4 +93,13 @@ Rails.application.routes.draw do
       post :generate_image
     end
   end
+
+  # Scheduling and Posts
+  namespace :scheduling do
+    resources :posts, only: [:index, :new, :create] do
+      member do
+        post :suggest_caption
+      end
+    end
+  end
 end

@@ -42,17 +42,6 @@
                 </div>
               <% end %>
             <% end %>
-            
-            <% if @photo.labels.present? %>
-              <div>
-                <span class="font-semibold">Detected Objects:</span>
-                <div class="flex flex-wrap gap-2 mt-1">
-                  <% @photo.labels.each do |label| %>
-                    <span class="px-2 py-1 bg-zinc-700 rounded text-xs"><%= label %></span>
-                  <% end %>
-                </div>
-              </div>
-            <% end %>
           </div>
         <% end %>
       <% end %>

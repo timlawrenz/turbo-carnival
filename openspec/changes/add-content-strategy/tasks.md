@@ -30,11 +30,12 @@
 ## Models
 - [ ] Create `ContentStrategy::StrategyState` model
   - [ ] Add associations (belongs_to :persona)
-  - [ ] Add validation (persona uniqueness)
+  - [ ] Add validation (persona uniqueness - one strategy per persona)
   - [ ] Add `get_state(key)` method
   - [ ] Add `set_state(key, value)` method
   - [ ] Add `update_state(updates_hash)` method
   - [ ] Add `reset_state!` method
+  - [ ] Default active_strategy to 'thematic_rotation_strategy'
 - [ ] Create `ContentStrategy::HistoryRecord` model
   - [ ] Add associations (belongs_to :persona, :post, :cluster)
   - [ ] Add scopes: `for_persona`, `for_cluster`, `recent_days(n)`, `recent`
@@ -49,11 +50,14 @@
   - [ ] Add development config (posting frequency, timing, variety, hashtags)
   - [ ] Add test config (similar to development)
   - [ ] Add production config
+  - [ ] Set default strategy to 'thematic_rotation_strategy'
+  - [ ] Use system timezone for all environments
 - [ ] Create `ContentStrategy::ConfigLoader` service
   - [ ] Load YAML config for current environment
   - [ ] Provide getter methods for all config values
   - [ ] Implement `reload!` method
   - [ ] Add validation for required config keys
+  - [ ] Default to system timezone (Time.zone)
 
 ## Core Commands
 - [ ] Create `ContentStrategy::SelectNextPost` command
@@ -143,10 +147,10 @@
   - [ ] Show current strategy name if persona has active strategy
   - [ ] Link to strategy configuration (future enhancement)
 
-## State Caching (Optional - Using Solid Cache)
+## State Caching (Using Solid Cache)
 - [ ] Create `ContentStrategy::StateCache` wrapper
-  - [ ] Implement `fetch(persona_id, &block)` method
-  - [ ] Use Solid Cache with 5-minute TTL
+  - [ ] Implement `fetch(persona_id, &block)` method using Solid Cache
+  - [ ] Set 5-minute TTL for cached data
   - [ ] Implement `invalidate(persona_id)` method
   - [ ] Use in Context for state/config queries
 
@@ -154,7 +158,7 @@
 - [ ] Add error handling in SelectNextPost
   - [ ] Catch UnknownStrategyError, return helpful message
   - [ ] Catch NoAvailableClustersError, suggest creating clusters
-  - [ ] Catch NoUnpostedPhotosError, suggest uploading photos or resetting history
+  - [ ] Catch NoUnpostedPhotosError, return error message (no suggestions for new content in this phase)
   - [ ] Log all errors with context for debugging
 
 ## Specs - Models

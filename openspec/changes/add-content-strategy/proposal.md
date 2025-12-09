@@ -15,14 +15,15 @@ We currently have a manual post creation interface that requires users to browse
 - **ADDED**: Content Strategy pack at `packs/content_strategy/`
 - **ADDED**: `ContentStrategy::SelectNextPost` command to intelligently select next photo
 - **ADDED**: Strategy registry system with pluggable posting strategies
-- **ADDED**: `ThemeOfWeekStrategy` - focuses on one cluster theme per week
-- **ADDED**: `ThematicRotationStrategy` - rotates through clusters with variety rules
-- **ADDED**: `ContentStrategy::StrategyState` model to persist strategy state per persona
+- **ADDED**: `ThematicRotationStrategy` - PRIMARY STRATEGY: rotates through clusters with variety rules
+- **ADDED**: `ThemeOfWeekStrategy` - focuses on one cluster theme per week (secondary option)
+- **ADDED**: `ContentStrategy::StrategyState` model to persist strategy state per persona (one active strategy)
 - **ADDED**: `ContentStrategy::HistoryRecord` model to audit posting decisions
-- **ADDED**: Timing optimization concern for calculating optimal posting times
+- **ADDED**: Timing optimization concern for calculating optimal posting times (system timezone)
 - **ADDED**: Variety enforcement concern for content diversity rules
 - **ADDED**: Hashtag engine for intelligent hashtag generation
 - **ADDED**: Strategy configuration via YAML (`config/content_strategy.yml`)
+- **ADDED**: `ContentStrategy::StateCache` using Solid Cache with 5-minute TTL
 - **ADDED**: UI button in post creation to "Get Next Suggested Post"
 - **MODIFIED**: `Scheduling::Post` model to track `cluster_id`, `strategy_name`, `optimal_time_calculated`, `hashtags`
 - **MODIFIED**: Posts controller to support strategy-driven suggestions
@@ -38,7 +39,7 @@ We currently have a manual post creation interface that requires users to browse
   - New migration: Add `cluster_id`, `strategy_name`, `optimal_time_calculated`, `hashtags` to `scheduling_posts`
 - External dependencies:
   - PostgreSQL JSONB for strategy state and config storage
-  - Redis (optional) for state caching
+  - Solid Cache for state caching (5-minute TTL)
 - Breaking changes: None (additive only)
 - Performance considerations:
   - Strategy selection queries optimized with DB indexes
@@ -50,8 +51,8 @@ We currently have a manual post creation interface that requires users to browse
 ### Why Packwerk Pack
 Following project conventions, business logic is organized into domain-specific packs. Content strategy is a distinct domain concern separate from scheduling, clustering, and personas.
 
-### Why Strategy Pattern
-Different personas may need different posting approaches (theme-focused vs. rotation). The strategy pattern allows pluggable algorithms while keeping the selection interface consistent.
+### Why One Strategy Per Persona
+Each persona needs a consistent posting pattern to maintain brand identity. Supporting one active strategy simplifies UI and avoids conflicts. ThematicRotationStrategy is the primary/default choice for content variety.
 
 ### Why State Persistence
 Strategies like "theme of week" need to remember which cluster/week they're on. Stateless approaches would cause random selection, defeating the purpose of structured posting patterns.
@@ -59,8 +60,8 @@ Strategies like "theme of week" need to remember which cluster/week they're on. 
 ### Why JSONB for Config
 Posting rules (frequency, timing windows, variety gaps) vary by environment and persona. JSONB provides flexible storage without schema migrations for config tweaks.
 
-### Why Separate History Table
-Audit trail of "why this photo was selected" is critical for debugging strategy behavior and analyzing posting patterns over time. Separating from posts table keeps scheduling concerns isolated.
+### Why Solid Cache
+Project already uses Solid Cache for database-backed caching. No need for additional Redis dependency. 5-minute TTL provides good balance between freshness and performance.
 
 ## Migration Strategy
 1. Create content_strategy pack structure
@@ -72,11 +73,11 @@ Audit trail of "why this photo was selected" is critical for debugging strategy 
 7. Write specs following turbo-carnival conventions
 8. Test with existing persona/cluster data
 
-## Open Questions
-1. Should we support Redis caching or use Solid Cache?
-2. Do we need to support multiple simultaneous strategies per persona, or just one active strategy?
-3. Should optimal time calculation respect timezone from persona config or use system default?
-4. How should we handle the case where all photos in a cluster are posted?
+## Resolved Questions
+1. **Caching**: Use Solid Cache for all caching needs (state, config lookups)
+2. **Strategy per persona**: One active strategy per persona. Primary strategy is Thematic Rotation.
+3. **Timezone**: Use system default timezone for optimal time calculations
+4. **Exhausted photos**: When no photos available, return error. Frontend will later suggest new content creation (future enhancement).
 
 ## Related Changes
 - Builds on: `add-scheduling` (needs scheduling_posts table)

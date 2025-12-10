@@ -1,33 +1,28 @@
 # frozen_string_literal: true
 
 class Scheduling::PostsController < ApplicationController
+  before_action :set_persona
   before_action :set_photo, only: [:new, :create, :suggest_caption]
 
   def index
     @photos = Clustering::Photo
       .joins(:image_attachment)
+      .where(persona_id: @persona.id)
       .where.not(id: Scheduling::Post.select(:photo_id))
       .order(created_at: :desc)
 
-    @photos = @photos.where(persona_id: params[:persona_id]) if params[:persona_id].present?
     @photos = @photos.where(cluster_id: params[:cluster_id]) if params[:cluster_id].present?
 
-    @personas = Persona.order(:name)
-    @clusters = Clustering::Cluster.order(:name)
+    @clusters = @persona.clusters.order(:name)
   end
 
   def suggest_next
-    if params[:persona_id].blank?
-      redirect_to scheduling_posts_path, alert: "Please select a persona first"
-      return
-    end
-
-    @persona = Persona.find(params[:persona_id])
     result = ContentStrategy::SelectNextPost.new(persona: @persona).call
 
     if result[:success]
       # Redirect to new post form with suggested photo and strategy metadata
-      redirect_to new_scheduling_post_path(
+      redirect_to new_persona_scheduling_post_path(
+        persona_id: @persona.id,
         photo_id: result[:photo].id,
         strategy_name: result[:strategy_name],
         cluster_id: result[:cluster].id,
@@ -35,7 +30,7 @@ class Scheduling::PostsController < ApplicationController
         suggested_hashtags: result[:hashtags].join(' ')
       ), notice: "Photo suggested by #{result[:strategy_name].humanize} strategy"
     else
-      redirect_to scheduling_posts_path, alert: result[:error]
+      redirect_to persona_scheduling_posts_path(@persona), alert: result[:error]
     end
   end
 
@@ -79,13 +74,17 @@ class Scheduling::PostsController < ApplicationController
         generation_time: generation_time,
         word_count: result.text.split.size
       )
-      redirect_to new_scheduling_post_path(photo_id: @photo.id, suggested_caption: @suggested_caption)
+      redirect_to new_persona_scheduling_post_path(persona_id: @persona.id, photo_id: @photo.id, suggested_caption: @suggested_caption)
     else
-      redirect_to new_scheduling_post_path(photo_id: @photo.id), alert: "Caption generation failed: #{result.metadata[:error]}"
+      redirect_to new_persona_scheduling_post_path(persona_id: @persona.id, photo_id: @photo.id), alert: "Caption generation failed: #{result.metadata[:error]}"
     end
   end
 
   private
+
+  def set_persona
+    @persona = Persona.find(params[:persona_id])
+  end
 
   def set_photo
     photo_id = params[:photo_id] || params[:id] || params.dig(:scheduling_post, :photo_id)
@@ -104,7 +103,7 @@ class Scheduling::PostsController < ApplicationController
     )
 
     if result.success?
-      redirect_to scheduling_posts_path, notice: "Post published to Instagram! ID: #{result.post.provider_post_id}"
+      redirect_to persona_scheduling_posts_path(@persona), notice: "Post published to Instagram! ID: #{result.post.provider_post_id}"
     else
       @post.errors.add(:base, result.errors.join(', '))
       render :new, status: :unprocessable_entity
@@ -116,7 +115,7 @@ class Scheduling::PostsController < ApplicationController
     @post.scheduled_at = post_params[:scheduled_at] || 1.hour.from_now
 
     if @post.save
-      redirect_to scheduling_posts_path, notice: "Post scheduled for #{@post.scheduled_at.strftime('%b %d at %I:%M %p')}"
+      redirect_to persona_scheduling_posts_path(@persona), notice: "Post scheduled for #{@post.scheduled_at.strftime('%b %d at %I:%M %p')}"
     else
       render :new, status: :unprocessable_entity
     end

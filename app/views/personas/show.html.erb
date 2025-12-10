@@ -4,12 +4,12 @@
   
   <!-- Actions -->
   <div class="mb-8 flex gap-4">
-    <%= button_to "🎯 Get Next Post Suggestion", suggest_next_scheduling_posts_path(persona_id: @persona.id), method: :post,
+    <%= button_to "🎯 Get Next Post Suggestion", suggest_next_persona_scheduling_posts_path(@persona), method: :post,
                   class: "bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-2 rounded" %>
-    <%= link_to "Browse All Photos", scheduling_posts_path(persona_id: @persona.id),
+    <%= link_to "Browse All Photos", persona_scheduling_posts_path(@persona),
                 class: "bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded inline-block" %>
-    <%= button_to "Run Gap Analysis", persona_gap_analyses_path(@persona), method: :post, 
-                  class: "bg-purple-600 hover:bg-purple-700 text-white font-medium px-6 py-2 rounded" %>
+    <%= link_to "Show Content Suggestions", persona_content_suggestions_path(@persona),
+                class: "bg-purple-600 hover:bg-purple-700 text-white font-medium px-6 py-2 rounded inline-block" %>
     <%= link_to "View Runs", runs_path, 
                 class: "bg-zinc-600 hover:bg-zinc-700 text-white font-medium px-6 py-2 rounded inline-block" %>
   </div>

@@ -1,7 +1,7 @@
 <div class="container mx-auto px-4 py-8 max-w-4xl">
   <!-- Back Button -->
   <div class="mb-4">
-    <%= link_to scheduling_posts_path, class: "text-blue-600 hover:text-blue-800" do %>
+    <%= link_to persona_scheduling_posts_path(@persona), class: "text-blue-600 hover:text-blue-800" do %>
       ← Back to Photo Selection
     <% end %>
   </div>
@@ -74,7 +74,7 @@
           
           <!-- AI Suggestion Button (separate form) -->
           <div class="mb-6">
-            <%= form_with url: suggest_caption_scheduling_post_path(@photo), method: :post do %>
+            <%= form_with url: suggest_caption_persona_scheduling_post_path(@persona, @photo), method: :post do %>
               <%= submit_tag "✨ Get AI Suggestions", 
                             class: "w-full px-4 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors font-semibold cursor-pointer" %>
             <% end %>
@@ -97,7 +97,7 @@
           <% end %>
           
           <!-- Main Post Form -->
-          <%= form_with model: @post, url: scheduling_posts_path, class: "space-y-6" do |f| %>
+          <%= form_with model: @post, url: persona_scheduling_posts_path(@persona), class: "space-y-6" do |f| %>
             <%= f.hidden_field :photo_id, value: @photo.id %>
             
             <!-- Caption Field -->
@@ -134,7 +134,7 @@
             </div>
             
             <div class="text-center">
-              <%= link_to "Cancel", scheduling_posts_path, class: "text-zinc-400 hover:text-zinc-200" %>
+              <%= link_to "Cancel", persona_scheduling_posts_path(@persona), class: "text-zinc-400 hover:text-zinc-200" %>
             </div>
           <% end %>
         <% end %>

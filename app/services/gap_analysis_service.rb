@@ -139,10 +139,17 @@ class GapAnalysisService
   end
 
   def generate_ai_suggestion(pillar, cluster, existing_prompts)
+    caption_config = @persona.caption_config
+    persona_style = []
+    
+    if caption_config
+      persona_style = [caption_config.tone, caption_config.style, caption_config.voice].compact
+    end
+    
     context = {
       persona_name: @persona.name,
-      persona_style: @persona.caption_config&.[]('voice_attributes') || [],
-      persona_topics: @persona.caption_config&.[]('topics') || [],
+      persona_style: persona_style,
+      persona_topics: [],
       pillar_name: pillar.name,
       pillar_description: pillar.description,
       cluster_name: cluster.name,

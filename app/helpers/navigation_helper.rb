@@ -38,17 +38,27 @@ module NavigationHelper
       ]
     when :cluster
       pillar = context[:parent]
-      persona = pillar.persona
-      [
-        { label: "← #{pillar.name}", path: persona_pillar_path(persona, pillar), icon: :arrow_left }
-      ]
+      if pillar
+        persona = pillar.persona
+        [
+          { label: "← #{pillar.name}", path: persona_pillar_path(persona, pillar), icon: :arrow_left }
+        ]
+      else
+        []
+      end
     when :run
       cluster = context[:parent]
-      pillar = cluster.pillar
-      persona = pillar.persona
-      [
-        { label: "← #{cluster.name}", path: persona_pillar_cluster_path(persona, pillar, cluster), icon: :arrow_left }
-      ]
+      pillar = cluster.content_pillar
+      persona = cluster.persona
+      if pillar
+        [
+          { label: "← #{cluster.name}", path: persona_pillar_cluster_path(persona, pillar, cluster), icon: :arrow_left }
+        ]
+      else
+        [
+          { label: "← #{cluster.name}", path: persona_clusters_path(persona), icon: :arrow_left }
+        ]
+      end
     else
       []
     end

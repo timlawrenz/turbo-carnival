@@ -1,6 +1,17 @@
 class RunsController < ApplicationController
   def index
-    @runs = PipelineRun.includes(:pipeline).order(created_at: :desc)
+    @active_runs = PipelineRun.includes(:pipeline)
+                              .where(status: ['pending', 'running'])
+                              .order(created_at: :desc)
+                              .page(params[:active_page])
+                              .per(10)
+    
+    @completed_runs = PipelineRun.includes(:pipeline)
+                                 .where(status: 'completed')
+                                 .order(created_at: :desc)
+                                 .page(params[:completed_page])
+                                 .per(20)
+    
     @pipelines = Pipeline.order(:name)
   end
 
@@ -93,7 +104,11 @@ class RunsController < ApplicationController
       }
     end
     
-    @completion_percentage = (@step_stats.count { |s| s[:complete] }.to_f / @step_stats.size * 100).round
+    @completion_percentage = if @step_stats.size > 0
+      (@step_stats.count { |s| s[:complete] }.to_f / @step_stats.size * 100).round
+    else
+      0
+    end
   end
 
   def card

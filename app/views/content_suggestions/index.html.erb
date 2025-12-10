@@ -1,0 +1,88 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="mb-4">
+    <%= link_to "← Back to #{@persona.name.titleize}", persona_path(@persona), class: "text-blue-400 hover:text-blue-300" %>
+  </div>
+
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h1 class="text-3xl font-bold mb-2">Content Suggestions</h1>
+      <p class="text-zinc-400">All content suggestions for <%= @persona.name.titleize %></p>
+    </div>
+    <%= button_to "Create New Suggestions", persona_gap_analyses_path(@persona), method: :post, 
+                  class: "bg-purple-600 hover:bg-purple-700 text-white font-medium px-6 py-2 rounded" %>
+  </div>
+
+  <% if @content_suggestions.any? %>
+    <div class="space-y-4">
+      <% @content_suggestions.group_by(&:content_pillar).each do |pillar, suggestions| %>
+        <div>
+          <h3 class="text-xl font-semibold mb-3 text-blue-300"><%= pillar.name %></h3>
+          <div class="space-y-3 ml-4">
+            <% suggestions.each do |suggestion| %>
+              <%= render CardComponent.new(classes: suggestion.status == 'used' ? 'bg-green-900/20 border-green-700' : suggestion.status == 'rejected' ? 'opacity-50' : '') do |c| %>
+                <% c.with_body do %>
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <h4 class="font-semibold text-lg mb-2"><%= suggestion.title %></h4>
+                      <p class="text-zinc-300 mb-3"><%= suggestion.description %></p>
+                      
+                      <div class="text-sm text-zinc-400 mb-3">
+                        <strong>From analysis:</strong> <%= time_ago_in_words(suggestion.gap_analysis.analyzed_at) %> ago
+                        <span class="ml-3"><strong>Reason:</strong> <%= suggestion.prompt_data['reason'] %></span>
+                      </div>
+                      
+                      <% if suggestion.prompt_data['existing_prompts']&.any? %>
+                        <details class="text-sm text-zinc-500 mb-3">
+                          <summary class="cursor-pointer hover:text-zinc-400">View existing prompts to avoid</summary>
+                          <ul class="mt-2 ml-4 list-disc">
+                            <% suggestion.prompt_data['existing_prompts'].first(5).each do |prompt| %>
+                              <li><%= prompt %></li>
+                            <% end %>
+                          </ul>
+                        </details>
+                      <% end %>
+                      
+                      <div class="bg-zinc-800 p-3 rounded text-sm font-mono">
+                        <strong class="text-zinc-400">Suggested Prompt:</strong><br>
+                        <%= suggestion.prompt_data['prompt'] %>
+                      </div>
+                    </div>
+                    
+                    <div class="ml-4 flex flex-col gap-2">
+                      <% if suggestion.status == 'pending' %>
+                        <%= button_to "🎨 Generate Images", generate_image_content_suggestion_path(suggestion), 
+                                      method: :post, 
+                                      class: "bg-purple-600 hover:bg-purple-700 text-white text-sm px-4 py-2 rounded whitespace-nowrap font-semibold" %>
+                        <%= button_to "Create Cluster", create_cluster_content_suggestion_path(suggestion), 
+                                      method: :post, 
+                                      class: "bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded whitespace-nowrap" %>
+                        <%= button_to "Mark Used", use_content_suggestion_path(suggestion), 
+                                      method: :post, 
+                                      class: "bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded whitespace-nowrap" %>
+                        <%= button_to "Reject", reject_content_suggestion_path(suggestion), 
+                                      method: :post, 
+                                      class: "bg-zinc-600 hover:bg-zinc-700 text-white text-sm px-4 py-2 rounded whitespace-nowrap" %>
+                      <% else %>
+                        <span class="text-sm px-4 py-2 rounded <%= suggestion.status == 'used' ? 'bg-green-700 text-green-100' : 'bg-zinc-700 text-zinc-300' %>">
+                          <%= suggestion.status.titleize %>
+                        </span>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <%= render CardComponent.new do |c| %>
+      <% c.with_body do %>
+        <p class="text-zinc-400 text-center py-8">
+          No content suggestions yet. Click "Create New Suggestions" to run a gap analysis.
+        </p>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>

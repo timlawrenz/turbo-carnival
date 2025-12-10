@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_09_222814) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_09_235708) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -97,6 +97,31 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_09_222814) do
     t.check_constraint "end_date IS NULL OR start_date IS NULL OR end_date > start_date", name: "date_range_check"
     t.check_constraint "priority >= 1 AND priority <= 5", name: "priority_range_check"
     t.check_constraint "weight >= 0::numeric AND weight <= 100::numeric", name: "weight_range_check"
+  end
+
+  create_table "content_strategy_histories", force: :cascade do |t|
+    t.bigint "persona_id", null: false
+    t.bigint "post_id"
+    t.bigint "cluster_id"
+    t.string "strategy_name", null: false
+    t.jsonb "decision_context", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.index ["cluster_id"], name: "index_content_strategy_histories_on_cluster_id"
+    t.index ["created_at"], name: "index_content_strategy_histories_on_created_at"
+    t.index ["persona_id"], name: "index_content_strategy_histories_on_persona_id"
+    t.index ["post_id"], name: "index_content_strategy_histories_on_post_id"
+    t.index ["strategy_name"], name: "index_content_strategy_histories_on_strategy_name"
+  end
+
+  create_table "content_strategy_states", force: :cascade do |t|
+    t.bigint "persona_id", null: false
+    t.string "active_strategy", default: "thematic_rotation_strategy", null: false
+    t.jsonb "strategy_config", default: {}, null: false
+    t.jsonb "state_data", default: {}, null: false
+    t.datetime "started_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["persona_id"], name: "index_content_strategy_states_on_persona_id", unique: true
   end
 
   create_table "content_suggestions", force: :cascade do |t|
@@ -272,6 +297,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_09_222814) do
   add_foreign_key "comfyui_jobs", "pipeline_runs"
   add_foreign_key "comfyui_jobs", "pipeline_steps"
   add_foreign_key "content_pillars", "personas"
+  add_foreign_key "content_strategy_histories", "clusters"
+  add_foreign_key "content_strategy_histories", "personas"
+  add_foreign_key "content_strategy_histories", "scheduling_posts", column: "post_id"
+  add_foreign_key "content_strategy_states", "personas"
   add_foreign_key "content_suggestions", "content_pillars"
   add_foreign_key "content_suggestions", "gap_analyses"
   add_foreign_key "gap_analyses", "personas"

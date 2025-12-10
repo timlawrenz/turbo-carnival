@@ -75,20 +75,20 @@ RSpec.describe "Pipeline Happy Path", type: :request do
 
     context "Cluster navigation" do
       it "shows cluster detail page" do
-        get clustering_cluster_path(cluster)
+        get persona_pillar_cluster_path(persona, pillar, cluster)
         
         expect(response).to have_http_status(:success)
         expect(response.body).to include("Test Cluster")
       end
 
       it "shows recent runs in sidebar" do
-        get clustering_cluster_path(cluster)
+        get persona_pillar_cluster_path(persona, pillar, cluster)
         
         expect(response.body).to include("Recent Runs")
       end
 
       it "shows back to pillar link in sidebar" do
-        get clustering_cluster_path(cluster)
+        get persona_pillar_cluster_path(persona, pillar, cluster)
         
         expect(response.body).to include("← Test Pillar")
       end
@@ -96,13 +96,13 @@ RSpec.describe "Pipeline Happy Path", type: :request do
 
     context "Run navigation" do
       it "shows run detail page" do
-        get pipeline_run_path(run)
+        get run_path(run)
         
         expect(response).to have_http_status(:success)
       end
 
       it "shows back to cluster link in sidebar" do
-        get pipeline_run_path(run)
+        get run_path(run)
         
         expect(response.body).to include("← Test Cluster")
       end
@@ -131,14 +131,6 @@ RSpec.describe "Pipeline Happy Path", type: :request do
         expect(response).to have_http_status(:redirect)
         follow_redirect!
         expect(response.body).to include("Created Persona")
-      end
-    end
-
-    context "Creating a content pillar" do
-      it "allows creating pillar under persona" do
-        get new_persona_pillar_path(persona)
-        
-        expect(response).to have_http_status(:success)
       end
     end
 

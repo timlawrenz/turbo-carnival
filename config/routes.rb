@@ -66,6 +66,9 @@ Rails.application.routes.draw do
     # Gap analyses
     resources :gap_analyses, only: [:index, :show, :create]
     
+    # Content suggestions
+    resources :content_suggestions, only: [:index]
+    
     # Nested pillars
     resources :pillars, only: [:show], controller: 'content_pillars' do
       member do
@@ -82,6 +85,18 @@ Rails.application.routes.draw do
     
     # Direct cluster access (for convenience)
     resources :clusters, only: [:index], controller: 'clustering/clusters'
+    
+    # Scheduling and Posts
+    namespace :scheduling do
+      resources :posts, only: [:index, :new, :create] do
+        member do
+          post :suggest_caption
+        end
+        collection do
+          post :suggest_next
+        end
+      end
+    end
   end
   
   # Content suggestions
@@ -91,18 +106,6 @@ Rails.application.routes.draw do
       post :reject
       post :create_cluster
       post :generate_image
-    end
-  end
-
-  # Scheduling and Posts
-  namespace :scheduling do
-    resources :posts, only: [:index, :new, :create] do
-      member do
-        post :suggest_caption
-      end
-      collection do
-        post :suggest_next
-      end
     end
   end
 end

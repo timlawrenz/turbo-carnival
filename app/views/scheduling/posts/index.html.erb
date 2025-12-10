@@ -1,34 +1,18 @@
 <div class="container mx-auto px-4 py-8">
   <div class="flex justify-between items-center mb-6">
-    <h1 class="text-3xl font-bold">Create a Post</h1>
+    <h1 class="text-3xl font-bold">Create a Post - <%= @persona.name.titleize %></h1>
     
     <!-- Strategy Suggestion Button -->
-    <% if @personas.any? %>
-      <%= form_with url: suggest_next_scheduling_posts_path, method: :post, class: "inline" do |f| %>
-        <div class="flex gap-2 items-center">
-          <%= f.select :persona_id,
-                       options_from_collection_for_select(@personas, :id, :name),
-                       { prompt: "Select Persona" },
-                       class: "px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:ring-2 focus:ring-green-500" %>
-          <%= f.submit "🎯 Get Next Suggested Post",
-                       class: "px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors font-medium" %>
-        </div>
-      <% end %>
+    <%= form_with url: suggest_next_persona_scheduling_posts_path(@persona), method: :post, class: "inline" do |f| %>
+      <%= f.submit "🎯 Get Next Suggested Post",
+                   class: "px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors font-medium" %>
     <% end %>
   </div>
   
   <!-- Filters -->
   <%= render CardComponent.new(classes: "mb-6") do |c| %>
     <% c.with_body do %>
-      <%= form_with url: scheduling_posts_path, method: :get, class: "flex gap-4" do |f| %>
-        <div class="flex-1">
-          <%= f.label :persona_id, "Filter by Persona", class: "block text-sm font-medium mb-2" %>
-          <%= f.select :persona_id, 
-                       options_from_collection_for_select(@personas, :id, :name, params[:persona_id]),
-                       { include_blank: "All Personas" },
-                       class: "w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:ring-2 focus:ring-blue-500" %>
-        </div>
-        
+      <%= form_with url: persona_scheduling_posts_path(@persona), method: :get, class: "flex gap-4" do |f| %>
         <div class="flex-1">
           <%= f.label :cluster_id, "Filter by Cluster", class: "block text-sm font-medium mb-2" %>
           <%= f.select :cluster_id,
@@ -58,13 +42,6 @@
             
             <!-- Photo Info -->
             <div class="space-y-2 mb-4">
-              <% if photo.persona %>
-                <div class="text-sm">
-                  <span class="font-semibold">Persona:</span>
-                  <span class="text-zinc-400"><%= photo.persona.name.titleize %></span>
-                </div>
-              <% end %>
-              
               <% if photo.cluster %>
                 <div class="text-sm">
                   <span class="font-semibold">Cluster:</span>
@@ -79,7 +56,7 @@
             
             <!-- Create Post Button -->
             <%= link_to "Create Post", 
-                       new_scheduling_post_path(photo_id: photo.id),
+                       new_persona_scheduling_post_path(@persona, photo_id: photo.id),
                        class: "block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors" %>
           <% end %>
         <% end %>

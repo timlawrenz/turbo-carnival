@@ -1,5 +1,14 @@
 class ContentSuggestionsController < ApplicationController
-  before_action :set_content_suggestion
+  before_action :set_persona, only: [:index]
+  before_action :set_content_suggestion, except: [:index]
+
+  def index
+    @content_suggestions = ContentSuggestion
+      .joins(:gap_analysis)
+      .where(gap_analyses: { persona_id: @persona.id })
+      .includes(:content_pillar, :gap_analysis)
+      .order(created_at: :desc)
+  end
 
   def use
     @content_suggestion.mark_as_used!
@@ -70,6 +79,10 @@ class ContentSuggestionsController < ApplicationController
   end
 
   private
+
+  def set_persona
+    @persona = Persona.find(params[:persona_id])
+  end
 
   def set_content_suggestion
     @content_suggestion = ContentSuggestion.find(params[:id])

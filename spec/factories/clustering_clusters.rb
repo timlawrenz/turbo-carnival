@@ -2,13 +2,20 @@
 
 FactoryBot.define do
   factory :clustering_cluster, class: "Clustering::Cluster" do
-    association :persona
+    persona
     name { "Cluster #{rand(1000)}" }
-    description { "A test cluster" }
+    ai_prompt { "A test cluster prompt" }
     
     # Create pillar association after cluster is created
+    after(:build) do |cluster, evaluator|
+      # If a pillar is provided, use its persona
+      if evaluator.pillar
+        cluster.persona = evaluator.pillar.persona
+      end
+    end
+    
     after(:create) do |cluster, evaluator|
-      if evaluator.respond_to?(:pillar) && evaluator.pillar
+      if evaluator.pillar
         PillarClusterAssignment.create!(
           pillar: evaluator.pillar,
           cluster: cluster,

@@ -91,3 +91,4 @@ gem "tailwindcss-rails"
 gem "lookbook", group: :development
 
 gem "aws-sdk-s3", "~> 1.206"
+gem "kaminari"

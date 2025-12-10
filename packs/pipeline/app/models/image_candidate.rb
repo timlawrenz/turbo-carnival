@@ -76,12 +76,13 @@ class ImageCandidate < ApplicationRecord
   def create_photo_record
     return unless image_path.present?
     return if photo.present? # Already has a photo record
+    return unless pipeline_run.content_pillar_id.present?
 
-    cluster = Clustering::Cluster.find(pipeline_run.cluster_id)
+    pillar = ContentPillar.find(pipeline_run.content_pillar_id)
     
-    created_photo = Clustering::Photo.create!(
-      persona: cluster.persona,
-      cluster: cluster,
+    created_photo = ContentPillars::Photo.create!(
+      persona: pillar.persona,
+      content_pillar: pillar,
       path: image_path,
       image_candidate: self
     )

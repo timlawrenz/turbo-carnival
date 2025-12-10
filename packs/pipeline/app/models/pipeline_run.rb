@@ -3,7 +3,7 @@ class PipelineRun < ApplicationRecord
 
   belongs_to :pipeline, touch: true
   belongs_to :persona, optional: true
-  belongs_to :cluster, class_name: 'Clustering::Cluster', optional: true
+  belongs_to :content_pillar, class_name: 'ContentPillar', optional: true
   has_many :image_candidates, dependent: :destroy
   has_many :pipeline_run_steps, dependent: :destroy
 
@@ -12,7 +12,7 @@ class PipelineRun < ApplicationRecord
 
   after_create :create_pipeline_run_steps
   after_update_commit :broadcast_run_update
-  after_update :link_winner_to_cluster_if_completed, if: :saved_change_to_status?
+  after_update :link_winner_to_pillar_if_completed, if: :saved_change_to_status?
 
   def step_approved?(step)
     pipeline_run_steps.find_by(pipeline_step: step)&.approved? || false
@@ -56,11 +56,11 @@ class PipelineRun < ApplicationRecord
     end
   end
 
-  def link_winner_to_cluster_if_completed
+  def link_winner_to_pillar_if_completed
     return unless status == 'completed'
-    return unless cluster_id.present?
+    return unless content_pillar_id.present?
 
-    Clustering::LinkWinnerToCluster.call(self)
+    ContentPillars::LinkWinnerToPillar.call(self)
   rescue StandardError => e
     Rails.logger.error("Failed to auto-link winner for run #{id}: #{e.message}")
     # Don't fail the run completion, just log the error

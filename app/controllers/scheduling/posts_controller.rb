@@ -2,7 +2,6 @@
 
 class Scheduling::PostsController < ApplicationController
   before_action :set_photo, only: [:new, :create, :suggest_caption]
-  before_action :set_persona, only: [:suggest_next]
 
   def index
     @photos = Clustering::Photo
@@ -23,6 +22,7 @@ class Scheduling::PostsController < ApplicationController
       return
     end
 
+    @persona = Persona.find(params[:persona_id])
     result = ContentStrategy::SelectNextPost.new(persona: @persona).call
 
     if result[:success]
@@ -86,10 +86,6 @@ class Scheduling::PostsController < ApplicationController
   end
 
   private
-
-  def set_persona
-    @persona = Persona.find(params[:persona_id])
-  end
 
   def set_photo
     photo_id = params[:photo_id] || params[:id] || params.dig(:scheduling_post, :photo_id)

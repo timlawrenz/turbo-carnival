@@ -4,14 +4,18 @@
   
   <!-- Actions -->
   <div class="mb-8 flex gap-4">
+    <%= button_to "🎯 Get Next Post Suggestion", suggest_next_scheduling_posts_path(persona_id: @persona.id), method: :post,
+                  class: "bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-2 rounded" %>
+    <%= link_to "Browse All Photos", scheduling_posts_path(persona_id: @persona.id),
+                class: "bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded inline-block" %>
     <%= button_to "Run Gap Analysis", persona_gap_analyses_path(@persona), method: :post, 
-                  class: "bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded" %>
+                  class: "bg-purple-600 hover:bg-purple-700 text-white font-medium px-6 py-2 rounded" %>
     <%= link_to "View Runs", runs_path, 
-                class: "bg-purple-600 hover:bg-purple-700 text-white font-medium px-6 py-2 rounded inline-block" %>
+                class: "bg-zinc-600 hover:bg-zinc-700 text-white font-medium px-6 py-2 rounded inline-block" %>
   </div>
   
   <!-- Stats -->
-  <div class="grid grid-cols-3 gap-4 mb-8">
+  <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
     <%= render CardComponent.new do |c| %>
       <% c.with_body do %>
         <div class="text-2xl font-bold"><%= @pillars.count %></div>
@@ -27,7 +31,25 @@
     <%= render CardComponent.new do |c| %>
       <% c.with_body do %>
         <div class="text-2xl font-bold"><%= @total_photos %></div>
-        <div class="text-zinc-400">Photos</div>
+        <div class="text-zinc-400">Total Photos</div>
+      <% end %>
+    <% end %>
+    <%= render CardComponent.new do |c| %>
+      <% c.with_body do %>
+        <div class="text-2xl font-bold text-green-400"><%= @unposted_photos %></div>
+        <div class="text-zinc-400">Available</div>
+      <% end %>
+    <% end %>
+    <%= render CardComponent.new do |c| %>
+      <% c.with_body do %>
+        <div class="text-2xl font-bold text-blue-400"><%= @scheduled_posts %></div>
+        <div class="text-zinc-400">Scheduled</div>
+      <% end %>
+    <% end %>
+    <%= render CardComponent.new do |c| %>
+      <% c.with_body do %>
+        <div class="text-2xl font-bold text-purple-400"><%= @posted_count %></div>
+        <div class="text-zinc-400">Posted</div>
       <% end %>
     <% end %>
   </div>

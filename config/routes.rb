@@ -100,6 +100,9 @@ Rails.application.routes.draw do
       member do
         post :suggest_caption
       end
+      collection do
+        post :suggest_next
+      end
     end
   end
 end

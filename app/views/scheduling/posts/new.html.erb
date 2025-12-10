@@ -42,6 +42,25 @@
                 </div>
               <% end %>
             <% end %>
+            
+            <!-- Strategy Metadata (if suggested) -->
+            <% if @strategy_name.present? %>
+              <div class="border-t border-zinc-700 pt-3 mt-3">
+                <div class="mb-2">
+                  <span class="font-semibold text-green-400">✓ Strategy Suggested</span>
+                </div>
+                <div>
+                  <span class="font-semibold">Strategy:</span>
+                  <span class="text-zinc-400"><%= @strategy_name.humanize %></span>
+                </div>
+                <% if @optimal_time.present? %>
+                  <div>
+                    <span class="font-semibold">Optimal Time:</span>
+                    <span class="text-zinc-400"><%= Time.parse(@optimal_time).strftime('%b %d at %I:%M %p') %></span>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
           </div>
         <% end %>
       <% end %>

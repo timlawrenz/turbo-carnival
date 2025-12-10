@@ -2,6 +2,7 @@
 
 class Scheduling::PostsController < ApplicationController
   before_action :set_photo, only: [:new, :create, :suggest_caption]
+  before_action :set_persona, only: [:suggest_next]
 
   def index
     @photos = Clustering::Photo
@@ -16,9 +17,32 @@ class Scheduling::PostsController < ApplicationController
     @clusters = Clustering::Cluster.order(:name)
   end
 
+  def suggest_next
+    result = ContentStrategy::SelectNextPost.new(persona: @persona).call
+
+    if result[:success]
+      # Redirect to new post form with suggested photo and strategy metadata
+      redirect_to new_scheduling_post_path(
+        photo_id: result[:photo].id,
+        strategy_name: result[:strategy_name],
+        cluster_id: result[:cluster].id,
+        optimal_time: result[:optimal_time],
+        suggested_hashtags: result[:hashtags].join(' ')
+      ), notice: "Photo suggested by #{result[:strategy_name].humanize} strategy"
+    else
+      redirect_to scheduling_posts_path, alert: result[:error]
+    end
+  end
+
   def new
     @post = Scheduling::Post.new(photo: @photo, persona: @photo.persona)
     @suggested_caption = params[:suggested_caption]
+    
+    # Strategy metadata if coming from suggest_next
+    @strategy_name = params[:strategy_name]
+    @cluster_id = params[:cluster_id]
+    @optimal_time = params[:optimal_time]
+    @suggested_hashtags = params[:suggested_hashtags]
   end
 
   def create
@@ -57,6 +81,10 @@ class Scheduling::PostsController < ApplicationController
   end
 
   private
+
+  def set_persona
+    @persona = Persona.find(params[:persona_id])
+  end
 
   def set_photo
     photo_id = params[:photo_id] || params[:id] || params.dig(:scheduling_post, :photo_id)

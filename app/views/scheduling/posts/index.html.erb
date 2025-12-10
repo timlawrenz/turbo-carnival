@@ -1,5 +1,21 @@
 <div class="container mx-auto px-4 py-8">
-  <h1 class="text-3xl font-bold mb-6">Create a Post</h1>
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">Create a Post</h1>
+    
+    <!-- Strategy Suggestion Button -->
+    <% if @personas.any? %>
+      <%= form_with url: suggest_next_scheduling_posts_path, method: :post, class: "inline" do |f| %>
+        <div class="flex gap-2 items-center">
+          <%= f.select :persona_id,
+                       options_from_collection_for_select(@personas, :id, :name),
+                       { prompt: "Select Persona" },
+                       class: "px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:ring-2 focus:ring-green-500" %>
+          <%= f.submit "🎯 Get Next Suggested Post",
+                       class: "px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors font-medium" %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
   
   <!-- Filters -->
   <%= render CardComponent.new(classes: "mb-6") do |c| %>

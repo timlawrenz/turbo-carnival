@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Helper for building hierarchical navigation breadcrumbs
-# Supports: Dashboard -> Persona -> Pillar -> Cluster -> Run
+# Supports: Dashboard -> Persona -> Pillar -> Run
 module NavigationHelper
   # Returns the current navigation context based on controller/action
   # @return [Hash] with :level, :resource, :parent keys
@@ -11,8 +11,6 @@ module NavigationHelper
       persona_context
     when "content_pillars"
       pillar_context
-    when "clusters"
-      cluster_context
     when "runs", "pipeline_runs"
       run_context
     else
@@ -36,7 +34,7 @@ module NavigationHelper
       [
         { label: "← #{context[:parent].name}", path: persona_path(context[:parent]), icon: :arrow_left }
       ]
-    when :cluster
+    when :run
       pillar = context[:parent]
       if pillar
         persona = pillar.persona
@@ -45,19 +43,6 @@ module NavigationHelper
         ]
       else
         []
-      end
-    when :run
-      cluster = context[:parent]
-      pillar = cluster.content_pillar
-      persona = cluster.persona
-      if pillar
-        [
-          { label: "← #{cluster.name}", path: persona_pillar_cluster_path(persona, pillar, cluster), icon: :arrow_left }
-        ]
-      else
-        [
-          { label: "← #{cluster.name}", path: persona_clusters_path(persona), icon: :arrow_left }
-        ]
       end
     else
       []
@@ -76,8 +61,6 @@ module NavigationHelper
       persona_items(context[:resource])
     when :pillar
       pillar_items(context[:resource])
-    when :cluster
-      cluster_items(context[:resource])
     when :run
       run_items(context[:resource])
     else
@@ -95,9 +78,9 @@ module NavigationHelper
     when :persona
       "Content Pillars"
     when :pillar
-      "Clusters"
-    when :cluster
-      "Recent Runs"
+      "Photos"
+    when :run
+      "Run Details"
     when :run
       "Run Details"
     else
@@ -129,21 +112,10 @@ module NavigationHelper
     end
   end
 
-  def cluster_context
-    cluster = @cluster || Clustering::Cluster.find_by(id: params[:id])
-    if cluster
-      # Use content_pillar convenience method which returns primary or first pillar
-      pillar = cluster.content_pillar
-      { level: :cluster, resource: cluster, parent: pillar }
-    else
-      dashboard_context
-    end
-  end
-
   def run_context
     run = @run || PipelineRun.find_by(id: params[:id])
-    if run && run.cluster
-      { level: :run, resource: run, parent: run.cluster }
+    if run && run.content_pillar
+      { level: :run, resource: run, parent: run.content_pillar }
     else
       dashboard_context
     end
@@ -174,24 +146,12 @@ module NavigationHelper
   def pillar_items(pillar)
     return [] unless pillar
 
-    # Get clusters associated with this pillar
-    Clustering::Cluster.for_pillar(pillar).map do |cluster|
+    # Show photos in this pillar
+    pillar.photos.order(created_at: :desc).limit(20).map do |photo|
       {
-        label: cluster.name,
-        path: persona_pillar_cluster_path(pillar.persona, pillar, cluster),
-        current: cluster.id == params[:id]&.to_i
-      }
-    end
-  end
-
-  def cluster_items(cluster)
-    return [] unless cluster
-
-    cluster.pipeline_runs.order(created_at: :desc).limit(20).map do |run|
-      {
-        label: "Run ##{run.id} - #{run.status}",
-        path: run_path(run),
-        current: run.id == params[:id]&.to_i
+        label: "Photo ##{photo.id}",
+        path: "#", # Could link to photo detail if we had one
+        current: false
       }
     end
   end

@@ -11,9 +11,9 @@ class Scheduling::PostsController < ApplicationController
       .where.not(id: Scheduling::Post.select(:photo_id))
       .order(created_at: :desc)
 
-    @photos = @photos.where(cluster_id: params[:cluster_id]) if params[:cluster_id].present?
+    @photos = @photos.where(content_pillar_id: params[:pillar_id]) if params[:pillar_id].present?
 
-    @clusters = @persona.clusters.order(:name)
+    @pillars = @persona.content_pillars.order(:name)
   end
 
   def suggest_next
@@ -25,9 +25,9 @@ class Scheduling::PostsController < ApplicationController
         persona_id: @persona.id,
         photo_id: result[:photo].id,
         strategy_name: result[:strategy_name],
-        cluster_id: result[:cluster].id,
+        # cluster_id: result[:cluster]&.id, # Removed - using pillar-based architecture
         optimal_time: result[:optimal_time],
-        suggested_hashtags: result[:hashtags].join(' ')
+        suggested_hashtags: result[:hashtags]&.join(' ')
       ), notice: "Photo suggested by #{result[:strategy_name].humanize} strategy"
     else
       redirect_to persona_scheduling_posts_path(@persona), alert: result[:error]
@@ -40,7 +40,6 @@ class Scheduling::PostsController < ApplicationController
     
     # Strategy metadata if coming from suggest_next
     @strategy_name = params[:strategy_name]
-    @cluster_id = params[:cluster_id]
     @optimal_time = params[:optimal_time]
     @suggested_hashtags = params[:suggested_hashtags]
   end
@@ -64,7 +63,7 @@ class Scheduling::PostsController < ApplicationController
     result = CaptionGeneration::Generator.generate(
       photo: @photo,
       persona: @photo.persona,
-      cluster: @photo.cluster
+      pillar: @photo.content_pillar
     )
     generation_time = (Time.current - start_time).round(1)
 

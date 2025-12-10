@@ -18,6 +18,11 @@ class Scheduling::PostsController < ApplicationController
   end
 
   def suggest_next
+    if params[:persona_id].blank?
+      redirect_to scheduling_posts_path, alert: "Please select a persona first"
+      return
+    end
+
     result = ContentStrategy::SelectNextPost.new(persona: @persona).call
 
     if result[:success]

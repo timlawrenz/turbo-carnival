@@ -7,7 +7,7 @@ module ContentPillars
     has_one_attached :image
 
     belongs_to :persona
-    belongs_to :content_pillar, class_name: 'ContentPillar', counter_cache: :photos_count
+    belongs_to :content_pillar, class_name: 'ContentPillar'
     belongs_to :image_candidate, class_name: 'ImageCandidate', optional: true
 
     validates :path, presence: true, uniqueness: true

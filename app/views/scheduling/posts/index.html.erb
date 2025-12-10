@@ -14,10 +14,10 @@
     <% c.with_body do %>
       <%= form_with url: persona_scheduling_posts_path(@persona), method: :get, class: "flex gap-4" do |f| %>
         <div class="flex-1">
-          <%= f.label :cluster_id, "Filter by Cluster", class: "block text-sm font-medium mb-2" %>
-          <%= f.select :cluster_id,
-                       options_from_collection_for_select(@clusters, :id, :name, params[:cluster_id]),
-                       { include_blank: "All Clusters" },
+          <%= f.label :pillar_id, "Filter by Pillar", class: "block text-sm font-medium mb-2" %>
+          <%= f.select :pillar_id,
+                       options_from_collection_for_select(@pillars, :id, :name, params[:pillar_id]),
+                       { include_blank: "All Pillars" },
                        class: "w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:ring-2 focus:ring-blue-500" %>
         </div>
         
@@ -42,10 +42,10 @@
             
             <!-- Photo Info -->
             <div class="space-y-2 mb-4">
-              <% if photo.cluster %>
+              <% if photo.content_pillar %>
                 <div class="text-sm">
-                  <span class="font-semibold">Cluster:</span>
-                  <span class="text-zinc-400"><%= photo.cluster.name %></span>
+                  <span class="font-semibold">Pillar:</span>
+                  <span class="text-zinc-400"><%= photo.content_pillar.name %></span>
                 </div>
               <% end %>
               
@@ -66,7 +66,7 @@
     <%= render CardComponent.new do |c| %>
       <% c.with_body do %>
         <p class="text-zinc-400 text-center py-8">
-          No unposted photos available. Upload photos to your clusters first.
+          No unposted photos available. Generate photos in your pillars first.
         </p>
       <% end %>
     <% end %>

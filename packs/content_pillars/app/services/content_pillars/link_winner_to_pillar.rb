@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module Clustering
-  class LinkWinnerToCluster
+module ContentPillars
+  class LinkWinnerToPillar
     def self.call(run)
       new(run).call
     end
@@ -22,8 +22,8 @@ module Clustering
     private
 
     def should_link?
-      unless @run.cluster_id.present?
-        Rails.logger.debug("Run #{@run.id} has no cluster, skipping auto-linking")
+      unless @run.content_pillar_id.present?
+        Rails.logger.debug("Run #{@run.id} has no pillar, skipping auto-linking")
         return false
       end
 
@@ -41,10 +41,10 @@ module Clustering
     end
 
     def create_photo(winner)
-      photo = CreatePhotoFromCandidate.call(winner, @run.cluster)
+      photo = ContentPillars::CreatePhotoFromCandidate.call(winner, @run.content_pillar)
 
       if photo
-        Rails.logger.info("Auto-linked winner #{winner.id} to cluster #{@run.cluster.name} (photo #{photo.id})")
+        Rails.logger.info("Auto-linked winner #{winner.id} to pillar #{@run.content_pillar.name} (photo #{photo.id})")
         photo
       else
         Rails.logger.error("Failed to create photo from winner #{winner.id}")

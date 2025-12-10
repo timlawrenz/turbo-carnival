@@ -18,13 +18,14 @@ class RunsController < ApplicationController
   def new
     @pipelines = Pipeline.order(:name)
     @personas = Persona.order(:name)
+    @pillars = ContentPillar.order(:name)
     @run = PipelineRun.new
     
-    # Pre-select persona/cluster if coming from cluster page
-    if params[:cluster_id].present?
-      cluster = Clustering::Cluster.find(params[:cluster_id])
-      @run.cluster = cluster
-      @run.persona = cluster.persona
+    # Pre-select persona/pillar if coming from pillar page
+    if params[:content_pillar_id].present?
+      pillar = ContentPillar.find(params[:content_pillar_id])
+      @run.content_pillar = pillar
+      @run.persona = pillar.persona
     elsif params[:persona_id].present?
       @run.persona = Persona.find(params[:persona_id])
     end
@@ -37,7 +38,7 @@ class RunsController < ApplicationController
       prompt: run_params[:prompt],
       target_folder: run_params[:target_folder],
       persona_id: run_params[:persona_id],
-      cluster_id: run_params[:cluster_id],
+      content_pillar_id: run_params[:content_pillar_id],
       variables: parse_variables(run_params[:variables])
     )
 
@@ -147,7 +148,7 @@ class RunsController < ApplicationController
   private
 
   def run_params
-    params.require(:pipeline_run).permit(:pipeline_id, :name, :prompt, :target_folder, :persona_id, :cluster_id, :variables)
+    params.require(:pipeline_run).permit(:pipeline_id, :name, :prompt, :target_folder, :persona_id, :content_pillar_id, :variables)
   end
 
   def parse_variables(variables_string)

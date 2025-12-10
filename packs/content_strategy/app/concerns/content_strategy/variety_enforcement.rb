@@ -7,8 +7,9 @@ module ContentStrategy
       eligible = clusters.dup
 
       # Filter out clusters used within min days gap
-      recent_cluster_ids = context.history
-        .where('created_at >= ?', config.variety_min_days_gap.days.ago)
+      recent_cluster_ids = HistoryRecord
+        .for_persona(context.persona.id)
+        .where('content_strategy_histories.created_at >= ?', config.variety_min_days_gap.days.ago)
         .pluck(:cluster_id)
         .compact
         .uniq
@@ -17,8 +18,9 @@ module ContentStrategy
 
       # Filter out clusters exceeding max same cluster per week
       week_start = 1.week.ago
-      overused_cluster_ids = context.history
-        .where('created_at >= ?', week_start)
+      overused_cluster_ids = HistoryRecord
+        .for_persona(context.persona.id)
+        .where('content_strategy_histories.created_at >= ?', week_start)
         .group(:cluster_id)
         .having('COUNT(*) >= ?', config.variety_max_same_cluster)
         .pluck(:cluster_id)
@@ -38,10 +40,10 @@ module ContentStrategy
     private
 
     def least_recently_used_cluster(clusters)
-      cluster_last_used = context.history
+      cluster_last_used = HistoryRecord
         .where(cluster_id: clusters.map(&:id))
         .group(:cluster_id)
-        .maximum(:created_at)
+        .maximum('content_strategy_histories.created_at')
 
       # Find cluster with oldest last_used time, or never used
       clusters.min_by do |cluster|

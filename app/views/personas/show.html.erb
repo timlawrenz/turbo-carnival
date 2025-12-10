@@ -15,17 +15,11 @@
   </div>
   
   <!-- Stats -->
-  <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
+  <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
     <%= render CardComponent.new do |c| %>
       <% c.with_body do %>
         <div class="text-2xl font-bold"><%= @pillars.count %></div>
         <div class="text-zinc-400">Pillars</div>
-      <% end %>
-    <% end %>
-    <%= render CardComponent.new do |c| %>
-      <% c.with_body do %>
-        <div class="text-2xl font-bold"><%= @total_clusters %></div>
-        <div class="text-zinc-400">Clusters</div>
       <% end %>
     <% end %>
     <%= render CardComponent.new do |c| %>
@@ -68,36 +62,11 @@
               <% end %>
             </div>
             <div class="text-zinc-400">
-              <%= pluralize(pillar.clusters.count, 'cluster') %> →
+              <%= pluralize(pillar.photos.count, 'photo') %> →
             </div>
           <% end %>
         <% end %>
       <% end %>
     <% end %>
   </div>
-
-  <!-- Recent Clusters -->
-  <% if @clusters.any? %>
-    <h2 class="text-2xl font-semibold mt-8 mb-4">Recent Clusters</h2>
-    <div class="space-y-3">
-      <% @clusters.each do |cluster| %>
-        <%= render CardComponent.new(classes: "hover:bg-zinc-700 transition") do |c| %>
-          <% c.with_body do %>
-            <% pillar = cluster.pillars.first %>
-            <%= link_to (pillar ? persona_pillar_cluster_path(@persona, pillar, cluster) : persona_clusters_path(@persona)), class: "block" do %>
-              <h3 class="font-semibold"><%= cluster.name %></h3>
-              <div class="text-sm text-zinc-400 mt-1">
-                <% if pillar %>
-                  <span class="inline-block bg-zinc-700 rounded px-2 py-1"><%= pillar.name %></span>
-                <% end %>
-                <span class="ml-2"><%= pluralize(cluster.photos.count, 'photo') %></span>
-                <span class="ml-2">·</span>
-                <span class="ml-2"><%= cluster.created_at.strftime('%b %d, %Y') %></span>
-              </div>
-            <% end %>
-          <% end %>
-        <% end %>
-      <% end %>
-    </div>
-  <% end %>
 </div>

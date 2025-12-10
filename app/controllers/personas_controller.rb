@@ -9,9 +9,7 @@ class PersonasController < ApplicationController
 
   def show
     @pillars = @persona.content_pillars.order(:name)
-    @clusters = @persona.clusters.includes(:pillars).order(created_at: :desc).limit(5)
     @total_photos = @persona.photos.count
-    @total_clusters = @persona.clusters.count
     @unposted_photos = @persona.photos.unposted.count
     @scheduled_posts = Scheduling::Post.where(persona: @persona, status: ['draft', 'scheduled']).count
     @posted_count = Scheduling::Post.where(persona: @persona, status: 'posted').count

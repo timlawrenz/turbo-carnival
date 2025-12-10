@@ -74,17 +74,7 @@ Rails.application.routes.draw do
       member do
         get :suggest
       end
-      
-      # Nested clusters under pillars
-      resources :clusters, only: [:show, :new, :create], controller: 'clustering/clusters' do
-        member do
-          post :upload_photos
-        end
-      end
     end
-    
-    # Direct cluster access (for convenience)
-    resources :clusters, only: [:index], controller: 'clustering/clusters'
     
     # Scheduling and Posts
     namespace :scheduling do
@@ -104,7 +94,6 @@ Rails.application.routes.draw do
     member do
       post :use
       post :reject
-      post :create_cluster
       post :generate_image
     end
   end

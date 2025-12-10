@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_09_235708) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_10_143152) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,18 +40,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_09_235708) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
-  end
-
-  create_table "clusters", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.bigint "persona_id", null: false
-    t.string "name", null: false
-    t.text "ai_prompt"
-    t.string "status", default: "active", null: false
-    t.integer "photos_count", default: 0, null: false
-    t.index ["persona_id", "name"], name: "index_clusters_on_persona_id_and_name", unique: true
-    t.index ["persona_id"], name: "index_clusters_on_persona_id"
   end
 
   create_table "comfyui_jobs", force: :cascade do |t|
@@ -102,11 +90,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_09_235708) do
   create_table "content_strategy_histories", force: :cascade do |t|
     t.bigint "persona_id", null: false
     t.bigint "post_id"
-    t.bigint "cluster_id"
     t.string "strategy_name", null: false
     t.jsonb "decision_context", default: {}, null: false
     t.datetime "created_at", null: false
-    t.index ["cluster_id"], name: "index_content_strategy_histories_on_cluster_id"
     t.index ["created_at"], name: "index_content_strategy_histories_on_created_at"
     t.index ["persona_id"], name: "index_content_strategy_histories_on_persona_id"
     t.index ["post_id"], name: "index_content_strategy_histories_on_post_id"
@@ -181,27 +167,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_09_235708) do
 
   create_table "photos", force: :cascade do |t|
     t.bigint "persona_id", null: false
-    t.bigint "cluster_id"
     t.string "path", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "image_candidate_id"
-    t.index ["cluster_id"], name: "index_photos_on_cluster_id"
+    t.bigint "content_pillar_id"
+    t.index ["content_pillar_id"], name: "index_photos_on_content_pillar_id"
     t.index ["image_candidate_id"], name: "index_photos_on_image_candidate_id", unique: true
     t.index ["path"], name: "index_photos_on_path", unique: true
     t.index ["persona_id"], name: "index_photos_on_persona_id"
-  end
-
-  create_table "pillar_cluster_assignments", force: :cascade do |t|
-    t.bigint "pillar_id", null: false
-    t.bigint "cluster_id"
-    t.boolean "primary", default: false, null: false
-    t.text "notes"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["cluster_id"], name: "index_pillar_cluster_assignments_on_cluster_id"
-    t.index ["pillar_id", "cluster_id"], name: "index_pillar_cluster_unique", unique: true
-    t.index ["pillar_id"], name: "index_pillar_cluster_assignments_on_pillar_id"
   end
 
   create_table "pipeline_run_steps", force: :cascade do |t|
@@ -227,8 +201,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_09_235708) do
     t.datetime "updated_at", null: false
     t.string "prompt"
     t.bigint "persona_id"
-    t.bigint "cluster_id"
-    t.index ["cluster_id"], name: "index_pipeline_runs_on_cluster_id"
+    t.bigint "content_pillar_id"
+    t.index ["content_pillar_id"], name: "index_pipeline_runs_on_content_pillar_id"
     t.index ["persona_id"], name: "index_pipeline_runs_on_persona_id"
     t.index ["pipeline_id"], name: "index_pipeline_runs_on_pipeline_id"
     t.index ["status"], name: "index_pipeline_runs_on_status"
@@ -267,12 +241,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_09_235708) do
     t.datetime "posted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "cluster_id"
     t.string "strategy_name"
     t.datetime "optimal_time_calculated"
     t.jsonb "hashtags", default: []
     t.jsonb "caption_metadata"
-    t.index ["cluster_id"], name: "index_scheduling_posts_on_cluster_id"
     t.index ["persona_id"], name: "index_scheduling_posts_on_persona_id"
     t.index ["photo_id", "persona_id"], name: "index_posts_on_photo_id_and_persona_id", unique: true
     t.index ["photo_id"], name: "index_scheduling_posts_on_photo_id"
@@ -291,13 +263,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_09_235708) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "clusters", "personas"
   add_foreign_key "comfyui_jobs", "image_candidates"
   add_foreign_key "comfyui_jobs", "image_candidates", column: "parent_candidate_id"
   add_foreign_key "comfyui_jobs", "pipeline_runs"
   add_foreign_key "comfyui_jobs", "pipeline_steps"
   add_foreign_key "content_pillars", "personas"
-  add_foreign_key "content_strategy_histories", "clusters"
   add_foreign_key "content_strategy_histories", "personas"
   add_foreign_key "content_strategy_histories", "scheduling_posts", column: "post_id"
   add_foreign_key "content_strategy_states", "personas"
@@ -307,18 +277,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_09_235708) do
   add_foreign_key "image_candidates", "image_candidates", column: "parent_id"
   add_foreign_key "image_candidates", "pipeline_runs"
   add_foreign_key "image_candidates", "pipeline_steps"
-  add_foreign_key "photos", "clusters"
+  add_foreign_key "photos", "content_pillars"
   add_foreign_key "photos", "image_candidates"
   add_foreign_key "photos", "personas"
-  add_foreign_key "pillar_cluster_assignments", "clusters", on_delete: :cascade
-  add_foreign_key "pillar_cluster_assignments", "content_pillars", column: "pillar_id", on_delete: :cascade
   add_foreign_key "pipeline_run_steps", "pipeline_runs"
   add_foreign_key "pipeline_run_steps", "pipeline_steps"
-  add_foreign_key "pipeline_runs", "clusters"
+  add_foreign_key "pipeline_runs", "content_pillars"
   add_foreign_key "pipeline_runs", "personas"
   add_foreign_key "pipeline_runs", "pipelines"
   add_foreign_key "pipeline_steps", "pipelines"
-  add_foreign_key "scheduling_posts", "clusters"
   add_foreign_key "scheduling_posts", "personas"
   add_foreign_key "scheduling_posts", "photos"
   add_foreign_key "votes", "image_candidates", column: "loser_id"

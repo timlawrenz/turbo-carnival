@@ -2,7 +2,7 @@
 
 module Scheduling
   class SchedulePost < GLCommand::Chainable
-    requires photo: Clustering::Photo, persona: Persona, caption: String
+    requires photo: ContentPillars::Photo, persona: Persona, caption: String
     optional caption_metadata: Hash
     returns post: Scheduling::Post
 

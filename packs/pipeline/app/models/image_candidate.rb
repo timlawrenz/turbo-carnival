@@ -3,7 +3,7 @@ class ImageCandidate < ApplicationRecord
   belongs_to :pipeline_run, optional: true, touch: true
   belongs_to :parent, class_name: "ImageCandidate", optional: true, counter_cache: :child_count
   has_many :children, class_name: "ImageCandidate", foreign_key: :parent_id, dependent: :nullify
-  has_one :photo, class_name: "Clustering::Photo", dependent: :destroy
+  has_one :photo, class_name: "ContentPillars::Photo", dependent: :destroy
 
   validates :elo_score, numericality: { only_integer: true }
   validates :status, inclusion: { in: %w[active rejected] }

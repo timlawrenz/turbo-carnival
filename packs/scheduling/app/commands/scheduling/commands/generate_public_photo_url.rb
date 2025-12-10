@@ -3,7 +3,7 @@
 module Scheduling
   module Commands
     class GeneratePublicPhotoUrl < GLCommand::Callable
-      requires photo: Clustering::Photo
+      requires photo: ContentPillars::Photo
       returns public_photo_url: String
 
       def call

@@ -1,7 +1,6 @@
 class ContentSuggestion < ApplicationRecord
   belongs_to :gap_analysis
   belongs_to :content_pillar
-  has_one :cluster, class_name: 'Clustering::Cluster'
 
   validates :title, :description, presence: true
   validates :status, inclusion: { in: %w[pending used rejected] }

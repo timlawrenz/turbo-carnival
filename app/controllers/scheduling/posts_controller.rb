@@ -5,7 +5,7 @@ class Scheduling::PostsController < ApplicationController
   before_action :set_photo, only: [:new, :create, :suggest_caption]
 
   def index
-    @photos = Clustering::Photo
+    @photos = ContentPillars::Photo
       .joins(:image_attachment)
       .where(persona_id: @persona.id)
       .where.not(id: Scheduling::Post.select(:photo_id))
@@ -88,7 +88,7 @@ class Scheduling::PostsController < ApplicationController
 
   def set_photo
     photo_id = params[:photo_id] || params[:id] || params.dig(:scheduling_post, :photo_id)
-    @photo = Clustering::Photo.find(photo_id)
+    @photo = ContentPillars::Photo.find(photo_id)
   end
 
   def post_params

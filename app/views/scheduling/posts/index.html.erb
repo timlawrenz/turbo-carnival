@@ -1,6 +1,6 @@
 <div class="container mx-auto px-4 py-8">
   <div class="flex justify-between items-center mb-6">
-    <h1 class="text-3xl font-bold">Scheduled Posts - <%= @persona.name.titleize %></h1>
+    <h1 class="text-3xl font-bold">Posts & Photos - <%= @persona.name.titleize %></h1>
     
     <!-- Strategy Suggestion Button -->
     <%= form_with url: suggest_next_persona_scheduling_posts_path(@persona), method: :post, class: "inline" do |f| %>
@@ -8,6 +8,45 @@
                    class: "px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors font-medium" %>
     <% end %>
   </div>
+
+  <!-- Available Photos -->
+  <% if @photos.any? %>
+    <div class="mb-8">
+      <h2 class="text-2xl font-semibold mb-4 text-cyan-400">📸 Available Photos (<%= @photos.count %>)</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <% @photos.each do |photo| %>
+          <%= render CardComponent.new(classes: "hover:shadow-lg transition-shadow") do |c| %>
+            <% c.with_body do %>
+              <!-- Photo Preview -->
+              <% if photo.image.attached? %>
+                <%= image_tag photo.image, 
+                             class: "w-full h-64 object-cover rounded-t-lg mb-4" %>
+              <% end %>
+              
+              <!-- Photo Info -->
+              <div class="space-y-2 mb-4">
+                <% if photo.content_pillar %>
+                  <div class="text-sm">
+                    <span class="font-semibold">Pillar:</span>
+                    <span class="text-zinc-400"><%= photo.content_pillar.name %></span>
+                  </div>
+                <% end %>
+                
+                <div class="text-sm text-zinc-500">
+                  Created <%= time_ago_in_words(photo.created_at) %> ago
+                </div>
+              </div>
+              
+              <!-- Create Post Button -->
+              <%= link_to "Create Post", 
+                         new_persona_scheduling_post_path(@persona, photo_id: photo.id),
+                         class: "block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors" %>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
 
   <!-- Scheduled Posts -->
   <% if @scheduled_posts.any? %>

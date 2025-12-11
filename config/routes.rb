@@ -92,6 +92,7 @@ Rails.application.routes.draw do
         end
         collection do
           post :suggest_next
+          get :browse_photos
         end
       end
     end

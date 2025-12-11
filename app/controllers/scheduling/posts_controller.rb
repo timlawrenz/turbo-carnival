@@ -5,21 +5,38 @@ class Scheduling::PostsController < ApplicationController
   before_action :set_photo, only: [:new, :create, :suggest_caption]
 
   def index
-    # Show all posts for this persona, grouped by status
-    @posts = Scheduling::Post
+    # Show available photos for manual post creation AND existing posts
+    @photos = ContentPillars::Photo
+      .joins(:image_attachment)
       .where(persona_id: @persona.id)
+      .where.not(id: Scheduling::Post.select(:photo_id))
+      .order(created_at: :desc)
+
+    @photos = @photos.where(content_pillar_id: params[:pillar_id]) if params[:pillar_id].present?
+
+    # Also show existing scheduled, draft, and posted posts
+    @scheduled_posts = Scheduling::Post
+      .where(persona_id: @persona.id, status: 'scheduled')
       .includes(:photo, :content_suggestion)
       .order(scheduled_at: :asc)
     
-    # Filter by status if provided
-    @posts = @posts.where(status: params[:status]) if params[:status].present?
+    @draft_posts = Scheduling::Post
+      .where(persona_id: @persona.id, status: 'draft')
+      .includes(:photo, :content_suggestion)
+      .order(scheduled_at: :asc)
     
-    # Group for display
-    @scheduled_posts = @posts.where(status: 'scheduled')
-    @draft_posts = @posts.where(status: 'draft')
-    @posted_posts = @posts.where(status: 'posted').limit(10)
+    @posted_posts = Scheduling::Post
+      .where(persona_id: @persona.id, status: 'posted')
+      .includes(:photo, :content_suggestion)
+      .order(updated_at: :desc)
+      .limit(10)
     
     @pillars = @persona.content_pillars.order(:name)
+  end
+
+  def browse_photos
+    # Redirect to index - we show both photos and posts there
+    redirect_to persona_scheduling_posts_path(@persona)
   end
 
   def destroy

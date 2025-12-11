@@ -24,45 +24,41 @@ RSpec.describe "Scheduling Posts", type: :request do
       photo
     end
 
-    it "displays photos for posting" do
+    it "displays scheduled posts page" do
       get persona_scheduling_posts_path(persona)
       
       expect(response).to have_http_status(:success)
-      expect(response.body).to include("Create a Post")
+      expect(response.body).to include("Scheduled Posts")
       expect(response.body).to include(persona.name.titleize)
     end
 
-    it "shows filter by pillar dropdown" do
+    it "shows empty state when no posts exist" do
       get persona_scheduling_posts_path(persona)
       
-      expect(response.body).to include("Filter by Pillar")
-      expect(response.body).to include(pillar.name)
+      expect(response.body).to include("No posts yet!")
     end
 
-    it "filters photos by pillar" do
-      other_pillar = create(:content_pillar, persona: persona, name: "Other Pillar")
-      other_photo = ContentPillars::Photo.create!(
+    it "displays posts when they exist" do
+      # Create a scheduled post
+      Scheduling::Post.create!(
         persona: persona,
-        content_pillar: other_pillar,
-        path: "/tmp/other_photo.png"
-      )
-      File.write(other_photo.path, "fake image data")
-      other_photo.image.attach(
-        io: StringIO.new("fake image data"),
-        filename: "other.png",
-        content_type: "image/png"
+        photo: photo,
+        caption: "Test post",
+        status: 'scheduled',
+        scheduled_at: 1.day.from_now
       )
 
-      get persona_scheduling_posts_path(persona, pillar_id: pillar.id)
+      get persona_scheduling_posts_path(persona)
       
       expect(response).to have_http_status(:success)
-      # The response should only include photos from the selected pillar
+      expect(response.body).to include("Scheduled")
+      expect(response.body).to include("Test post")
     end
 
-    it "shows Get Next Suggested Post button" do
+    it "shows Get Next Post Suggestion button" do
       get persona_scheduling_posts_path(persona)
       
-      expect(response.body).to include("Get Next Suggested Post")
+      expect(response.body).to include("Get Next Post Suggestion")
     end
 
     after do

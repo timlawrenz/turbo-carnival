@@ -5,14 +5,20 @@ class Scheduling::PostsController < ApplicationController
   before_action :set_photo, only: [:new, :create, :suggest_caption]
 
   def index
-    @photos = ContentPillars::Photo
-      .joins(:image_attachment)
+    # Show all posts for this persona, grouped by status
+    @posts = Scheduling::Post
       .where(persona_id: @persona.id)
-      .where.not(id: Scheduling::Post.select(:photo_id))
-      .order(created_at: :desc)
-
-    @photos = @photos.where(content_pillar_id: params[:pillar_id]) if params[:pillar_id].present?
-
+      .includes(:photo, :content_suggestion)
+      .order(scheduled_at: :asc)
+    
+    # Filter by status if provided
+    @posts = @posts.where(status: params[:status]) if params[:status].present?
+    
+    # Group for display
+    @scheduled_posts = @posts.where(status: 'scheduled')
+    @draft_posts = @posts.where(status: 'draft')
+    @posted_posts = @posts.where(status: 'posted').limit(10)
+    
     @pillars = @persona.content_pillars.order(:name)
   end
 

@@ -1,73 +1,172 @@
 <div class="container mx-auto px-4 py-8">
   <div class="flex justify-between items-center mb-6">
-    <h1 class="text-3xl font-bold">Create a Post - <%= @persona.name.titleize %></h1>
+    <h1 class="text-3xl font-bold">Scheduled Posts - <%= @persona.name.titleize %></h1>
     
     <!-- Strategy Suggestion Button -->
     <%= form_with url: suggest_next_persona_scheduling_posts_path(@persona), method: :post, class: "inline" do |f| %>
-      <%= f.submit "🎯 Get Next Suggested Post",
+      <%= f.submit "🎯 Get Next Post Suggestion",
                    class: "px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors font-medium" %>
     <% end %>
   </div>
-  
-  <!-- Filters -->
-  <%= render CardComponent.new(classes: "mb-6") do |c| %>
-    <% c.with_body do %>
-      <%= form_with url: persona_scheduling_posts_path(@persona), method: :get, class: "flex gap-4" do |f| %>
-        <div class="flex-1">
-          <%= f.label :pillar_id, "Filter by Pillar", class: "block text-sm font-medium mb-2" %>
-          <%= f.select :pillar_id,
-                       options_from_collection_for_select(@pillars, :id, :name, params[:pillar_id]),
-                       { include_blank: "All Pillars" },
-                       class: "w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:ring-2 focus:ring-blue-500" %>
-        </div>
-        
-        <div class="flex items-end">
-          <%= f.submit "Filter", class: "px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors" %>
-        </div>
-      <% end %>
-    <% end %>
-  <% end %>
-  
-  <!-- Photo Grid -->
-  <% if @photos.any? %>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <% @photos.each do |photo| %>
-        <%= render CardComponent.new(classes: "hover:shadow-lg transition-shadow") do |c| %>
-          <% c.with_body do %>
-            <!-- Photo Preview -->
-            <% if photo.image.attached? %>
-              <%= image_tag photo.image, 
-                           class: "w-full h-64 object-cover rounded-t-lg mb-4" %>
-            <% end %>
-            
-            <!-- Photo Info -->
-            <div class="space-y-2 mb-4">
-              <% if photo.content_pillar %>
-                <div class="text-sm">
-                  <span class="font-semibold">Pillar:</span>
-                  <span class="text-zinc-400"><%= photo.content_pillar.name %></span>
+
+  <!-- Scheduled Posts -->
+  <% if @scheduled_posts.any? %>
+    <div class="mb-8">
+      <h2 class="text-2xl font-semibold mb-4 text-blue-400">📅 Scheduled (<%= @scheduled_posts.count %>)</h2>
+      <div class="space-y-4">
+        <% @scheduled_posts.each do |post| %>
+          <%= render CardComponent.new do |c| %>
+            <% c.with_body do %>
+              <div class="flex gap-4">
+                <!-- Photo Preview -->
+                <% if post.photo&.image&.attached? %>
+                  <div class="flex-shrink-0">
+                    <%= image_tag post.photo.image, 
+                                 class: "w-32 h-32 object-cover rounded-lg" %>
+                  </div>
+                <% else %>
+                  <div class="flex-shrink-0 w-32 h-32 bg-zinc-800 rounded-lg flex items-center justify-center">
+                    <span class="text-zinc-600">No Image</span>
+                  </div>
+                <% end %>
+                
+                <!-- Post Details -->
+                <div class="flex-1">
+                  <div class="flex justify-between items-start mb-2">
+                    <div>
+                      <div class="text-sm text-zinc-400">
+                        <%= post.scheduled_at.strftime('%b %d, %Y at %I:%M %p') %>
+                      </div>
+                      <% if post.photo&.content_pillar %>
+                        <div class="text-xs text-zinc-500">
+                          <%= post.photo.content_pillar.name %>
+                        </div>
+                      <% end %>
+                    </div>
+                    <span class="px-2 py-1 text-xs rounded bg-blue-900/40 text-blue-300">
+                      <%= post.status.titleize %>
+                    </span>
+                  </div>
+                  
+                  <p class="text-zinc-300 text-sm mb-2">
+                    <%= truncate(post.caption, length: 150) %>
+                  </p>
+                  
+                  <% if post.hashtags.present? %>
+                    <div class="text-xs text-zinc-500">
+                      <%= post.hashtags.map { |tag| "##{tag}" }.join(' ') %>
+                    </div>
+                  <% end %>
                 </div>
-              <% end %>
-              
-              <div class="text-sm text-zinc-500">
-                Uploaded <%= time_ago_in_words(photo.created_at) %> ago
               </div>
-            </div>
-            
-            <!-- Create Post Button -->
-            <%= link_to "Create Post", 
-                       new_persona_scheduling_post_path(@persona, photo_id: photo.id),
-                       class: "block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors" %>
+            <% end %>
           <% end %>
         <% end %>
-      <% end %>
+      </div>
     </div>
-  <% else %>
+  <% end %>
+
+  <!-- Draft Posts (Awaiting Images) -->
+  <% if @draft_posts.any? %>
+    <div class="mb-8">
+      <h2 class="text-2xl font-semibold mb-4 text-yellow-400">📝 Drafts (<%= @draft_posts.count %>)</h2>
+      <div class="space-y-4">
+        <% @draft_posts.each do |post| %>
+          <%= render CardComponent.new do |c| %>
+            <% c.with_body do %>
+              <div class="flex gap-4">
+                <!-- Placeholder -->
+                <div class="flex-shrink-0 w-32 h-32 bg-zinc-800 rounded-lg flex items-center justify-center">
+                  <span class="text-zinc-600">⏳ Awaiting Image</span>
+                </div>
+                
+                <!-- Post Details -->
+                <div class="flex-1">
+                  <div class="flex justify-between items-start mb-2">
+                    <div>
+                      <div class="text-sm text-zinc-400">
+                        Scheduled: <%= post.scheduled_at&.strftime('%b %d, %Y at %I:%M %p') || 'Not scheduled' %>
+                      </div>
+                      <% if post.content_suggestion %>
+                        <div class="text-xs text-purple-400">
+                          🤖 From LLM Campaign: <%= post.content_suggestion.title %>
+                        </div>
+                      <% end %>
+                    </div>
+                    <span class="px-2 py-1 text-xs rounded bg-yellow-900/40 text-yellow-300">
+                      Draft - Needs Image
+                    </span>
+                  </div>
+                  
+                  <p class="text-zinc-300 text-sm mb-2">
+                    <%= truncate(post.caption, length: 150) %>
+                  </p>
+                  
+                  <% if post.content_suggestion %>
+                    <%= link_to "🎨 Generate Image", 
+                               generate_image_content_suggestion_path(post.content_suggestion),
+                               method: :post,
+                               class: "text-sm text-purple-400 hover:text-purple-300" %>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Recently Posted -->
+  <% if @posted_posts.any? %>
+    <div class="mb-8">
+      <h2 class="text-2xl font-semibold mb-4 text-green-400">✅ Posted (<%= @posted_posts.count %>)</h2>
+      <div class="space-y-4">
+        <% @posted_posts.each do |post| %>
+          <%= render CardComponent.new do |c| %>
+            <% c.with_body do %>
+              <div class="flex gap-4">
+                <!-- Photo Preview -->
+                <% if post.photo&.image&.attached? %>
+                  <div class="flex-shrink-0">
+                    <%= image_tag post.photo.image, 
+                                 class: "w-32 h-32 object-cover rounded-lg" %>
+                  </div>
+                <% end %>
+                
+                <!-- Post Details -->
+                <div class="flex-1">
+                  <div class="flex justify-between items-start mb-2">
+                    <div>
+                      <div class="text-sm text-green-400">
+                        Posted <%= time_ago_in_words(post.updated_at) %> ago
+                      </div>
+                    </div>
+                    <span class="px-2 py-1 text-xs rounded bg-green-900/40 text-green-300">
+                      Posted
+                    </span>
+                  </div>
+                  
+                  <p class="text-zinc-300 text-sm">
+                    <%= truncate(post.caption, length: 150) %>
+                  </p>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Empty State -->
+  <% if @scheduled_posts.empty? && @draft_posts.empty? && @posted_posts.empty? %>
     <%= render CardComponent.new do |c| %>
       <% c.with_body do %>
-        <p class="text-zinc-400 text-center py-8">
-          No unposted photos available. Generate photos in your pillars first.
-        </p>
+        <div class="text-center py-12">
+          <p class="text-zinc-400 mb-4 text-lg">No posts yet!</p>
+          <p class="text-zinc-500 mb-6">Click "Get Next Post Suggestion" above to create your first scheduled post.</p>
+        </div>
       <% end %>
     <% end %>
   <% end %>

@@ -29,10 +29,10 @@ module ContentStrategy
       # Filter to specific pillar if provided
       base_scope = base_scope.where(id: @pillar.id) if @pillar
 
-      # Only pillars with unposted photos (exclude draft posts with nil photo_id)
+      # Only pillars with unposted photos (using persona-scoped query)
       base_scope
         .joins(:photos)
-        .where.not(photos: { id: Scheduling::Post.select(:photo_id).where.not(photo_id: nil) })
+        .where.not(photos: { id: Scheduling::Post.where(persona_id: @persona.id).select(:photo_id).where.not(photo_id: nil) })
         .distinct
         .order(:name)
     end

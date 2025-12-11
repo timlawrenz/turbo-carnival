@@ -14,8 +14,9 @@ module ContentStrategy
       # Select pillar at index (with wrapping)
       pillar = eligible_pillars[rotation_index % eligible_pillars.size]
 
-      # Get unposted photos from this pillar
-      unposted_photos = pillar.photos.unposted.to_a
+      # Get unposted photos from this pillar using command
+      result = Photos::ListAvailable.call(persona: context.persona, pillar_id: pillar.id)
+      unposted_photos = result.photos
 
       raise NoUnpostedPhotosError.new("in pillar #{pillar.name}") if unposted_photos.empty?
 

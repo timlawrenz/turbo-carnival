@@ -25,8 +25,9 @@ module ContentStrategy
 
       raise NoAvailableClustersError.new(context.persona.id) if pillar.nil? # TODO: Rename to NoAvailablePillarsError
 
-      # Get unposted photos from this week's pillar
-      unposted_photos = pillar.photos.unposted.to_a
+      # Get unposted photos from this week's pillar using command
+      result = Photos::ListAvailable.call(persona: context.persona, pillar_id: pillar.id)
+      unposted_photos = result.photos
 
       raise NoUnpostedPhotosError.new("in pillar #{pillar.name}") if unposted_photos.empty?
 

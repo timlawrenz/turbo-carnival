@@ -10,7 +10,10 @@ class PersonasController < ApplicationController
   def show
     @pillars = @persona.content_pillars.order(:name)
     @total_photos = @persona.photos.count
-    @unposted_photos = @persona.photos.unposted.count
+    
+    # Use command to get available photos count
+    result = Photos::ListAvailable.call(persona: @persona)
+    @unposted_photos = result.photos.count
     
     # Get upcoming scheduled posts
     @upcoming_posts = Scheduling::Post

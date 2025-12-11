@@ -61,6 +61,24 @@ RSpec.describe "Scheduling Posts", type: :request do
       expect(response.body).to include("Get Next Post Suggestion")
     end
 
+    it "allows deleting a post" do
+      post = Scheduling::Post.create!(
+        persona: persona,
+        photo: photo,
+        caption: "Test post to delete",
+        status: 'scheduled',
+        scheduled_at: 1.day.from_now
+      )
+
+      expect {
+        delete persona_scheduling_post_path(persona, post)
+      }.to change(Scheduling::Post, :count).by(-1)
+
+      expect(response).to redirect_to(persona_scheduling_posts_path(persona))
+      follow_redirect!
+      expect(response.body).to include("Post deleted")
+    end
+
     after do
       # Clean up test files
       [photo, ContentPillars::Photo.where(path: "/tmp/other_photo.png").first].compact.each do |p|

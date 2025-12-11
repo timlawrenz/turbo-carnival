@@ -22,6 +22,18 @@ class Scheduling::PostsController < ApplicationController
     @pillars = @persona.content_pillars.order(:name)
   end
 
+  def destroy
+    @post = Scheduling::Post.find(params[:id])
+    
+    if @post.persona_id != @persona.id
+      redirect_to persona_scheduling_posts_path(@persona), alert: "Unauthorized"
+      return
+    end
+    
+    @post.destroy
+    redirect_to persona_scheduling_posts_path(@persona), notice: "Post deleted"
+  end
+
   def suggest_next
     result = PostAutomation::AutoCreateNextPost.call(persona: @persona)
 

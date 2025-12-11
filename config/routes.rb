@@ -86,7 +86,7 @@ Rails.application.routes.draw do
     
     # Scheduling and Posts
     namespace :scheduling do
-      resources :posts, only: [:index, :new, :create] do
+      resources :posts, only: [:index, :new, :create, :destroy] do
         member do
           post :suggest_caption
         end

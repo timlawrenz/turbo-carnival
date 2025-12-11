@@ -24,9 +24,13 @@
                     <%= image_tag post.photo.image, 
                                  class: "w-32 h-32 object-cover rounded-lg" %>
                   </div>
+                <% elsif post.photo %>
+                  <div class="flex-shrink-0 w-32 h-32 bg-red-900/40 border-2 border-red-700 rounded-lg flex items-center justify-center">
+                    <span class="text-red-400 text-xs text-center px-2">⚠️ Missing Image</span>
+                  </div>
                 <% else %>
                   <div class="flex-shrink-0 w-32 h-32 bg-zinc-800 rounded-lg flex items-center justify-center">
-                    <span class="text-zinc-600">No Image</span>
+                    <span class="text-zinc-600">No Photo</span>
                   </div>
                 <% end %>
                 
@@ -40,6 +44,11 @@
                       <% if post.photo&.content_pillar %>
                         <div class="text-xs text-zinc-500">
                           <%= post.photo.content_pillar.name %>
+                        </div>
+                      <% end %>
+                      <% if post.photo && !post.photo.image.attached? %>
+                        <div class="text-xs text-red-400 mt-1">
+                          ⚠️ Photo file missing or not attached
                         </div>
                       <% end %>
                     </div>

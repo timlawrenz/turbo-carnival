@@ -6,13 +6,16 @@ class Scheduling::PostsController < ApplicationController
 
   def index
     # Show available photos for manual post creation AND existing posts
-    @photos = ContentPillars::Photo
-      .joins(:image_attachment)
+    # Note: Can't use .joins(:image_attachment) due to old records with different record_type
+    all_photos = ContentPillars::Photo
       .where(persona_id: @persona.id)
-      .where.not(id: Scheduling::Post.select(:photo_id))
+      .where.not(id: Scheduling::Post.where(persona_id: @persona.id).select(:photo_id))
       .order(created_at: :desc)
 
-    @photos = @photos.where(content_pillar_id: params[:pillar_id]) if params[:pillar_id].present?
+    all_photos = all_photos.where(content_pillar_id: params[:pillar_id]) if params[:pillar_id].present?
+    
+    # Filter to only photos with attached images
+    @photos = all_photos.select { |photo| photo.image.attached? }
 
     # Also show existing scheduled, draft, and posted posts
     @scheduled_posts = Scheduling::Post

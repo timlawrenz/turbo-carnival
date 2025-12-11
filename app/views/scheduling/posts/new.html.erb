@@ -97,7 +97,7 @@
           <% end %>
           
           <!-- Main Post Form -->
-          <%= form_with model: @post, url: persona_scheduling_posts_path(@persona), class: "space-y-6" do |f| %>
+          <%= form_with model: @post, url: persona_scheduling_posts_path(@persona), method: :post, class: "space-y-6" do |f| %>
             <%= f.hidden_field :photo_id, value: @photo.id %>
             
             <!-- Caption Field -->

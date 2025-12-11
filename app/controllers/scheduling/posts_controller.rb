@@ -141,17 +141,20 @@ class Scheduling::PostsController < ApplicationController
       redirect_to persona_scheduling_posts_path(@persona), notice: "Post published to Instagram! ID: #{result.post.provider_post_id}"
     else
       @post.errors.add(:base, result.errors.join(', '))
+      flash.now[:alert] = "Failed to post: #{result.errors.join(', ')}"
       render :new, status: :unprocessable_entity
     end
   end
 
   def create_and_schedule
+    @post.caption = post_params[:caption]
     @post.status = 'draft'
     @post.scheduled_at = post_params[:scheduled_at] || 1.hour.from_now
 
     if @post.save
       redirect_to persona_scheduling_posts_path(@persona), notice: "Post scheduled for #{@post.scheduled_at.strftime('%b %d at %I:%M %p')}"
     else
+      flash.now[:alert] = "Failed to save post: #{@post.errors.full_messages.join(', ')}"
       render :new, status: :unprocessable_entity
     end
   end

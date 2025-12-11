@@ -61,8 +61,37 @@ class PipelineRun < ApplicationRecord
     return unless content_pillar_id.present?
 
     ContentPillars::LinkWinnerToPillar.call(self)
+    link_to_awaiting_posts
   rescue StandardError => e
     Rails.logger.error("Failed to auto-link winner for run #{id}: #{e.message}")
     # Don't fail the run completion, just log the error
+  end
+
+  def link_to_awaiting_posts
+    # Find all posts waiting for this pipeline run
+    awaiting_posts = Scheduling::Post.where(
+      pipeline_run_id: id,
+      photo_id: nil
+    )
+
+    return if awaiting_posts.empty?
+
+    # Find the winner image
+    winner = image_candidates.find_by(winner: true)
+    return unless winner&.photo
+
+    # Link and transition
+    awaiting_posts.each do |post|
+      post.update!(photo: winner.photo)
+
+      # Auto-schedule LLM campaigns, manual review for others
+      if post.content_suggestion_id.present? && post.scheduled_at.present?
+        post.schedule! if post.may_schedule?
+      else
+        post.image_ready! if post.may_image_ready?
+      end
+    end
+
+    Rails.logger.info("Linked #{awaiting_posts.count} posts to winner #{winner.id}")
   end
 end

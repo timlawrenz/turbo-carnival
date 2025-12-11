@@ -23,8 +23,7 @@ module ContentStrategy
         {
           success: true,
           photo: result[:photo],
-          cluster: result[:cluster],
-          pillar: context.selected_pillar,
+          pillar: result[:pillar] || context.selected_pillar,
           optimal_time: result[:optimal_time],
           hashtags: result[:hashtags],
           format: result[:format],

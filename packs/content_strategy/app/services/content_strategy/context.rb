@@ -2,7 +2,7 @@
 
 module ContentStrategy
   class Context
-    attr_reader :persona, :pillar, :clusters, :history, :state, :config
+    attr_reader :persona, :pillar, :pillars, :history, :state, :config
 
     def initialize(persona:, pillar: nil)
       @persona = persona
@@ -18,21 +18,21 @@ module ContentStrategy
     private
 
     def load_context
-      @clusters = load_clusters
+      @pillars = load_pillars
       @history = load_history
       @state = load_state
     end
 
-    def load_clusters
-      base_scope = Clustering::Cluster.for_persona(@persona.id)
+    def load_pillars
+      base_scope = @persona.content_pillars.active.current
       
-      # Filter by pillar if provided
-      base_scope = base_scope.for_pillar(@pillar) if @pillar
+      # Filter to specific pillar if provided
+      base_scope = base_scope.where(id: @pillar.id) if @pillar
 
-      # Only clusters with unposted photos
+      # Only pillars with unposted photos (exclude draft posts with nil photo_id)
       base_scope
         .joins(:photos)
-        .where.not(id: Scheduling::Post.select(:cluster_id).where.not(cluster_id: nil))
+        .where.not(photos: { id: Scheduling::Post.select(:photo_id).where.not(photo_id: nil) })
         .distinct
         .order(:name)
     end
@@ -41,7 +41,7 @@ module ContentStrategy
       HistoryRecord
         .for_persona(@persona.id)
         .recent_days(30)
-        .includes(:cluster, :post)
+        .includes(:post)
         .recent
     end
 

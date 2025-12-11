@@ -3,15 +3,20 @@
 module ContentStrategy
   class HashtagEngine
     class << self
-      def generate(photo:, cluster:, count: 10)
+      def generate(photo:, pillar:, count: 10)
         hashtags = []
 
-        # Extract from cluster name and description
-        hashtags += extract_from_cluster(cluster)
+        # Extract from pillar name and description
+        hashtags += extract_from_pillar(pillar)
 
         # Add persona-specific hashtags if available
         if photo.persona.respond_to?(:hashtag_strategy) && photo.persona.hashtag_strategy.present?
-          hashtags += Array(photo.persona.hashtag_strategy['tags'])
+          strategy = photo.persona.hashtag_strategy
+          if strategy.respond_to?(:tags)
+            hashtags += Array(strategy.tags)
+          elsif strategy.is_a?(Hash)
+            hashtags += Array(strategy['tags'] || strategy[:tags])
+          end
         end
 
         # Ensure uniqueness and format
@@ -32,19 +37,19 @@ module ContentStrategy
 
       private
 
-      def extract_from_cluster(cluster)
+      def extract_from_pillar(pillar)
         tags = []
         
         # From name
-        if cluster.name.present?
-          words = cluster.name.split(/[\s_-]+/)
+        if pillar.name.present?
+          words = pillar.name.split(/[\s_-]+/)
           tags += words.select { |w| w.length > 3 }
         end
 
         # From description if available
-        if cluster.respond_to?(:description) && cluster.description.present?
+        if pillar.respond_to?(:description) && pillar.description.present?
           # Extract key words (simple approach)
-          words = cluster.description.split(/[\s_-]+/)
+          words = pillar.description.split(/[\s_-]+/)
           tags += words.select { |w| w.length > 4 }.first(3)
         end
 

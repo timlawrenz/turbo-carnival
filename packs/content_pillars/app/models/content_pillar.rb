@@ -8,7 +8,7 @@ class ContentPillar < ApplicationRecord
   validates :weight, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
   validates :priority, numericality: { greater_than_or_equal_to: 1, less_than_or_equal_to: 5 }
   validate :end_date_after_start_date
-  validate :total_weight_within_limit, on: :create
+  validate :total_weight_within_limit
 
   scope :active, -> { where(active: true) }
   scope :current, lambda {
@@ -28,6 +28,11 @@ class ContentPillar < ApplicationRecord
 
   def expired?
     end_date.present? && end_date < Date.current
+  end
+
+  # Alias for caption generation compatibility (was cluster.ai_prompt)
+  def ai_prompt
+    guidelines || description
   end
 
   private

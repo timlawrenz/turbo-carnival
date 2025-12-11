@@ -35,7 +35,16 @@ module ContentStrategy
     private
 
     def last_posted_time
-      context.history.first&.created_at
+      # Check both posted history AND future scheduled posts
+      last_history_time = context.history.first&.created_at
+      
+      last_scheduled_time = Scheduling::Post
+        .where(persona: context.persona, status: ['scheduled', 'draft'])
+        .where('scheduled_at > ?', Time.current)
+        .maximum(:scheduled_at)
+      
+      # Return whichever is later
+      [last_history_time, last_scheduled_time].compact.max
     end
 
     def next_time_in_window(after:, start_hour:, end_hour:)

@@ -49,6 +49,9 @@ RSpec.describe SelectNextJob do
       
       it "returns no_work when all steps have >= 2 candidates" do
         ClimateControl.modify TARGET_LEAF_NODES: "2", MAX_CHILDREN_PER_NODE: "2" do
+          # Update steps to use N=2 for this test
+          [step1, step2, step3].each { |step| step.update!(max_children: 2) }
+          
           # Create 2 candidates in each step
           # Step 1: 2 candidates, both FULL (have 2 children at step 2)
           2.times { create_full_parent(step1, step2, 2) }
@@ -85,6 +88,9 @@ RSpec.describe SelectNextJob do
 
       it "excludes candidates with max children" do
         ClimateControl.modify MAX_CHILDREN_PER_NODE: "5" do
+          # Update steps to use N=5 for this test
+          [step1, step2, step3].each { |step| step.update!(max_children: 5) }
+          
           # Need 5 step1 candidates (breadth-first with N=5)
           4.times { create_full_parent(step1, step2, 5) }
           create_full_parent(step1, step2, 5)

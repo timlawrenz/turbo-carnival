@@ -17,20 +17,14 @@ class Scheduling::PostsController < ApplicationController
   end
 
   def suggest_next
-    result = ContentStrategy::SelectNextPost.new(persona: @persona).call
+    result = PostAutomation::AutoCreateNextPost.call(persona: @persona)
 
-    if result[:success]
-      # Redirect to new post form with suggested photo and strategy metadata
-      redirect_to new_persona_scheduling_post_path(
-        persona_id: @persona.id,
-        photo_id: result[:photo].id,
-        strategy_name: result[:strategy_name],
-        # cluster_id: result[:cluster]&.id, # Removed - using pillar-based architecture
-        optimal_time: result[:optimal_time],
-        suggested_hashtags: result[:hashtags]&.join(' ')
-      ), notice: "Photo suggested by #{result[:strategy_name].humanize} strategy"
+    if result.success?
+      redirect_to persona_scheduling_posts_path(@persona), 
+                  notice: "✅ Post automatically created and scheduled for #{result.post.scheduled_at.strftime('%b %d at %I:%M %p')}! Caption generated with #{result.caption_metadata[:model]}"
     else
-      redirect_to persona_scheduling_posts_path(@persona), alert: result[:error]
+      redirect_to persona_scheduling_posts_path(@persona), 
+                  alert: "Failed to create post: #{result.full_error_message}"
     end
   end
 
@@ -60,11 +54,23 @@ class Scheduling::PostsController < ApplicationController
     load_caption_services
 
     start_time = Time.current
-    result = CaptionGeneration::Generator.generate(
-      photo: @photo,
-      persona: @photo.persona,
-      pillar: @photo.content_pillar
-    )
+    
+    # Use vision-based generator if image is attached
+    result = if @photo.image.attached?
+      CaptionGeneration::VisionGenerator.generate(
+        photo: @photo,
+        persona: @photo.persona,
+        content_pillar: @photo.content_pillar
+      )
+    else
+      # Fallback to text-based generator
+      CaptionGeneration::Generator.generate(
+        photo: @photo,
+        persona: @photo.persona,
+        cluster: @photo.content_pillar
+      )
+    end
+    
     generation_time = (Time.current - start_time).round(1)
 
     if result.success?

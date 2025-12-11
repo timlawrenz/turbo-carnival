@@ -9,6 +9,16 @@ class ContentSuggestion < ApplicationRecord
   scope :used, -> { where(status: 'used') }
   scope :rejected, -> { where(status: 'rejected') }
 
+  # Virtual attribute for easier form handling
+  def prompt
+    prompt_data&.dig('prompt')
+  end
+
+  def prompt=(value)
+    self.prompt_data ||= {}
+    self.prompt_data['prompt'] = value
+  end
+
   def mark_as_used!
     update!(status: 'used', used_at: Time.current)
   end

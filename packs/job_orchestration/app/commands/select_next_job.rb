@@ -53,7 +53,6 @@ class SelectNextJob < GLCommand::Callable
   end
 
   def run_needs_work?(run)
-    max_children = JobOrchestrationConfig.max_children_per_node
     pipeline = run.pipeline
     
     # Check if base step needs more candidates
@@ -64,6 +63,7 @@ class SelectNextJob < GLCommand::Callable
       status: 'active'
     ).count
     
+    max_children = first_step.max_children || JobOrchestrationConfig.max_children_per_node
     return true if base_count < max_children
     
     # Check if any parent needs more children
@@ -82,12 +82,13 @@ class SelectNextJob < GLCommand::Callable
       )
       
       # Check if any parent needs more children
+      step_max_children = step.max_children || JobOrchestrationConfig.max_children_per_node
       parents.each do |parent|
         child_count = parent.children.where(
           pipeline_step: step,
           status: 'active'
         ).count
-        return true if child_count < max_children
+        return true if child_count < step_max_children
       end
     end
     
@@ -112,11 +113,12 @@ class SelectNextJob < GLCommand::Callable
   end
 
   def ensure_minimum_base_images(run)
-    min_candidates_per_step = JobOrchestrationConfig.max_children_per_node
     pipeline = run.pipeline
     first_step = pipeline.pipeline_steps.first
     
     return false unless first_step
+    
+    min_candidates_per_step = first_step.max_children || JobOrchestrationConfig.max_children_per_node
     
     step1_count = ImageCandidate.where(
       pipeline_step: first_step,
@@ -146,25 +148,28 @@ class SelectNextJob < GLCommand::Callable
   end
 
   def find_eligible_parents(run)
-    max_children = JobOrchestrationConfig.max_children_per_node
     max_failures = ENV.fetch("MAX_PARENT_FAILURES", 3).to_i
     pipeline = run.pipeline
 
     # Get ID of final step
     final_step_id = pipeline.pipeline_steps.max_by(&:order)&.id
 
+    # We'll need to check max_children per step in the filter below
     candidates = ImageCandidate
       .includes(pipeline_step: :pipeline)
       .where(status: "active")
       .where(pipeline_run: run)
-      .where("child_count < ?", max_children)
       .where("failure_count < ?", max_failures)
       .where.not(pipeline_step_id: final_step_id)
     
     # Filter by approval: current step must be approved to become parents
+    # Also check if parent has room for more children based on step's max_children
     candidates.select do |candidate|
-      step_approved_for_run?(candidate.pipeline_step, run) &&
-      in_top_k?(candidate, run)
+      step = candidate.pipeline_step
+      max_children = step.max_children || JobOrchestrationConfig.max_children_per_node
+      candidate.child_count < max_children &&
+        step_approved_for_run?(step, run) &&
+        in_top_k?(candidate, run)
     end
   end
   
@@ -191,7 +196,6 @@ class SelectNextJob < GLCommand::Callable
     return if parents_with_order.empty?
 
     # Per-parent breadth-first: each parent gets N children before advancing
-    max_children = JobOrchestrationConfig.max_children_per_node
     pipeline = run.pipeline
     
     # Find the earliest step that has parents needing more children
@@ -219,12 +223,13 @@ class SelectNextJob < GLCommand::Callable
       end
       
       # Find parents that need more children at this step
+      step_max_children = step.max_children || JobOrchestrationConfig.max_children_per_node
       parents_needing_children = parents_at_prev_step.select do |parent|
         child_count = parent.children.where(
           pipeline_step: step,
           status: 'active'
         ).count
-        child_count < max_children
+        child_count < step_max_children
       end
       
       if parents_needing_children.any?
@@ -235,7 +240,7 @@ class SelectNextJob < GLCommand::Callable
         context.parent_candidate = selected_parent
         context.next_step = step
         context.mode = :child_generation
-        Rails.logger.info("SelectNextJob: Run #{run.id} - Parent #{selected_parent.id} needs child at step #{step.order} (#{current_children}/#{max_children})")
+        Rails.logger.info("SelectNextJob: Run #{run.id} - Parent #{selected_parent.id} needs child at step #{step.order} (#{current_children}/#{step_max_children})")
         return
       end
     end

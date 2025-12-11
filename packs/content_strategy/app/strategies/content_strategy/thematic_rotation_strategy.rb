@@ -3,35 +3,35 @@
 module ContentStrategy
   class ThematicRotationStrategy < BaseStrategy
     def select_next_photo
-      # Get clusters with variety enforcement
-      eligible_clusters = enforce_variety_rules(context.clusters.to_a)
+      # Get pillars with variety enforcement
+      eligible_pillars = enforce_variety_rules(context.pillars.to_a)
 
-      raise NoAvailableClustersError.new(context.persona.id) if eligible_clusters.empty?
+      raise NoAvailableClustersError.new(context.persona.id) if eligible_pillars.empty? # TODO: Rename to NoAvailablePillarsError
 
       # Get rotation index from state
       rotation_index = context.state.get_state(:rotation_index) || 0
       
-      # Select cluster at index (with wrapping)
-      cluster = eligible_clusters[rotation_index % eligible_clusters.size]
+      # Select pillar at index (with wrapping)
+      pillar = eligible_pillars[rotation_index % eligible_pillars.size]
 
-      # Get unposted photos from this cluster
-      unposted_photos = cluster.photos.unposted.to_a
+      # Get unposted photos from this pillar
+      unposted_photos = pillar.photos.unposted.to_a
 
-      raise NoUnpostedPhotosError.new("in cluster #{cluster.name}") if unposted_photos.empty?
+      raise NoUnpostedPhotosError.new("in pillar #{pillar.name}") if unposted_photos.empty?
 
-      # Select random photo from cluster
+      # Select random photo from pillar
       photo = unposted_photos.sample
 
       # Update rotation index
-      new_index = (rotation_index + 1) % eligible_clusters.size
+      new_index = (rotation_index + 1) % eligible_pillars.size
       context.state.set_state(:rotation_index, new_index)
 
       # Build result
       {
         photo: photo,
-        cluster: cluster,
+        pillar: pillar,
         optimal_time: get_optimal_posting_time(photo: photo),
-        hashtags: select_hashtags(photo: photo, cluster: cluster),
+        hashtags: select_hashtags(photo: photo, pillar: pillar),
         format: recommend_format(photo: photo, config: context.config)
       }
     end

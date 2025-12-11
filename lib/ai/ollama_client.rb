@@ -42,16 +42,21 @@ module AI
       raise Error, "Ollama request failed: #{e.message}"
     end
 
-    def chat(messages:, temperature: 0.7)
+    def chat(messages:, temperature: 0.7, images: nil)
+      body = {
+        model: @model,
+        messages: messages,
+        temperature: temperature,
+        stream: false
+      }
+      
+      # Add images if provided (for vision models)
+      body[:images] = images if images
+      
       response = connection.post('/api/chat') do |req|
         req.options.timeout = @timeout
         req.headers['Content-Type'] = 'application/json'
-        req.body = {
-          model: @model,
-          messages: messages,
-          temperature: temperature,
-          stream: false
-        }.to_json
+        req.body = body.to_json
       end
 
       handle_response(response)

@@ -82,7 +82,7 @@ class RunsController < ApplicationController
         status: 'active'
       ).count
       
-      max_children = JobOrchestrationConfig.max_children_per_node
+      max_children = step.max_children || JobOrchestrationConfig.max_children_per_node
       
       # Calculate target based on parents
       if step.order == 1

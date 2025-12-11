@@ -21,10 +21,10 @@ module ContentStrategy
 
     protected
 
-    def select_hashtags(photo:, cluster:)
+    def select_hashtags(photo:, pillar:)
       HashtagEngine.generate(
         photo: photo,
-        cluster: cluster,
+        pillar: pillar,
         count: context.config.hashtag_count_max
       )
     end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_10_143152) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_11_140457) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -219,6 +219,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_10_143152) do
     t.boolean "needs_run_prompt", default: false, null: false
     t.boolean "needs_parent_image_path", default: false, null: false
     t.boolean "needs_run_variables", default: false, null: false
+    t.integer "max_children", default: 3, null: false
     t.index ["pipeline_id", "order"], name: "index_pipeline_steps_on_pipeline_id_and_order", unique: true
     t.index ["pipeline_id"], name: "index_pipeline_steps_on_pipeline_id"
   end
@@ -232,7 +233,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_10_143152) do
   end
 
   create_table "scheduling_posts", force: :cascade do |t|
-    t.bigint "photo_id", null: false
+    t.bigint "photo_id"
     t.bigint "persona_id", null: false
     t.text "caption"
     t.string "status", default: "draft", null: false
@@ -245,9 +246,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_10_143152) do
     t.datetime "optimal_time_calculated"
     t.jsonb "hashtags", default: []
     t.jsonb "caption_metadata"
+    t.bigint "content_suggestion_id"
+    t.bigint "pipeline_run_id"
+    t.index ["content_suggestion_id"], name: "index_scheduling_posts_on_content_suggestion_id"
     t.index ["persona_id"], name: "index_scheduling_posts_on_persona_id"
     t.index ["photo_id", "persona_id"], name: "index_posts_on_photo_id_and_persona_id", unique: true
+    t.index ["photo_id"], name: "index_scheduling_posts_on_missing_photo", where: "(photo_id IS NULL)"
     t.index ["photo_id"], name: "index_scheduling_posts_on_photo_id"
+    t.index ["pipeline_run_id"], name: "index_scheduling_posts_on_pipeline_run_id"
     t.index ["strategy_name"], name: "index_scheduling_posts_on_strategy_name"
   end
 
@@ -286,8 +292,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_10_143152) do
   add_foreign_key "pipeline_runs", "personas"
   add_foreign_key "pipeline_runs", "pipelines"
   add_foreign_key "pipeline_steps", "pipelines"
+  add_foreign_key "scheduling_posts", "content_suggestions"
   add_foreign_key "scheduling_posts", "personas"
   add_foreign_key "scheduling_posts", "photos"
+  add_foreign_key "scheduling_posts", "pipeline_runs"
   add_foreign_key "votes", "image_candidates", column: "loser_id"
   add_foreign_key "votes", "image_candidates", column: "winner_id"
 end

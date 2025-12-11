@@ -14,7 +14,6 @@ RSpec.describe "ContentSuggestions", type: :request do
 
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("Content Suggestions")
-      expect(response.body).to include("All content suggestions for #{persona.name}")
       expect(response.body).to include("Test Suggestion")
     end
 

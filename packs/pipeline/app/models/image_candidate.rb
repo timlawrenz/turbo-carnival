@@ -46,8 +46,8 @@ class ImageCandidate < ApplicationRecord
       # Mark this one
       update!(winner: true, winner_at: Time.current)
       
-      # Create Photo record if run belongs to a cluster
-      create_photo_record if pipeline_run&.cluster_id.present?
+      # Create Photo record if run belongs to a content pillar
+      create_photo_record if pipeline_run&.content_pillar_id.present?
     end
   end
   
@@ -56,7 +56,7 @@ class ImageCandidate < ApplicationRecord
       update!(winner: false, winner_at: nil)
       
       # Remove the Photo record if it exists
-      remove_photo_record if pipeline_run&.cluster_id.present?
+      remove_photo_record if pipeline_run&.content_pillar_id.present?
     end
   end
   

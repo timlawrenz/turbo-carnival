@@ -11,6 +11,15 @@ class PersonasController < ApplicationController
     @pillars = @persona.content_pillars.order(:name)
     @total_photos = @persona.photos.count
     @unposted_photos = @persona.photos.unposted.count
+    
+    # Get upcoming scheduled posts
+    @upcoming_posts = Scheduling::Post
+      .where(persona: @persona, status: ['draft', 'scheduled'])
+      .where('scheduled_at > ?', Time.current)
+      .order(:scheduled_at)
+      .limit(10)
+      .includes(photo: :content_pillar)
+    
     @scheduled_posts = Scheduling::Post.where(persona: @persona, status: ['draft', 'scheduled']).count
     @posted_count = Scheduling::Post.where(persona: @persona, status: 'posted').count
   end

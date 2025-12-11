@@ -29,16 +29,16 @@
               </div>
             <% end %>
             
-            <% if @photo.cluster %>
+            <% if @photo.content_pillar %>
               <div>
-                <span class="font-semibold">Cluster:</span>
-                <span class="text-zinc-400"><%= @photo.cluster.name %></span>
+                <span class="font-semibold">Content Pillar:</span>
+                <span class="text-zinc-400"><%= @photo.content_pillar.name %></span>
               </div>
               
-              <% if @photo.cluster.ai_prompt.present? %>
+              <% if @photo.content_pillar.description.present? %>
                 <div>
-                  <span class="font-semibold">Cluster Theme:</span>
-                  <p class="text-zinc-400 mt-1"><%= @photo.cluster.ai_prompt %></p>
+                  <span class="font-semibold">Pillar Description:</span>
+                  <p class="text-zinc-400 mt-1"><%= @photo.content_pillar.description %></p>
                 </div>
               <% end %>
             <% end %>

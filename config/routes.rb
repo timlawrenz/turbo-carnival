@@ -5,6 +5,11 @@ Rails.application.routes.draw do
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
 
+  # API endpoints
+  namespace :api do
+    resources :campaigns, only: [:create]
+  end
+
   # Mount importmap for JavaScript modules
   mount Importmap::Engine, at: "/importmap"
 
@@ -69,8 +74,11 @@ Rails.application.routes.draw do
     # Content suggestions
     resources :content_suggestions, only: [:index]
     
+    # LLM Campaigns
+    resources :campaigns, only: [:index, :show], controller: 'personas/campaigns'
+    
     # Nested pillars
-    resources :pillars, only: [:show], controller: 'content_pillars' do
+    resources :pillars, only: [:show, :new, :create, :edit, :update, :destroy], controller: 'content_pillars' do
       member do
         get :suggest
       end
@@ -92,10 +100,12 @@ Rails.application.routes.draw do
   # Content suggestions
   resources :content_suggestions, only: [] do
     member do
+      get :edit
+      patch :update
       post :use
       post :reject
+      delete :destroy
       post :generate_image
-      post :create_cluster
     end
   end
 end

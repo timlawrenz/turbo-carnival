@@ -95,7 +95,7 @@ GEM
     aws-sigv4 (1.12.1)
       aws-eventstream (~> 1, >= 1.0.2)
     base64 (0.3.0)
-    bcrypt_pbkdf (1.1.1)
+    bcrypt_pbkdf (1.1.2)
     benchmark (0.5.0)
     better_html (2.2.0)
       actionview (>= 7.0)
@@ -104,7 +104,7 @@ GEM
       erubi (~> 1.4)
       parser (>= 2.4)
       smart_properties
-    bigdecimal (3.3.1)
+    bigdecimal (4.0.0)
     bootsnap (1.18.6)
       msgpack (~> 1.2)
     brakeman (7.1.1)
@@ -129,8 +129,8 @@ GEM
       sorbet-runtime (>= 0.5.11249)
     code_teams (1.1.0)
       sorbet-runtime
-    concurrent-ruby (1.3.5)
-    connection_pool (2.5.4)
+    concurrent-ruby (1.3.6)
+    connection_pool (3.0.2)
     constant_resolver (0.3.0)
     crass (1.0.6)
     css_parser (1.21.1)
@@ -192,7 +192,7 @@ GEM
       reline (>= 0.4.2)
     jmespath (1.6.2)
     json (2.16.0)
-    kamal (2.8.2)
+    kamal (2.10.1)
       activesupport (>= 7.0)
       base64 (~> 0.2)
       bcrypt_pbkdf (~> 1.0)
@@ -241,7 +241,7 @@ GEM
       net-smtp
     marcel (1.1.0)
     mini_mime (1.1.5)
-    minitest (5.26.1)
+    minitest (5.27.0)
     msgpack (1.8.0)
     net-http (0.7.0)
       uri
@@ -463,7 +463,7 @@ GEM
       railties (>= 7.1)
       thor (>= 1.3.1)
     sorbet-runtime (0.6.12731)
-    sshkit (1.24.0)
+    sshkit (1.25.0)
       base64
       logger
       net-scp (>= 1.1.2)
@@ -523,7 +523,7 @@ GEM
     websocket-extensions (0.1.5)
     wisper (2.0.1)
     yard (0.9.37)
-    zeitwerk (2.7.3)
+    zeitwerk (2.7.4)
 
 PLATFORMS
   aarch64-linux

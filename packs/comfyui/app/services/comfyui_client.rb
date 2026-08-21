@@ -7,6 +7,14 @@ class ComfyuiClient
     @base_url = base_url || Rails.application.config.comfyui.base_url
   end
 
+  # True when a job failed purely because the GPU ran out of memory.
+  # OOM is retryable: the workflow is memory-tight on shared GPUs and usually
+  # succeeds on a subsequent (warmer) run. Not a logic defect.
+  def self.oom_error?(message)
+    msg = message.to_s.downcase
+    msg.include?("out of memory") || msg.include?("would exceed allowed memory")
+  end
+
   def submit_workflow(workflow_json)
     response = connection.post("/prompt") do |req|
       req.body = { prompt: workflow_json }.to_json

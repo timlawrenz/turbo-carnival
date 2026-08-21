@@ -28,6 +28,9 @@ module TurboCarnival
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = false
+
+    # Allow the Cloudflare-tunnel host used to serve media to Instagram
+    config.hosts << '.pi216.ai'
     
     # Configure session store
     config.session_store :cookie_store, key: '_turbo_carnival_session'

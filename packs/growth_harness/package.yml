@@ -1,0 +1,9 @@
+enforce_dependencies: true
+dependencies:
+  - "."
+  - packs/personas
+  - packs/scheduling
+  - packs/content_pillars
+  - packs/content_strategy
+metadata:
+  owner: growth

@@ -17,6 +17,37 @@ module ContentPillars
       where.not(id: select(:id).where('EXISTS (SELECT 1 FROM scheduling_posts WHERE photo_id = photos.id)'))
     }
 
+    # Root of the NAS backup tree that mirrors the original ComfyUI output
+    # mount (/mnt/essdee/ComfyUI). Used to serve photo files without B2.
+    NAS_OUTPUT_BASE = '/mnt/synology-home/backup/essdee/ComfyUI'
+
+    # Resolve a readable, local file path for this photo's image bytes,
+    # without touching ActiveStorage/B2. Returns nil when no source exists.
+    def servable_file_path
+      direct = path.to_s
+      return direct if direct.present? && File.file?(direct)
+
+      if direct.start_with?('/mnt/essdee/ComfyUI/')
+        rel = direct.sub(%r{^/mnt/essdee/ComfyUI/}, '')
+        [File.join(NAS_OUTPUT_BASE, rel),
+         File.join(NAS_OUTPUT_BASE, 'output', rel)].each do |cand|
+          return cand if File.file?(cand)
+        end
+      end
+
+      # Bare filename (no mount prefix) → bounded search of the NAS tree
+      if direct == File.basename(direct)
+        found = Dir.glob("#{NAS_OUTPUT_BASE}/output/**/#{direct}").first
+        return found if found
+      end
+
+      nil
+    end
+
+    def servable?
+      servable_file_path.present?
+    end
+
     def posted?
       # Will be true when scheduling pack exists
       # For now, always false

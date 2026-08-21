@@ -16,6 +16,13 @@ module CaptionGeneration
     def process
       processed = @text.strip
 
+      # Strip model preamble like "Okay, here's an Instagram caption for Sarah..."
+      # when the model ignores the 'return ONLY the caption' instruction.
+      processed = processed.gsub(/\A(ok(ay)?[,!]?\s*)?here('s| is) (an? )?(instagram )?caption (for|for sarah)[^\n]*\n+[-—:]*\s*/i, '')
+                       .strip
+      processed = processed.gsub(/\A(here|below|sure|of course)[^\n]*\n+[-—:]*\s*/i, '')
+                       .strip
+
       # Remove any hashtags (they'll be added separately)
       processed = processed.gsub(/#\w+/, '').strip
 

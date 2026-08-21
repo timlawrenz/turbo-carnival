@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_11_140457) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_21_010000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -107,6 +107,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_11_140457) do
     t.datetime "started_at", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.jsonb "pillar_engagement_scores", default: {}
+    t.jsonb "selection_history", default: []
+    t.jsonb "last_adjustment", default: []
+    t.datetime "last_adjustment_at"
     t.index ["persona_id"], name: "index_content_strategy_states_on_persona_id", unique: true
   end
 
@@ -134,6 +138,69 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_11_140457) do
     t.index ["persona_id"], name: "index_gap_analyses_on_persona_id"
   end
 
+  create_table "growth_decisions", force: :cascade do |t|
+    t.bigint "goal_id", null: false
+    t.bigint "snapshot_id"
+    t.string "action", null: false
+    t.string "reason"
+    t.jsonb "from_values", default: {}, null: false
+    t.jsonb "to_values", default: {}, null: false
+    t.datetime "decided_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["decided_at"], name: "index_growth_decisions_on_decided_at"
+    t.index ["goal_id"], name: "index_growth_decisions_on_goal_id"
+  end
+
+  create_table "growth_goals", force: :cascade do |t|
+    t.bigint "persona_id", null: false
+    t.string "instagram_handle"
+    t.integer "target_followers", default: 1000, null: false
+    t.date "deadline"
+    t.integer "start_followers", default: 0, null: false
+    t.integer "posts_per_day", default: 1, null: false
+    t.integer "max_posts_per_day", default: 3, null: false
+    t.integer "hashtag_count", default: 10, null: false
+    t.integer "review_interval_days", default: 7, null: false
+    t.datetime "last_reviewed_at"
+    t.string "status", default: "active", null: false
+    t.jsonb "strategy_config", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["persona_id"], name: "index_growth_goals_on_persona_id"
+    t.index ["status"], name: "index_growth_goals_on_status"
+  end
+
+  create_table "growth_reviews", force: :cascade do |t|
+    t.bigint "goal_id", null: false
+    t.datetime "reviewed_at", null: false
+    t.integer "followers", default: 0
+    t.integer "followers_delta"
+    t.decimal "required_daily", precision: 8, scale: 2
+    t.decimal "measured_daily", precision: 8, scale: 2
+    t.decimal "trajectory_ratio", precision: 6, scale: 3
+    t.string "verdict", null: false
+    t.jsonb "pillar_engagement", default: {}
+    t.jsonb "top_pillars", default: []
+    t.string "persona_direction"
+    t.jsonb "recommendations", default: []
+    t.jsonb "applied_changes", default: []
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["goal_id"], name: "index_growth_reviews_on_goal_id"
+    t.index ["reviewed_at"], name: "index_growth_reviews_on_reviewed_at"
+  end
+
+  create_table "growth_snapshots", force: :cascade do |t|
+    t.bigint "goal_id", null: false
+    t.integer "followers", null: false
+    t.datetime "taken_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["goal_id"], name: "index_growth_snapshots_on_goal_id"
+    t.index ["taken_at"], name: "index_growth_snapshots_on_taken_at"
+  end
+
   create_table "image_candidates", force: :cascade do |t|
     t.bigint "pipeline_step_id", null: false
     t.bigint "parent_id"
@@ -148,6 +215,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_11_140457) do
     t.integer "failure_count", default: 0, null: false
     t.boolean "winner", default: false, null: false
     t.datetime "winner_at"
+    t.float "quality_score"
+    t.jsonb "quality_metrics"
+    t.float "engagement_score"
     t.index ["elo_score"], name: "index_image_candidates_on_elo_score"
     t.index ["parent_id"], name: "index_image_candidates_on_parent_id"
     t.index ["pipeline_run_id"], name: "index_image_candidates_on_pipeline_run_id"
@@ -202,6 +272,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_11_140457) do
     t.string "prompt"
     t.bigint "persona_id"
     t.bigint "content_pillar_id"
+    t.integer "oom_retries", default: 0, null: false
     t.index ["content_pillar_id"], name: "index_pipeline_runs_on_content_pillar_id"
     t.index ["persona_id"], name: "index_pipeline_runs_on_persona_id"
     t.index ["pipeline_id"], name: "index_pipeline_runs_on_pipeline_id"
@@ -248,6 +319,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_11_140457) do
     t.jsonb "caption_metadata"
     t.bigint "content_suggestion_id"
     t.bigint "pipeline_run_id"
+    t.integer "likes_count"
+    t.integer "comments_count"
+    t.integer "reach"
+    t.integer "saved_count"
+    t.float "engagement_rate"
+    t.datetime "insights_updated_at"
     t.index ["content_suggestion_id"], name: "index_scheduling_posts_on_content_suggestion_id"
     t.index ["persona_id"], name: "index_scheduling_posts_on_persona_id"
     t.index ["photo_id", "persona_id"], name: "index_posts_on_photo_id_and_persona_id", unique: true

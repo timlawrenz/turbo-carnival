@@ -21,6 +21,12 @@ Rails.application.routes.draw do
   # Dashboard (main entry point)
   root "dashboard#index"
 
+  # Growth harness dashboard
+  get "growth", to: "growth#index", as: :growth
+  post "growth/:goal_id/sync_cadence", to: "growth#sync_cadence", as: :growth_run_cadence
+  post "growth/:goal_id/snapshot", to: "growth#snapshot", as: :growth_snapshot
+  post "growth/:goal_id/review", to: "growth#review", as: :growth_review
+
   # Personas
   resources :personas
   
@@ -64,6 +70,9 @@ Rails.application.routes.draw do
   # Image serving (global, no run scope needed)
   get "images/:id" => "images#show", as: :candidate_image
 
+  # Photo media (served from NAS/local disk, no B2) — used for Instagram URLs
+  get "media/photos/:id" => "media#photo", as: :media_photo
+
   # Defines the root path route ("/")
   
   # Personas navigation
@@ -82,6 +91,8 @@ Rails.application.routes.draw do
       member do
         get :suggest
       end
+
+      resources :photos, only: [:new, :create], controller: 'pillar_photos'
     end
     
     # Scheduling and Posts

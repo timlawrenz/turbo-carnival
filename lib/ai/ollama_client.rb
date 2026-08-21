@@ -11,7 +11,7 @@ module AI
 
     ENDPOINT = 'http://192.168.86.137:11434'
     DEFAULT_MODEL = 'gemma3:27b'
-    DEFAULT_TIMEOUT = 90 # Increased for first-time model loading
+    DEFAULT_TIMEOUT = 180 # Vision (image) inference on 27B can take 60-120s+
 
     def initialize(endpoint: ENDPOINT, model: DEFAULT_MODEL, timeout: DEFAULT_TIMEOUT)
       @endpoint = endpoint

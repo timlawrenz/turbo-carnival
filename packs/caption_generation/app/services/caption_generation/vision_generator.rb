@@ -25,7 +25,7 @@ module CaptionGeneration
       prompt = build_vision_prompt
 
       # Call Ollama with vision
-      client = AI::OllamaClient.new(model: 'gemma3:27b', timeout: 120)  # Use vision model
+      client = AI::OllamaClient.new(model: 'gemma3:27b')  # Use vision model (timeout default 180s)
       
       result = client.chat(
         messages: [
@@ -58,9 +58,35 @@ module CaptionGeneration
     private
 
     def encode_image
-      # Download the image and encode to base64
-      image_data = @photo.image.download
-      Base64.strict_encode64(image_data)
+      # Prefer the local/NAS file (no B2). Falls back to the ActiveStorage blob.
+      local = @photo.servable_file_path
+      data = if local
+        File.binread(local)
+      else
+        @photo.image.download
+      end
+
+      Base64.strict_encode64(downscaled(data))
+    end
+
+    # Downscale before sending: gemma3 vision cost grows fast with image size.
+    # Any comfy/flux output is far bigger than the ~768-1024px vision models need.
+    MAX_DIMENSION = 1024
+    MAX_PIXELS = MAX_DIMENSION * MAX_DIMENSION
+
+    def downscaled(data)
+      require 'mini_magick'
+      image = MiniMagick::Image.read(data)
+      pixels = image.width * image.height
+      if pixels.nil? || pixels <= MAX_PIXELS # already small enough
+        image.to_blob
+      else
+        image.resize("#{MAX_DIMENSION}x#{MAX_DIMENSION}>") # fit within max dim
+        image.to_blob
+      end
+    rescue StandardError
+      # If downscale fails (no imagemagick, odd format), send original
+      data
     end
 
     def build_vision_prompt
@@ -70,11 +96,11 @@ module CaptionGeneration
       max_length = @persona.caption_config.max_length || 150
 
       pillar_context = if @content_pillar
-        "\n\nContent Theme: #{@content_pillar.name}"
+        context = "\n\nContent Theme: #{@content_pillar.name}"
         if @content_pillar.ai_prompt.present?
-          pillar_context += "\nGuidelines: #{@content_pillar.ai_prompt}"
+          context += "\nGuidelines: #{@content_pillar.ai_prompt}"
         end
-        pillar_context
+        context
       else
         ""
       end
@@ -90,15 +116,12 @@ module CaptionGeneration
         #{pillar_context}
 
         Instructions:
-        1. Analyze the image carefully
-        2. Write a caption that describes what you see
-        3. Match the personality and style specified above
-        4. Keep it under #{max_length} words
-        5. Make it engaging and authentic
-        6. Do NOT include hashtags (they will be added separately)
-        7. Return ONLY the caption text, no explanations
-
-        Write the Instagram caption now:
+        1. Return ONLY the caption text
+        2. Analyze the image carefully
+        3. Write a caption that describes what you see
+        4. Match the personality and style specified above
+        5. Keep it under #{max_length} words
+        6. Make it engaging and authentic
       PROMPT
     end
 

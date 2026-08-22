@@ -148,7 +148,7 @@ class Scheduling::PostsController < ApplicationController
 
   def create_and_schedule
     @post.caption = post_params[:caption]
-    @post.status = 'draft'
+    @post.status = 'scheduled'
     @post.scheduled_at = post_params[:scheduled_at] || 1.hour.from_now
 
     if @post.save

@@ -72,7 +72,6 @@ namespace :scheduling do
       scheduled_time = post.optimal_time_calculated || post.scheduled_at
       puts "📸 Post ID: #{post.id}"
       puts "   Photo ID: #{post.photo_id}"
-      puts "   Cluster: #{post.cluster&.name || 'None'}"
       puts "   Scheduled: #{scheduled_time.strftime('%Y-%m-%d %H:%M %Z')}"
       puts ""
 

@@ -89,6 +89,30 @@ namespace :growth do
     end
   end
 
+  desc 'Generate N fresh turbo-one-step renders and schedule them as posts (default 1)'
+  task :generate_content, %i[persona_name count] => :environment do |_t, args|
+    persona = Persona.find_by(name: args[:persona_name]) || Persona.first
+    goal = Growth::Goal.active.for_persona(persona).first
+    unless goal
+      puts 'No active goal — creating one.'
+      goal = Growth::Goal.create!(persona: persona)
+    end
+    count = [args[:count].to_i, 1].max
+    puts "Generating #{count} fresh turbo-one-step renders for #{persona.name}..."
+    ok = 0
+    count.times do |i|
+      result = Growth::ContentGenerator.new(goal: goal).generate_one(offset_days: i + 1)
+      if result[:success]
+        ok += 1
+        puts "  ✅ post #{result[:post_id]} scheduled (photo #{result[:photo_id]})"
+      else
+        puts "  ❌ #{result[:error]}"
+        break
+      end
+    end
+    puts "Done: #{ok}/#{count} fresh posts scheduled"
+  end
+
   desc 'Weekly step-back review: trajectory + per-pillar engagement + persona evolution (DRY=1 audits without changing)'
   task :weekly_review, [:persona_name] => :environment do |_t, args|
     persona = Persona.find_by(name: args[:persona_name]) || Persona.first

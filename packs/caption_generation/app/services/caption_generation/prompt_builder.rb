@@ -36,6 +36,8 @@ module CaptionGeneration
         
         You will receive detailed JSON configuration about the persona's voice, style preferences, and the photo context.
         Use this information to craft the perfect caption.
+
+        You *MUST* only respond with the caption text itself. Do not include any preamble, explanations, or phrases like "Here's the caption:" or "Okay, here's..." - just the caption.
       PROMPT
     end
 
@@ -73,6 +75,7 @@ module CaptionGeneration
       parts << "\nGenerate a single caption that matches the persona's voice and style from the JSON configuration above."
       parts << "Write 4-7 complete sentences that tell a rich story or share a genuine, detailed moment."
       parts << "Do not include hashtags - they will be added separately."
+      parts << "\nIMPORTANT: Respond with ONLY the caption text itself. Do not include any preamble, explanations, or phrases like 'Here's the caption:' or 'Okay, here's...' - just the caption."
 
       parts.join("\n")
     end

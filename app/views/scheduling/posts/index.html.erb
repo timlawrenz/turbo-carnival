@@ -129,10 +129,17 @@
           <%= render CardComponent.new do |c| %>
             <% c.with_body do %>
               <div class="flex gap-4">
-                <!-- Placeholder -->
-                <div class="flex-shrink-0 w-32 h-32 bg-zinc-800 rounded-lg flex items-center justify-center">
-                  <span class="text-zinc-600">⏳ Awaiting Image</span>
-                </div>
+                <!-- Photo Preview -->
+                <% if post.photo&.image&.attached? %>
+                  <div class="flex-shrink-0">
+                    <%= image_tag post.photo.image,
+                                 class: "w-32 h-32 object-cover rounded-lg" %>
+                  </div>
+                <% else %>
+                  <div class="flex-shrink-0 w-32 h-32 bg-zinc-800 rounded-lg flex items-center justify-center">
+                    <span class="text-zinc-600">⏳ Awaiting Image</span>
+                  </div>
+                <% end %>
                 
                 <!-- Post Details -->
                 <div class="flex-1">
@@ -148,7 +155,7 @@
                       <% end %>
                     </div>
                     <span class="px-2 py-1 text-xs rounded bg-yellow-900/40 text-yellow-300">
-                      Draft - Needs Image
+                      <%= post.photo&.image&.attached? ? 'Draft' : 'Draft - Needs Image' %>
                     </span>
                   </div>
                   

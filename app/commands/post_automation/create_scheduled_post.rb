@@ -36,9 +36,8 @@ module PostAutomation
         .maximum(:scheduled_at)
 
       if max_scheduled_time
-        # Space posts 1-2 days after the last scheduled post
-        # Add randomization to avoid posting at exact same time every day
-        base_time = max_scheduled_time + rand(26..46).hours
+        # Space posts roughly 24 hours apart for daily cadence
+        base_time = max_scheduled_time + rand(20..28).hours
         
         # Adjust to optimal posting window (9 AM - noon)
         adjust_to_optimal_window(base_time)
@@ -50,10 +49,10 @@ module PostAutomation
 
     def adjust_to_optimal_window(time)
       hour = time.hour
-      
+
       # If already in optimal window (9 AM - noon), use it
       return time if hour >= 9 && hour < 12
-      
+
       # If in alternative window (2 PM - 5 PM), use it
       return time if hour >= 14 && hour < 17
       

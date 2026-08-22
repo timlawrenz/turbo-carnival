@@ -22,16 +22,16 @@ module CaptionGeneration
     private
 
     def cluster_name
-      @cluster&.name || @photo.cluster&.name
+      @cluster&.name || @photo.content_pillar&.name
     end
 
     def cluster_data
-      cluster = @cluster || @photo.cluster
-      return nil unless cluster
+      pillar = @photo.content_pillar
+      return nil unless pillar
 
       {
-        name: cluster.name,
-        ai_prompt: cluster.ai_prompt
+        name: pillar.name,
+        ai_prompt: pillar.description
       }.compact
     end
   end

@@ -20,14 +20,16 @@ module Growth
 
       created = 0
       failures = []
+      offset = 1
       shortfall.times do
-        result = PostAutomation::AutoCreateNextPost.call(persona: goal.persona)
-        unless result.success?
-          failures << result.full_error_message
+        result = generate_fresh(offset)
+        offset += 1
+        if result[:success]
+          created += 1
+        else
+          failures << "#{result[:error] || 'unknown'} (run #{result[:run_id]})"
           break
         end
-
-        created += 1
       end
 
       log_blockage(failures.first) if failures.any?
@@ -46,6 +48,12 @@ module Growth
     # How many scheduled+draft posts should be in the future queue.
     def posts_target
       (goal.effective_posts_per_day * LOOKAHEAD_DAYS).ceil
+    end
+
+    # Generate one FRESH image via turbo-one-step and schedule it (replaces
+    # stale-library reuse).
+    def generate_fresh(offset_days)
+      Growth::ContentGenerator.new(goal: goal).generate_one(offset_days: offset_days)
     end
 
     def scheduled_posts_count

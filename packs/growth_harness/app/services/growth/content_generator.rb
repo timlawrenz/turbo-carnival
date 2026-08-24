@@ -88,19 +88,25 @@ module Growth
     end
 
     def default_pillar
-      persona.content_pillars.current.order(weight: :desc).first
+      # Weighted pick over current (non-expired) pillars so it stops being a
+      # coin flip across 8 equally-weighted rows. Weight is recast to odds.
+      pillars = persona.content_pillars.current.to_a
+      return pillars.first if pillars.one?
+      return nil if pillars.empty?
+
+      weights = pillars.map { |p| [p.weight.to_f, 1.0].max }
+      total   = weights.sum
+      roll    = rand * total
+      acc     = 0.0
+      pillars.each_with_index do |p, i|
+        acc += weights[i]
+        return p if roll <= acc
+      end
+      pillars.last
     end
 
     def build_prompt
-      base = 'A photorealistic portrait of Sarah, warm natural light, softly glowing skin, authentic candid expression.'
-      scene = [
-        'casual streetwear, golden hour sidewalk cafe, shallow depth of field',
-        'cozy knit sweater, sunlit window, morning tea, gentle smile',
-        'summer dress, flower field, soft bokeh, candid laugh',
-        'elegant evening look, city lights bokeh, confident gaze',
-        'beach day, loose waves, bright airy light, carefree'
-      ]
-      "#{base} #{scene.sample}."
+      Growth::PillarPrompt.for_pillar(@pillar || default_pillar)
     end
 
     def poll_for_image(comfyui_job_id)

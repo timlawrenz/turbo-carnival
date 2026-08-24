@@ -150,7 +150,7 @@ namespace :growth do
     puts ''
     if (review.applied_changes || []).any?
       puts 'changes applied (bounded, reversible):'
-      review.applied_changes.each { |c| puts "  [#{c['kind']}] #{c['reason']}: #{c['from'].inspect} -> #{c['to'].inspect}" }
+      review.applied_changes.each { |c| next unless c.is_a?(Hash); puts "  [#{c['kind']}] #{c['reason']}: #{c['from'].inspect} -> #{c['to'].inspect}" }
       puts ''
       puts "DRY RUN: audit only, no changes made" unless apply
     else

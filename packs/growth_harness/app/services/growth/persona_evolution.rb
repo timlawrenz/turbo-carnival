@@ -84,11 +84,11 @@ module Growth
       if posts >= 5 && engagement > 5.0
         from = strategy.to_hash
         reduce_tags(strategy)
-        record(:hashtag_strategy, from, strategy.to_hash, 'high engagement — tighten tags')
+        record(:hashtag_strategy, from, persona.hashtag_strategy.to_hash, 'high engagement — tighten tags')
       elsif posts >= 5 && engagement < 1.0
         from = strategy.to_hash
         expand_tags(strategy)
-        record(:hashtag_strategy, from, strategy.to_hash, 'low engagement — broaden tags')
+        record(:hashtag_strategy, from, persona.hashtag_strategy.to_hash, 'low engagement — broaden tags')
       end
       changes.last
     end

@@ -53,7 +53,7 @@ module Growth
         # Only evolve captions when clearly warranted (strong signal).
         if audit.fetch(:caption_signal, :none) != :none
           cap = evolution&.adjust_caption(audit[:caption_signal])
-          changes += Array(cap)
+          changes += Array.wrap(cap)
         end
       end
 
@@ -210,6 +210,11 @@ module Growth
       reverted = []
 
       prev.applied_changes.each do |change|
+        # Defensive: older/buggy records may hold a flattened pair-array, not a
+        # Hash (see Array(hash) collapse bug). Skip non-hashes so legacy rows
+        # can't crash the gate eval.
+        next unless change.is_a?(Hash) && change['kind'].is_a?(String)
+
         kind = change['kind']
         case kind
         when 'content_pillar'

@@ -5,7 +5,8 @@ module Growth
   # the output as a photo, captions it, and schedules it. This replaces the old
   # cadence path that merely *reused* stale library photos.
   class ContentGenerator
-    PIPELINE_NAME = 'turbo-one-step'
+    PIPELINE_NAME = 'turbo-one-step-clean'
+    FALLBACK_PIPELINE_NAME = 'turbo-one-step'
     COMFYUI_OUTPUT = '/mnt/fscache/essdee/ComfyUI/output'
     POLL_INTERVAL = 20
     MAX_POLLS = 60 # ~20 min (renders are slow + OOM-retry can add time)
@@ -19,7 +20,7 @@ module Growth
 
     # Generate one fresh render + caption + scheduled post.
     def generate_one(offset_days: 1)
-      pipeline = Pipeline.find_by(name: PIPELINE_NAME)
+      pipeline = resolve_pipeline
       unless pipeline
         return { success: false, error: "pipeline #{PIPELINE_NAME} not found" }
       end
@@ -85,6 +86,13 @@ module Growth
 
     def persona
       goal.persona
+    end
+
+    # Prefer the SAFE pipeline (turbo-one-step-clean); fall back to the original
+    # if it has not been created yet (e.g. on an old checkout).
+    def resolve_pipeline
+      Pipeline.find_by(name: PIPELINE_NAME) ||
+        Pipeline.find_by(name: FALLBACK_PIPELINE_NAME)
     end
 
     def default_pillar
